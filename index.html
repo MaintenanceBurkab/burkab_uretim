@@ -1167,7 +1167,7 @@ function ymPersonelEkle() {
   loadTakimPersoneller();
   if (!takimPersoneller[takim]) takimPersoneller[takim] = [];
   if (takimPersoneller[takim].includes(ad)) { showToast('⚠️ Bu personel zaten listede!','err'); return; }
-  if (takimPersoneller[takim].length >= 10) { showToast('⚠️ Takım en fazla 10 kişi!','err'); return; }
+  if (takimPersoneller[takim].length >= 25) { showToast('⚠️ Takım en fazla 25 kişi!','err'); return; }
 
   takimPersoneller[takim].push(ad);
   localStorage.setItem(TAKIM_PERSONEL_KEY, JSON.stringify(takimPersoneller));
