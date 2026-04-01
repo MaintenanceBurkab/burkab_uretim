@@ -265,7 +265,7 @@ tr:last-child td{border-bottom:none}
           <label>Takım No <span class="req">*</span></label>
           <select id="aTakimNo" onchange="takimSecildi()">
             <option value="">— Seçiniz —</option>
-            <option>TAKIM-1</option><option>TAKIM-2</option><option>TAKIM-3</option>
+            <option>KESİM</option><option>TAKIM-2</option><option>TAKIM-3</option>
             <option>TAKIM-4</option><option>TAKIM-5</option><option>TAKIM-6</option>
             <option>TAKIM-7</option><option>TAKIM-8</option><option>TAKIM-9</option>
             <option>TAKIM-10</option>
@@ -354,7 +354,7 @@ tr:last-child td{border-bottom:none}
           <label>Takım No <span class="req">*</span></label>
           <select id="giTakimNo" onchange="girisAtamaYukle()">
             <option value="">— Seçiniz —</option>
-            <option>TAKIM-1</option><option>TAKIM-2</option><option>TAKIM-3</option>
+            <option>KESİM</option><option>TAKIM-2</option><option>TAKIM-3</option>
             <option>TAKIM-4</option><option>TAKIM-5</option><option>TAKIM-6</option>
             <option>TAKIM-7</option><option>TAKIM-8</option><option>TAKIM-9</option>
             <option>TAKIM-10</option>
@@ -450,7 +450,7 @@ tr:last-child td{border-bottom:none}
     </select>
     <select id="raporTakim" onchange="renderRapor()" style="flex:1;min-width:140px;font-size:14px;padding:9px 12px">
       <option value="">Tüm Takımlar</option>
-      <option>TAKIM-1</option><option>TAKIM-2</option><option>TAKIM-3</option>
+      <option>KESİM</option><option>TAKIM-2</option><option>TAKIM-3</option>
       <option>TAKIM-4</option><option>TAKIM-5</option><option>TAKIM-6</option>
       <option>TAKIM-7</option><option>TAKIM-8</option><option>TAKIM-9</option>
       <option>TAKIM-10</option>
@@ -570,7 +570,7 @@ tr:last-child td{border-bottom:none}
           <label>Takım Seç <span class="req">*</span></label>
           <select id="ymTakim" onchange="ymTakimYukle()">
             <option value="">— Seçiniz —</option>
-            <option>TAKIM-1</option><option>TAKIM-2</option><option>TAKIM-3</option>
+            <option>KESİM</option><option>TAKIM-2</option><option>TAKIM-3</option>
             <option>TAKIM-4</option><option>TAKIM-5</option><option>TAKIM-6</option>
             <option>TAKIM-7</option><option>TAKIM-8</option><option>TAKIM-9</option>
             <option>TAKIM-10</option>
@@ -1193,7 +1193,7 @@ function ymTumTakimlariGoster() {
   loadTakimPersoneller();
   const div = document.getElementById('ymTumTakimlar');
   if (!div) return;
-  const takimlar = ['TAKIM-1','TAKIM-2','TAKIM-3','TAKIM-4','TAKIM-5',
+  const takimlar = ['KESİM','TAKIM-2','TAKIM-3','TAKIM-4','TAKIM-5',
                     'TAKIM-6','TAKIM-7','TAKIM-8','TAKIM-9','TAKIM-10'];
   div.innerHTML = takimlar.map(t => {
     const personel = takimPersoneller[t] || [];
