@@ -915,7 +915,7 @@ tr:last-child td{border-bottom:none}
             <option>PLANLAMA</option>
             <option>SATIN ALMA</option>
             <option>LOJİSTİK</option>
-            <option>AR-GE / MÜHENDİSLİK</option>
+            <option>PROJE / MÜHENDİSLİK</option>
             <option>YÖNETİM</option>
           </select>
         </div>
@@ -1047,7 +1047,7 @@ const BOLUM_MAKINELER = {
             'YÜK ASANSÖRÜ','PER.ASANSÖRÜ','ISITICILAR','KLİMALAR','AYDINLATMA'],
   'HAZIRLIK': ['MP-01','MP-02','MP-03','MP-04','MP-05','MP-06','MP-07',
                'MP-08','MP-09','MP-10','MP-11','MP-12','MP-14','MP-15','MP-16',
-               'US-01','US-02','US-03','KS-01','TWS-01','CT-02','HP-02','PV-01'],
+               'US-01','US-02','US-03','KS-01','TWS-01','CT-02','HP-02','PV-01','BM-01'],
   'KALIPLAR': Array.from({length:120}, (_,i) => 'BK-' + String(i+1).padStart(2,'0')),
   'OTOMATİK MAKİNE': ['OM-01','OM-02','OM-03','OM-04','OM-05','OM-06','OM-07','OM-08','OM-09','OM-10'],
   'PRESLER': ['PR-01','PR-02','PR-03','PR-04','PR-05','PR-06','PR-07','PR-08'],
@@ -1062,7 +1062,7 @@ const BOLUM_SORUMLULAR = {
   'PLANLAMA':          ['PLANLAMA'],
   'SATIN ALMA':        ['SATIN ALMA SORUMLUSU'],
   'LOJİSTİK':          ['LOJİSTİK SORUMLUSU'],
-  'AR-GE / MÜHENDİSLİK': ['MÜHENDİSLİK SORUMLUSU'],
+  'PROJE / MÜHENDİSLİK': ['MÜHENDİSLİK SORUMLUSU'],
   'İNSAN KAYNAKLARI':  ['İK SORUMLUSU'],
   'YÖNETİM':           ['CEMAL ÖZMISIR','AHMET ALTIPARMAK','VOLKAN AKAR','YUNUS DİKGÖZ'],
 };
@@ -1213,7 +1213,7 @@ function ymTumTakimlariGoster() {
 }
 const USERS = [
   { username:'admin',    password:'10061980', name:'MEHMET ERTÜRK',   role:'admin'    },
-  { username:'TUGCE',  password:'1616',     name:'TUGCE FIRAT',    role:'uretim'   },
+  { username:'TUGCE',    password:'1616',     name:'TUGCE FIRAT',    role:'uretim'   },
   { username:'NEZAKET',  password:'2222',     name:'NEZAKET ERDAL',   role:'uretim'   },
   { username:'ERHAN',    password:'8888',     name:'ERHAN İYİSOY',    role:'uretim'   },
   { username:'RECEP',    password:'3333',     name:'RECEP AKTAŞ',     role:'uretim'   },
