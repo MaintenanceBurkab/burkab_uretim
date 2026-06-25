@@ -2009,9 +2009,9 @@ function vardiyaKaydet() {
   // Fire sebebini kaydet (yeni ise listeye ekle)
   if (fireSebep) fireSebebiKaydet(fireSebep);
 
-  loadKayitlar();
+ loadKayitlar();
   const yeniKayit = {
-  id: Date.now()+Math.random(),
+    id: Date.now()+Math.random(),
     tarih, takim, vardiya, musteri, projeKodu,
     hedef, gerceklesen:gercek, fire, durum, verimlilik:verim,
     fireSebep, fireLokasyon, fireAciklama,
@@ -2019,10 +2019,11 @@ function vardiyaKaydet() {
     atamaId: secilenAtama?.id||null,
     kayitZaman: new Date().toISOString()
   };
+  kayitlar.push(yeniKayit);
   saveKayitlar();
 
   // ✅ GS: UretimKayitlar sayfasına gönder
- saveUretimKayitGS(yeniKayit);
+  saveUretimKayitGS(yeniKayit);
 
   // Atamayı tamamlandı yap
   if (secilenAtama) {
