@@ -2010,23 +2010,22 @@ function vardiyaKaydet() {
   if (fireSebep) fireSebebiKaydet(fireSebep);
 
   loadKayitlar();
-  kayitlar.push({
-    id: Date.now()+Math.random(),
+  const yeniKayit = {
+  id: Date.now()+Math.random(),
     tarih, takim, vardiya, musteri, projeKodu,
     hedef, gerceklesen:gercek, fire, durum, verimlilik:verim,
     fireSebep, fireLokasyon, fireAciklama,
     not, girenKisi:kisi,
     atamaId: secilenAtama?.id||null,
     kayitZaman: new Date().toISOString()
-  });
+  };
   saveKayitlar();
 
   // ✅ GS: UretimKayitlar sayfasına gönder
-  saveUretimKayitGS(yeniKayit);
+ saveUretimKayitGS(yeniKayit);
 
-  // Atamayı tamamlandı yap; }
-  }
-
+  // Atamayı tamamlandı yap
+  if (secilenAtama) {
   logEkle('ÜRETİM', `📦 Üretim girişi: ${takim} | ${projeKodu} | Gerçekleşen: ${gercek} | Durum: ${durum}`, currentUser);
   showToast('✅ Üretim girişi kaydedildi!','ok');
   // Vardiya sonu duruş ise sonraki güne devam ataması oluştur
