@@ -682,6 +682,7 @@ tr:last-child td{border-bottom:none}
 <div class="tab-pane" id="tab-gecmis">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
     <span style="font-size:13px;color:var(--muted)">Toplam <strong id="gecmisSayi">0</strong> kayıt</span>
+    <button onclick="tumUretimKayitlariniGSSenkronize()" class="btn-sm green" style="margin-right:8px">📤 GS Toplu Aktar</button>
     <button onclick="tumKayitSil()" class="btn-sm red">🗑️ Tümünü Sil</button>
   </div>
   <div class="section" style="margin-top:0">
@@ -2020,10 +2021,10 @@ function vardiyaKaydet() {
   });
   saveKayitlar();
 
-  // Atamayı tamamlandı yap
-  if (secilenAtama) {
-    const idx = atamalar.findIndex(a=>a.id===secilenAtama.id);
-    if (idx>=0) { atamalar[idx].durum='tamamlandi'; saveAtamalar(); }
+  // ✅ GS: UretimKayitlar sayfasına gönder
+  saveUretimKayitGS(yeniKayit);
+
+  // Atamayı tamamlandı yap; }
   }
 
   logEkle('ÜRETİM', `📦 Üretim girişi: ${takim} | ${projeKodu} | Gerçekleşen: ${gercek} | Durum: ${durum}`, currentUser);
@@ -2688,7 +2689,11 @@ async function durusKaydet(){
   else if(etkisi==='DURUŞ YOK') hesaplanan=0;
   const formNo=durusFormNoUret();
   const kayit={id:simdi.getTime(),formNo,tarih,saat,bolum,makine,bildiren,neden,etkisi,sureDk:parseInt(sureDk)||0,hesaplanan,projeNo:document.getElementById('durusProjeNo').value,sorumluBolum:sorumluB,sorumluKisi:document.getElementById('durusSorumluKisi').value,kokNeden:document.getElementById('durusKokNeden').value.trim(),aciklama,yapilan:document.getElementById('durusYapilan').value.trim(),kayitZamani:simdi.toLocaleString('tr-TR')};
-  const liste=duruslariYukle();liste.unshift(kayit);duruslariKaydet(liste);
+ const liste=duruslariYukle();liste.unshift(kayit);duruslariKaydet(liste);
+
+  // ✅ GS: Duruslar sayfasına gönder
+  saveDurusKayitGS(kayit);
+
   document.getElementById('durusFormNo').textContent=formNo;
   const basari=document.getElementById('durusBasari');basari.style.display='block';
   setTimeout(()=>basari.style.display='none',4000);
@@ -3342,7 +3347,95 @@ function vardiyaSonuHepsiniDevamEt() {
   showToast(`✅ ${olusturulan} devam ataması oluşturuldu!`,'ok');
   logEkle('ATAMA', `🌙 Toplu vardiya sonu devam: ${olusturulan} atama oluşturuldu`, currentUser);
 }
+// ══ GS SENKRONIZASYON — v2.2 ══
 
+function jsonpGonderGS(url, payload) {
+  return new Promise(function(resolve, reject) {
+    var cb = 'gs_sync_' + Date.now() + '_' + Math.floor(Math.random() * 9999);
+    var encoded = encodeURIComponent(JSON.stringify(payload));
+    var script = document.createElement('script');
+    var done = false;
+    var timer = setTimeout(function() {
+      if (done) return; done = true;
+      delete window[cb];
+      if (script.parentNode) script.remove();
+      reject(new Error('GS zaman aşımı (12s)'));
+    }, 12000);
+    window[cb] = function(data) {
+      if (done) return; done = true;
+      clearTimeout(timer); delete window[cb];
+      if (script.parentNode) script.remove();
+      resolve(data);
+    };
+    script.onerror = function() {
+      if (done) return; done = true;
+      clearTimeout(timer); delete window[cb];
+      if (script.parentNode) script.remove();
+      reject(new Error('Script yüklenemedi'));
+    };
+    script.src = url + '?callback=' + cb + '&payload=' + encoded;
+    document.head.appendChild(script);
+  });
+}
+
+function saveUretimKayitGS(kayit) {
+  jsonpGonderGS(GS_URL, { action: 'saveUretimKayit', kayit: kayit })
+    .then(function(s) {
+      if (s && s.ok) {
+        console.log('✅ GS UretimKayitlar:', s.mode,
+          '| Tarih:', kayit.tarih, '| Takım:', kayit.takim,
+          '| Proje:', kayit.projeKodu, '| Gerçekleşen:', kayit.gerceklesen);
+      } else {
+        console.warn('⚠️ GS UretimKayitlar HATA:', JSON.stringify(s));
+        showToast('⚠️ Üretim GS\'ye yazılamadı — localStorage\'da kayıtlı', 'err');
+      }
+    })
+    .catch(function(e) {
+      console.warn('⚠️ GS bağlantı hatası:', e.message);
+    });
+}
+
+function saveDurusKayitGS(kayit) {
+  jsonpGonderGS(GS_URL, { action: 'saveDurusKayit', kayit: kayit })
+    .then(function(s) {
+      if (s && s.ok) {
+        console.log('✅ GS Duruslar:', s.mode, '| FormNo:', kayit.formNo);
+      } else {
+        console.warn('⚠️ GS Duruslar HATA:', JSON.stringify(s));
+      }
+    })
+    .catch(function(e) {
+      console.warn('⚠️ GS Duruslar bağlantı hatası:', e.message);
+    });
+}
+
+function saveLogGS(log) {
+  jsonpGonderGS(GS_URL, { action: 'saveLog', log: log })
+    .then(function() {}).catch(function() {});
+}
+
+function tumUretimKayitlariniGSSenkronize() {
+  loadKayitlar();
+  if (!kayitlar.length) { showToast('Senkronize edilecek kayıt yok.', ''); return; }
+  if (!confirm(kayitlar.length + ' kaydı Google Sheets\'e göndermek istiyor musunuz?\n(Tarayıcıyı kapatmayın!)')) return;
+  var sayac = 0, hata = 0;
+  showToast('⏳ ' + kayitlar.length + ' kayıt gönderiliyor...', '');
+  kayitlar.forEach(function(k, i) {
+    setTimeout(function() {
+      jsonpGonderGS(GS_URL, { action: 'saveUretimKayit', kayit: k })
+        .then(function(s) {
+          sayac++; if (!s || !s.ok) hata++;
+          if (sayac === kayitlar.length)
+            showToast((hata ? '⚠️ ' : '✅ ') + (sayac-hata) + ' başarılı' + (hata?' · '+hata+' hata':'!'), hata?'err':'ok');
+        })
+        .catch(function() {
+          sayac++; hata++;
+          if (sayac === kayitlar.length)
+            showToast('⚠️ ' + (sayac-hata) + ' başarılı · ' + hata + ' hata', 'err');
+        });
+    }, i * 400); // GS rate limit: her 400ms'de bir istek
+  });
+}
 </script>
 </body>
 </html>
