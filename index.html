@@ -2021,6 +2021,13 @@ function vardiyaKaydet() {
   };
   kayitlar.push(yeniKayit);
   saveKayitlar();
+  // ✅ GS'ye Üretim Kaydı Gönder (Düzeltilmiş)
+saveUretimKayitGS(yeniKayit).then(function(res) {
+  if (!res.ok) {
+    console.warn('Üretim kaydı GS\'ye yazılamadı:', res.error);
+    showToast('⚠️ Üretim GS\'ye yazılamadı (sadece local\'de kayıtlı)', 'err');
+  }
+});
 
   // ══════════════════════════════════════════════
 // GS ÜRETİM KAYDI GÖNDER (Düzeltilmiş - Promise döndürür)
