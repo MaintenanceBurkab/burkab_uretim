@@ -2685,9 +2685,10 @@ async function durusKaydet(){
 
   const btn=document.getElementById('durusKaydetBtn');
   btn.disabled=true;btn.textContent='⏳ Kaydediliyor...';
-  const simdi=new Date();
-  const tarih=simdi.toISOString().split('T')[0];
-  const saat=String(simdi.getHours()).padStart(2,'0')+':'+String(simdi.getMinutes()).padStart(2,'0');
+  const saat = simdi.toLocaleTimeString('tr-TR', { 
+    hour: '2-digit', 
+    minute: '2-digit' 
+  });
   let hesaplanan=parseInt(sureDk)||0;
   if(etkisi==='KISMİ DURUŞ') hesaplanan=Math.round(hesaplanan*0.7);
   else if(etkisi==='DURUŞ YOK') hesaplanan=0;
