@@ -2018,14 +2018,13 @@ function vardiyaKaydet() {
   };
 
   kayitlar.push(yeniKayit);
-  saveKayitlar();
-
-  // ✅ GS'ye Üretim Kaydı Gönder
-  saveUretimKayitGS(yeniKayit).then(function(res) {
-    if (!res.ok) {
-      console.warn('Üretim GS\'ye yazılamadı:', res.error);
-    }
-  });
+saveKayitlar();
+// ✅ GS'ye Üretim Kaydı Gönder
+saveUretimKayitGS(yeniKayit).then(function(res) {
+  if (!res.ok) {
+    console.warn('Üretim GS\'ye yazılamadı:', res.error);
+  }
+});
 
   // Atamayı tamamlandı yap
   if (secilenAtama) {
@@ -3589,7 +3588,7 @@ window.gsUretimTest = function() {
     });
 };
 // ══════════════════════════════════════════════
-// GS ÜRETİM KAYDI GÖNDER (Temiz ve Hatasız)
+// GS ÜRETİM KAYDI GÖNDER (Temiz Versiyon)
 // ══════════════════════════════════════════════
 function saveUretimKayitGS(kayit) {
   return new Promise(function(resolve) {
@@ -3637,7 +3636,7 @@ function saveUretimKayitGS(kayit) {
         resolve({ ok: false, error: e.message });
       });
   });
-} 
+}
 </script>
 </body>
 </html>
