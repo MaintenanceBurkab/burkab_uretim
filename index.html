@@ -2022,22 +2022,55 @@ function vardiyaKaydet() {
   kayitlar.push(yeniKayit);
   saveKayitlar();
 
-  // ✅ GS: UretimKayitlar sayfasına gönder
-  saveUretimKayitGS(yeniKayit);
+  // ══════════════════════════════════════════════
+// GS ÜRETİM KAYDI GÖNDER (Düzeltilmiş - Promise döndürür)
+// ══════════════════════════════════════════════
+function saveUretimKayitGS(kayit) {
+  return new Promise(function(resolve) {
+    if (!kayit || !kayit.takim || !kayit.projeKodu) {
+      console.warn('saveUretimKayitGS: Eksik veri', kayit);
+      resolve({ ok: false, error: 'Eksik veri' });
+      return;
+    }
 
-  // Atamayı tamamlandı yap
-  if (secilenAtama) {
-    const idx = atamalar.findIndex(a=>a.id===secilenAtama.id);
-    if (idx>=0) { atamalar[idx].durum='tamamlandi'; saveAtamalar(); }
-  }
+    const payload = {
+      action: 'saveUretimKayit',
+      kayit: {
+        id:           String(kayit.id || Date.now()),
+        tarih:        String(kayit.tarih || ''),
+        takim:        String(kayit.takim || ''),
+        vardiya:      String(kayit.vardiya || ''),
+        musteri:      String(kayit.musteri || ''),
+        projeKodu:    String(kayit.projeKodu || ''),
+        hedef:        Number(kayit.hedef || 0),
+        gerceklesen:  Number(kayit.gerceklesen || 0),
+        fire:         Number(kayit.fire || 0),
+        fireSebep:    String(kayit.fireSebep || ''),
+        fireLokasyon: String(kayit.fireLokasyon || ''),
+        durum:        String(kayit.durum || ''),
+        verimlilik:   Number(kayit.verimlilik || 0),
+        not:          String(kayit.not || ''),
+        girenKisi:    String(kayit.girenKisi || ''),
+        kayitZaman:   String(kayit.kayitZaman || new Date().toISOString()),
+        atamaId:      String(kayit.atamaId || '')
+      }
+    };
 
-  logEkle('ÜRETİM', `📦 Üretim girişi: ${takim} | ${projeKodu} | Gerçekleşen: ${gercek} | Durum: ${durum}`, currentUser);
-  showToast('✅ Üretim girişi kaydedildi!','ok');
-  // Vardiya sonu duruş ise sonraki güne devam ataması oluştur
-  if (durum === 'VARDİYA SONU DURUŞ' && secilenAtama) {
-    vardiyaSonuDevamOlustur(secilenAtama);
-  }
-  formTemizle();
+    jsonpGonderGS(GS_URL, payload)
+      .then(function(sonuc) {
+        if (sonuc && sonuc.ok) {
+          console.log('✅ GS UretimKayitlar OK:', sonuc.mode || 'append', '|', kayit.takim, '|', kayit.projeKodu);
+          resolve({ ok: true, mode: sonuc.mode });
+        } else {
+          console.warn('⚠️ GS UretimKayitlar HATA:', JSON.stringify(sonuc));
+          resolve({ ok: false, error: sonuc?.error || 'Bilinmeyen hata' });
+        }
+      })
+      .catch(function(e) {
+        console.error('❌ GS bağlantı hatası (Üretim):', e.message);
+        resolve({ ok: false, error: e.message });
+      });
+  });
 }
 
 function formTemizle() {
