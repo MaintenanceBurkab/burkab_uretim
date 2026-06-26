@@ -2665,14 +2665,14 @@ function durusSaatGuncelle(){
 }
 
 async function durusKaydet(){
-  const bolum   =document.getElementById('durusBolum').value;
-  const makine  =document.getElementById('durusMakine')?.value?.trim();
-  const bildiren=document.getElementById('durusBildiren').value.trim();
-  const neden   =document.getElementById('durusNeden').value;
-  const etkisi  =document.getElementById('durusEtkisi').value;
-  const sureDk  =document.getElementById('durusSureDk').value;
-  const aciklama=document.getElementById('durusAciklama').value.trim();
-  const sorumluB=document.getElementById('durusSorumluBolum').value;
+  const bolum   = document.getElementById('durusBolum').value;
+  const makine  = document.getElementById('durusMakine')?.value?.trim();
+  const bildiren= document.getElementById('durusBildiren').value.trim();
+  const neden   = document.getElementById('durusNeden').value;
+  const etkisi  = document.getElementById('durusEtkisi').value;
+  const sureDk  = document.getElementById('durusSureDk').value;
+  const aciklama= document.getElementById('durusAciklama').value.trim();
+  const sorumluB= document.getElementById('durusSorumluBolum').value;
 
   if(!bolum)   {showToast('❗ Bölüm seçiniz!','err');return;}
   if(!makine)  {showToast('❗ Makine/ekipman giriniz!','err');return;}
@@ -2683,36 +2683,88 @@ async function durusKaydet(){
   if(!aciklama){showToast('❗ Açıklama giriniz!','err');return;}
   if(!sorumluB){showToast('❗ Sorumlu bölüm seçiniz!','err');return;}
 
-  const btn=document.getElementById('durusKaydetBtn');
-  btn.disabled=true;btn.textContent='⏳ Kaydediliyor...';
+  const btn = document.getElementById('durusKaydetBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Kaydediliyor...';
+
+  // === DÜZELTİLMİŞ KISIM ===
+  const simdi = new Date();
+  const tarih = simdi.toISOString().split('T')[0];
   const saat = simdi.toLocaleTimeString('tr-TR', { 
     hour: '2-digit', 
     minute: '2-digit' 
   });
-  let hesaplanan=parseInt(sureDk)||0;
-  if(etkisi==='KISMİ DURUŞ') hesaplanan=Math.round(hesaplanan*0.7);
-  else if(etkisi==='DURUŞ YOK') hesaplanan=0;
-  const formNo=durusFormNoUret();
-  const kayit={id:simdi.getTime(),formNo,tarih,saat,bolum,makine,bildiren,neden,etkisi,sureDk:parseInt(sureDk)||0,hesaplanan,projeNo:document.getElementById('durusProjeNo').value,sorumluBolum:sorumluB,sorumluKisi:document.getElementById('durusSorumluKisi').value,kokNeden:document.getElementById('durusKokNeden').value.trim(),aciklama,yapilan:document.getElementById('durusYapilan').value.trim(),kayitZamani:simdi.toLocaleString('tr-TR')};
- const liste=duruslariYukle();liste.unshift(kayit);duruslariKaydet(liste);
 
-  // ✅ GS: Duruslar sayfasına gönder
+  let hesaplanan = parseInt(sureDk) || 0;
+  if (etkisi === 'KISMİ DURUŞ') hesaplanan = Math.round(hesaplanan * 0.7);
+  else if (etkisi === 'DURUŞ YOK') hesaplanan = 0;
+
+  const formNo = durusFormNoUret();
+
+  const kayit = {
+    id: simdi.getTime(),
+    formNo,
+    tarih,
+    saat,
+    bolum,
+    makine,
+    bildiren,
+    neden,
+    etkisi,
+    sureDk: parseInt(sureDk) || 0,
+    hesaplanan,
+    projeNo: document.getElementById('durusProjeNo').value,
+    sorumluBolum: sorumluB,
+    sorumluKisi: document.getElementById('durusSorumluKisi').value,
+    kokNeden: document.getElementById('durusKokNeden').value.trim(),
+    aciklama,
+    yapilan: document.getElementById('durusYapilan').value.trim(),
+    kaynakFormNo: '',
+    kayitZamani: simdi.toLocaleString('tr-TR')
+  };
+
+  // LocalStorage'a kaydet
+  const liste = duruslariYukle();
+  liste.unshift(kayit);
+  duruslariKaydet(liste);
+
+  // Google Sheets'e gönder
   saveDurusKayitGS(kayit);
 
-  document.getElementById('durusFormNo').textContent=formNo;
-  const basari=document.getElementById('durusBasari');basari.style.display='block';
-  setTimeout(()=>basari.style.display='none',4000);
-  ['durusBolum','durusEtkisi','durusSureDk','durusProjeNo','durusSorumluBolum','durusKokNeden','durusAciklama','durusYapilan'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('durusMakineWrapper').innerHTML=`<input type="text" id="durusMakine" placeholder="Önce bölüm seçiniz" readonly style="background:#f0f0ec;cursor:not-allowed;color:#aaa">`;
-  document.getElementById('durusSorumluKisi').innerHTML='<option value="">— Önce bölüm seçiniz —</option>';
-  document.getElementById('durusHesaplanan').value='';document.getElementById('durusHesapAciklama').textContent='';
-  document.getElementById('durusNeden').value='';
-  document.querySelectorAll('.durus-neden-btn').forEach(b=>{b.classList.remove('active');b.style.borderColor='#d0d0c0';b.style.background='var(--bg)';b.style.boxShadow='';if(b.querySelector('span:last-child'))b.querySelector('span:last-child').style.color='var(--muted)';});
-  if(currentUser) document.getElementById('durusBildiren').value=currentUser.name;
-  durusSaatGuncelle();
-  renderDurusGecmis();durusKpiGuncelle();
-  showToast('✅ Duruş kaydedildi! ('+formNo+')','ok');
-  btn.disabled=false;btn.textContent='⏱️ DURUŞ KAYDET';
+  // Başarı mesajı
+  document.getElementById('durusFormNo').textContent = formNo;
+  const basari = document.getElementById('durusBasari');
+  basari.style.display = 'block';
+  setTimeout(() => { basari.style.display = 'none'; }, 4000);
+
+  // Formu temizle
+  ['durusBolum','durusEtkisi','durusSureDk','durusProjeNo','durusSorumluBolum','durusKokNeden','durusAciklama','durusYapilan'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+
+  document.getElementById('durusMakineWrapper').innerHTML = `<input type="text" id="durusMakine" placeholder="Önce bölüm seçiniz" readonly style="background:#f0f0ec;cursor:not-allowed;color:#aaa">`;
+  document.getElementById('durusSorumluKisi').innerHTML = '<option value="">— Önce bölüm seçiniz —</option>';
+  document.getElementById('durusHesaplanan').value = '';
+  document.getElementById('durusHesapAciklama').textContent = '';
+  document.getElementById('durusNeden').value = '';
+
+  document.querySelectorAll('.durus-neden-btn').forEach(b => {
+    b.classList.remove('active');
+    b.style.borderColor = '#d0d0c0';
+    b.style.background = 'var(--bg)';
+    b.style.boxShadow = '';
+    if (b.querySelector('span:last-child')) b.querySelector('span:last-child').style.color = 'var(--muted)';
+  });
+
+  if (currentUser) document.getElementById('durusBildiren').value = currentUser.name;
+
+  renderDurusGecmis();
+  durusKpiGuncelle();
+  showToast('✅ Duruş kaydedildi! (' + formNo + ')','ok');
+
+  btn.disabled = false;
+  btn.textContent = '⏱️ DURUŞ KAYDET';
 }
 
 function renderDurusGecmis(){
