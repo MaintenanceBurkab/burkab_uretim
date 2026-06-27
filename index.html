@@ -2550,78 +2550,168 @@ function talepSil(id){
   renderTalepGecmis();
   showToast('🗑️ Talep silindi','ok');
 }
+function arizaKapatModal(talepId) {
+  const talepler = taleplerYukle();
+  const talep = talepler.find(t => t.id === talepId);
+  if (!talep) return;
 
-function arizaKapatModal(talepId){
-  const talepler=taleplerYukle();
-  const talep=talepler.find(t=>t.id===talepId);
-  if(!talep) return;
-  const eskiModal=document.getElementById('arizaKapatModal');
-  if(eskiModal) eskiModal.remove();
-  const modal=document.createElement('div');
-  modal.id='arizaKapatModal';
-  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:8000;display:flex;align-items:center;justify-content:center;padding:16px';
-  modal.innerHTML=`
-    <div style="background:#fff;border-radius:14px;padding:28px 24px;width:100%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,.35);max-height:90vh;overflow-y:auto">
+  // Eski modal varsa kaldır
+  const eskiModal = document.getElementById('arizaKapatModal');
+  if (eskiModal) eskiModal.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'arizaKapatModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:8000;display:flex;align-items:center;justify-content:center;padding:16px';
+
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:14px;padding:28px 24px;width:100%;max-width:520px;box-shadow:0 20px 60px rgba(0,0,0,.35)">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
-        <div><div style="font-size:16px;font-weight:800">✅ Arıza Kapat</div>
-        <div style="font-size:12px;color:#888;margin-top:2px">${talep.formNo} — ${talep.makine}</div></div>
-        <button onclick="document.getElementById('arizaKapatModal').remove()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888">✕</button>
+        <div>
+          <div style="font-size:17px;font-weight:800">✅ Bakım Talebini Kapat</div>
+          <div style="font-size:13px;color:#666;margin-top:4px">${talep.formNo} — ${talep.makine}</div>
+        </div>
+        <button onclick="document.getElementById('arizaKapatModal').remove()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#888">✕</button>
       </div>
-      <div style="background:#fff3e0;border:1px solid #ffe0b2;border-radius:8px;padding:10px 14px;margin-bottom:18px;font-size:12px;color:#555">
-        <strong>Talep:</strong> ${talep.islem} · ${talep.bolum} · Risk: ${talep.oncelik||'-'}<br>
-        ${talep.konu?`<em style="color:#777">"${talep.konu}"</em>`:''}
+
+      <div style="background:#f8f8f5;border:1px solid #e0ddd5;border-radius:8px;padding:14px 16px;margin-bottom:18px">
+        <div style="font-size:13px"><strong>${talep.islem}</strong> — ${talep.bolum} / ${talep.makine}</div>
+        <div style="font-size:12px;color:#555;margin-top:4px">${talep.konu || ''}</div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-        <div class="field"><label style="font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.7px;display:block;margin-bottom:5px">Onarım Süresi (dk) <span style="color:#d32f2f">*</span></label>
-          <input type="number" id="kapat_sure" min="1" placeholder="Kaç dakika?" style="background:#f7f5f0;border:1.5px solid #c8d4e3;border-radius:7px;padding:10px 12px;width:100%;font-family:inherit;font-size:15px;font-weight:700;outline:none"></div>
-        <div class="field"><label style="font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.7px;display:block;margin-bottom:5px">Kapatan Kişi</label>
-          <input type="text" id="kapat_kisi" placeholder="Ad Soyad" oninput="this.value=this.value.toUpperCase()" style="background:#f7f5f0;border:1.5px solid #c8d4e3;border-radius:7px;padding:10px 12px;width:100%;font-family:inherit;font-size:14px;outline:none" value="${(currentUser&&currentUser.name)||''}"></div>
+
+      <div style="margin-bottom:16px">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+          <input type="checkbox" id="durusOlusturCheckbox" checked style="width:18px;height:18px;accent-color:#f5c400">
+          <span style="font-size:14px;font-weight:600">Bu talep kapatılırken <strong>Duruş kaydı</strong> da oluşturulsun</span>
+        </label>
+        <div style="font-size:12px;color:#888;margin-left:28px;margin-top:4px">Opsiyonel — İsterseniz işaretini kaldırabilirsiniz.</div>
       </div>
-      <div class="field" style="margin-bottom:12px"><label style="font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.7px;display:block;margin-bottom:5px">Duruş Etkisi <span style="color:#d32f2f">*</span></label>
-        <select id="kapat_etki" style="background:#f7f5f0;border:1.5px solid #c8d4e3;border-radius:7px;padding:10px 12px;width:100%;font-family:inherit;font-size:14px;outline:none;-webkit-appearance:none">
-          <option value="">— Seçiniz —</option><option>TAM DURUŞ</option>
-          <option>KISMİ DURUŞ</option><option>PLANLI DURUŞ</option><option>DURUŞ YOK</option>
-        </select></div>
-      <div class="field" style="margin-bottom:12px"><label style="font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.7px;display:block;margin-bottom:5px">Yapılan İşlem / Çözüm <span style="color:#d32f2f">*</span></label>
-        <textarea id="kapat_yapilan" rows="3" placeholder="Yapılan müdahale ve çözüm..." oninput="this.value=this.value.toUpperCase()" style="background:#f7f5f0;border:1.5px solid #c8d4e3;border-radius:7px;padding:10px 12px;width:100%;font-family:inherit;font-size:14px;outline:none;resize:vertical"></textarea></div>
-      <div style="display:flex;gap:10px;margin-top:6px">
-        <button onclick="arizaKapatOnayla(${talepId})" style="flex:1;background:#00875a;color:#fff;border:none;border-radius:9px;padding:14px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer">✅ KAPAT & DURUŞA İŞLE</button>
-        <button onclick="document.getElementById('arizaKapatModal').remove()" style="background:#f0f0ec;color:#555;border:none;border-radius:9px;padding:14px 20px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer">İptal</button>
+
+      <div style="display:flex;gap:10px">
+        <button onclick="arizaKapatOnayla(${talepId})" 
+                style="flex:1;background:#00875a;color:#fff;border:none;border-radius:9px;padding:14px;font-size:15px;font-weight:700;cursor:pointer">
+          ✅ Talebi Kapat
+        </button>
+        <button onclick="document.getElementById('arizaKapatModal').remove()" 
+                style="background:#f0f0ec;color:#555;border:none;border-radius:9px;padding:14px 20px;font-size:14px;font-weight:600;cursor:pointer">
+          İptal
+        </button>
       </div>
-    </div>`;
+    </div>
+  `;
+
   document.body.appendChild(modal);
 }
 
-function arizaKapatOnayla(talepId){
-  const sure   =parseInt(document.getElementById('kapat_sure')?.value)||0;
-  const etki   =document.getElementById('kapat_etki')?.value;
-  const yapilan=document.getElementById('kapat_yapilan')?.value.trim();
-  const kisi   =document.getElementById('kapat_kisi')?.value.trim();
-  if(!sure)    {showToast('❗ Onarım süresi giriniz!','err');return;}
-  if(!etki)    {showToast('❗ Duruş etkisi seçiniz!','err');return;}
-  if(!yapilan) {showToast('❗ Yapılan işlemi açıklayınız!','err');return;}
 
-  const talepler=taleplerYukle();
-  const talep=talepler.find(t=>t.id===talepId);
-  if(!talep) return;
-  const simdi=new Date(),simdiStr=simdi.toLocaleString('tr-TR');
-  let hesaplanan=sure;
-  if(etki==='KISMİ DURUŞ') hesaplanan=Math.round(sure*0.7);
-  else if(etki==='DURUŞ YOK') hesaplanan=0;
-  const arizaNedenMap={'ELEKTRİK':'ELEKTRİK ARIZA','ELEKTRONİK':'ELEKTRONİK ARIZA','MEKANİK':'MEKANİK ARIZA','HİDROLİK':'MEKANİK ARIZA','PNÖMATİK':'MEKANİK ARIZA'};
-  const neden=arizaNedenMap[talep.arizaTuru]||'DİĞER';
-  const durusKayit={id:simdi.getTime(),formNo:'D-'+talep.formNo,tarih:talep.tarihBas||simdi.toISOString().split('T')[0],saat:talep.arizaBas||simdi.toTimeString().slice(0,5),bolum:talep.bolum,makine:talep.makine,bildiren:talep.bildiren,neden,etkisi:etki,sureDk:sure,hesaplanan,projeNo:(talep.proje||'').split('/')[0].trim(),sorumluBolum:'BAKIM',sorumluKisi:kisi||'',kokNeden:talep.arizaTuru||'',aciklama:talep.konu||'',yapilan,kaynakFormNo:talep.formNo,kayitZamani:simdiStr,otomatik:true};
-  const durusListe=duruslariYukle();
-  durusListe.unshift(durusKayit);
-  duruslariKaydet(durusListe);
-  const idx=talepler.findIndex(t=>t.id===talepId);
-  if(idx>=0){talepler[idx].durum='kapatildi';talepler[idx].kapatmaZamani=simdiStr;talepler[idx].kapatanKisi=kisi;talepler[idx].kapatmaSuresi=sure;talepler[idx].yapilan=yapilan;taleplerKaydet(talepler);}
-  document.getElementById('arizaKapatModal')?.remove();
-  renderTalepGecmis();renderDurusGecmis();durusKpiGuncelle();
-  showToast(`✅ Arıza kapatıldı! Duruşa işlendi (D-${talep.formNo}) · ${hesaplanan} dk`,'ok');
+function arizaKapatOnayla(talepId) {
+  const sureInput = document.getElementById('kapat_sure');
+  const etkiSelect = document.getElementById('kapat_etki');
+  const yapilanInput = document.getElementById('kapat_yapilan');
+  const kisiInput = document.getElementById('kapat_kisi');
+
+  const sure = sureInput ? parseInt(sureInput.value) || 0 : 0;
+  const etki = etkiSelect ? etkiSelect.value : '';
+  const yapilan = yapilanInput ? yapilanInput.value.trim() : '';
+  const kisi = kisiInput ? kisiInput.value.trim() : (currentUser?.name || '');
+
+  const durusOlustur = document.getElementById('durusOlusturCheckbox')?.checked ?? true;
+
+  // Talep kapatma işlemi
+  const talepler = taleplerYukle();
+  const idx = talepler.findIndex(t => t.id === talepId);
+  if (idx < 0) return;
+
+  const talep = talepler[idx];
+  const simdi = new Date();
+  const simdiStr = simdi.toLocaleString('tr-TR');
+
+  talepler[idx].durum = 'kapatildi';
+  talepler[idx].kapatmaZamani = simdiStr;
+  talepler[idx].kapatanKisi = kisi;
+  talepler[idx].kapatmaSuresi = sure;
+  talepler[idx].yapilan = yapilan;
+  taleplerKaydet(talepler);
+
+  // Modal'ı kapat
+  const modal = document.getElementById('arizaKapatModal');
+  if (modal) modal.remove();
+
+  renderTalepGecmis();
+
+  // === DURUŞ OLUŞTURMA ===
+  if (durusOlustur) {
+    // Duruşlar sekmesine geç
+    goTab('durus', null);
+
+    // Formu önceden doldur
+    setTimeout(() => {
+      talepVerisindenDurusFormuDoldur(talep, sure, etki, yapilan, kisi);
+      showToast('✅ Talep kapatıldı. Duruş formu önceden dolduruldu.', 'ok');
+    }, 300);
+  } else {
+    showToast('✅ Talep kapatıldı.', 'ok');
+  }
 }
+function talepVerisindenDurusFormuDoldur(talep, sure, etki, yapilan, kisi) {
+  // Bölüm
+  const bolumEl = document.getElementById('durusBolum');
+  if (bolumEl) bolumEl.value = talep.bolum || '';
 
-// ══════════════════════════════════════════════
+  // Makine
+  setTimeout(() => {
+    const makineEl = document.getElementById('durusMakine');
+    if (makineEl) makineEl.value = talep.makine || '';
+  }, 100);
+
+  // Bildiren
+  const bildirenEl = document.getElementById('durusBildiren');
+  if (bildirenEl) bildirenEl.value = (talep.bildiren || '').replace(' (ÜRETİM)', '');
+
+  // Neden (Arıza Türü'ne göre eşleştirme)
+  const nedenMap = {
+    'ELEKTRİK': 'ELEKTRİK ARIZA',
+    'ELEKTRONİK': 'ELEKTRONİK ARIZA',
+    'MEKANİK': 'MEKANİK ARIZA',
+    'HİDROLİK': 'MEKANİK ARIZA',
+    'PNÖMATİK': 'MEKANİK ARIZA'
+  };
+  const neden = nedenMap[talep.arizaTuru] || 'DİĞER';
+
+  // Neden butonunu seç
+  setTimeout(() => {
+    document.querySelectorAll('.durus-neden-btn').forEach(btn => {
+      if (btn.dataset.v === neden) {
+        durusNedenSec(btn);
+      }
+    });
+  }, 150);
+
+  // Açıklama
+  const aciklamaEl = document.getElementById('durusAciklama');
+  if (aciklamaEl) aciklamaEl.value = (talep.konu || '') + (yapilan ? ' | Yapılan: ' + yapilan : '');
+
+  // Süre
+  const sureEl = document.getElementById('durusSureDk');
+  if (sureEl && sure) sureEl.value = sure;
+
+  // Etki
+  const etkiEl = document.getElementById('durusEtkisi');
+  if (etkiEl && etki) etkiEl.value = etki;
+
+  // Sorumlu bölüm
+  const sorumluBolumEl = document.getElementById('durusSorumluBolum');
+  if (sorumluBolumEl) sorumluBolumEl.value = 'BAKIM';
+
+  // Sorumlu kişi
+  setTimeout(() => {
+    const sorumluKisiEl = document.getElementById('durusSorumluKisi');
+    if (sorumluKisiEl && kisi) {
+      sorumluKisiEl.innerHTML = `<option value="${kisi}">${kisi}</option>`;
+      sorumluKisiEl.value = kisi;
+    }
+  }, 200);
+}
+  // ══════════════════════════════════════════════
 // DURUŞLAR
 // ══════════════════════════════════════════════
 let durusSayac=parseInt(localStorage.getItem('burkab_durus_sayac')||'0');
