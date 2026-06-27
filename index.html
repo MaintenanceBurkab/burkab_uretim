@@ -2551,48 +2551,56 @@ function talepSil(id){
   showToast('🗑️ Talep silindi','ok');
 }
 function arizaKapatModal(talepId) {
+  console.log(">>> arizaKapatModal çağrıldı, id:", talepId);
+
   const talepler = taleplerYukle();
   const talep = talepler.find(t => t.id === talepId);
-  if (!talep) return;
+  if (!talep) {
+    console.error("Talep bulunamadı!");
+    return;
+  }
 
-  // Eski modal varsa kaldır
-  const eskiModal = document.getElementById('arizaKapatModal');
-  if (eskiModal) eskiModal.remove();
+  // Eski modalı temizle
+  const eski = document.getElementById('arizaKapatModal');
+  if (eski) eski.remove();
 
   const modal = document.createElement('div');
   modal.id = 'arizaKapatModal';
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:8000;display:flex;align-items:center;justify-content:center;padding:16px';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';
 
   modal.innerHTML = `
-    <div style="background:#fff;border-radius:14px;padding:28px 24px;width:100%;max-width:520px;box-shadow:0 20px 60px rgba(0,0,0,.35)">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
-        <div>
-          <div style="font-size:17px;font-weight:800">✅ Bakım Talebini Kapat</div>
-          <div style="font-size:13px;color:#666;margin-top:4px">${talep.formNo} — ${talep.makine}</div>
-        </div>
-        <button onclick="document.getElementById('arizaKapatModal').remove()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#888">✕</button>
+    <div style="background:#fff;border-radius:12px;padding:22px 20px;width:100%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,.35)">
+      
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-size:17px;font-weight:800">✅ Bakım Talebini Kapat</div>
+        <button onclick="document.getElementById('arizaKapatModal').remove()" 
+                style="font-size:24px;background:none;border:none;color:#888;cursor:pointer">×</button>
       </div>
 
-      <div style="background:#f8f8f5;border:1px solid #e0ddd5;border-radius:8px;padding:14px 16px;margin-bottom:18px">
-        <div style="font-size:13px"><strong>${talep.islem}</strong> — ${talep.bolum} / ${talep.makine}</div>
-        <div style="font-size:12px;color:#555;margin-top:4px">${talep.konu || ''}</div>
+      <div style="background:#f8f6f0;border:1px solid #e6e2d8;border-radius:8px;padding:11px 13px;margin-bottom:16px">
+        <div style="font-weight:700">${talep.islem || ''}</div>
+        <div style="font-size:13px;color:#555;margin-top:2px">${talep.bolum || ''} / ${talep.makine || ''}</div>
       </div>
 
-      <div style="margin-bottom:16px">
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
-          <input type="checkbox" id="durusOlusturCheckbox" checked style="width:18px;height:18px;accent-color:#f5c400">
-          <span style="font-size:14px;font-weight:600">Bu talep kapatılırken <strong>Duruş kaydı</strong> da oluşturulsun</span>
+      <!-- CHECKBOX -->
+      <div style="margin:14px 0 18px 0">
+        <label style="display:flex;align-items:center;gap:9px;cursor:pointer">
+          <input type="checkbox" id="durusOlusturCheckbox" checked 
+                 style="width:19px;height:19px;accent-color:#f5c400">
+          <span style="font-size:14.5px;font-weight:600">
+            Bu talep kapatılırken <strong style="color:#d97706">Duruş kaydı</strong> da oluşturulsun
+          </span>
         </label>
-        <div style="font-size:12px;color:#888;margin-left:28px;margin-top:4px">Opsiyonel — İsterseniz işaretini kaldırabilirsiniz.</div>
+        <div style="font-size:12px;color:#777;margin-left:28px;margin-top:2px">Opsiyonel</div>
       </div>
 
-      <div style="display:flex;gap:10px">
+      <div style="display:flex;gap:9px">
         <button onclick="arizaKapatOnayla(${talepId})" 
-                style="flex:1;background:#00875a;color:#fff;border:none;border-radius:9px;padding:14px;font-size:15px;font-weight:700;cursor:pointer">
+                style="flex:1;background:#0a7d4f;color:#fff;border:none;border-radius:8px;padding:13px;font-size:15px;font-weight:700;cursor:pointer">
           ✅ Talebi Kapat
         </button>
         <button onclick="document.getElementById('arizaKapatModal').remove()" 
-                style="background:#f0f0ec;color:#555;border:none;border-radius:9px;padding:14px 20px;font-size:14px;font-weight:600;cursor:pointer">
+                style="background:#f0efea;color:#444;border:none;border-radius:8px;padding:13px 16px;font-size:14px;font-weight:600;cursor:pointer">
           İptal
         </button>
       </div>
@@ -2600,59 +2608,43 @@ function arizaKapatModal(talepId) {
   `;
 
   document.body.appendChild(modal);
+  console.log(">>> Modal eklendi. Checkbox var mı?", !!document.getElementById('durusOlusturCheckbox'));
 }
-
-
 function arizaKapatOnayla(talepId) {
-  const sureInput = document.getElementById('kapat_sure');
-  const etkiSelect = document.getElementById('kapat_etki');
-  const yapilanInput = document.getElementById('kapat_yapilan');
-  const kisiInput = document.getElementById('kapat_kisi');
+  // 1. Checkbox durumunu ÖNCE oku (modal silinmeden önce!)
+  const durusOlustur = document.getElementById('durusOlusturCheckbox')?.checked ?? false;
+  console.log(">>> Checkbox durumu:", durusOlustur);
 
-  const sure = sureInput ? parseInt(sureInput.value) || 0 : 0;
-  const etki = etkiSelect ? etkiSelect.value : '';
-  const yapilan = yapilanInput ? yapilanInput.value.trim() : '';
-  const kisi = kisiInput ? kisiInput.value.trim() : (currentUser?.name || '');
+  // 2. Modalı kapat
+  const modal = document.getElementById('arizaKapatModal');
+  if (modal) modal.remove();
 
-  const durusOlustur = document.getElementById('durusOlusturCheckbox')?.checked ?? true;
-
-  // Talep kapatma işlemi
+  // 3. Talebi kapat
   const talepler = taleplerYukle();
   const idx = talepler.findIndex(t => t.id === talepId);
   if (idx < 0) return;
 
   const talep = talepler[idx];
-  const simdi = new Date();
-  const simdiStr = simdi.toLocaleString('tr-TR');
-
   talepler[idx].durum = 'kapatildi';
-  talepler[idx].kapatmaZamani = simdiStr;
-  talepler[idx].kapatanKisi = kisi;
-  talepler[idx].kapatmaSuresi = sure;
-  talepler[idx].yapilan = yapilan;
+  talepler[idx].kapatmaZamani = new Date().toLocaleString('tr-TR');
+  talepler[idx].kapatanKisi = currentUser?.name || 'Sistem';
   taleplerKaydet(talepler);
-
-  // Modal'ı kapat
-  const modal = document.getElementById('arizaKapatModal');
-  if (modal) modal.remove();
 
   renderTalepGecmis();
 
-  // === DURUŞ OLUŞTURMA ===
+  // 4. Eğer checkbox işaretliyse → Duruşlar sekmesine geç + formu doldur
   if (durusOlustur) {
-    // Duruşlar sekmesine geç
     goTab('durus', null);
 
-    // Formu önceden doldur
     setTimeout(() => {
-      talepVerisindenDurusFormuDoldur(talep, sure, etki, yapilan, kisi);
-      showToast('✅ Talep kapatıldı. Duruş formu önceden dolduruldu.', 'ok');
-    }, 300);
+      talepVerisindenDurusFormuDoldur(talep);
+      showToast('✅ Talep kapatıldı. Duruş formu hazır. Lütfen kalan bilgileri girip "Kaydet"e basın.', 'ok');
+    }, 380);
   } else {
-    showToast('✅ Talep kapatıldı.', 'ok');
+    showToast('✅ Talep kapatıldı (Duruş kaydı oluşturulmadı).', 'ok');
   }
 }
-function talepVerisindenDurusFormuDoldur(talep, sure, etki, yapilan, kisi) {
+function talepVerisindenDurusFormuDoldur(talep) {
   // Bölüm
   const bolumEl = document.getElementById('durusBolum');
   if (bolumEl) bolumEl.value = talep.bolum || '';
@@ -2661,55 +2653,26 @@ function talepVerisindenDurusFormuDoldur(talep, sure, etki, yapilan, kisi) {
   setTimeout(() => {
     const makineEl = document.getElementById('durusMakine');
     if (makineEl) makineEl.value = talep.makine || '';
-  }, 100);
+  }, 80);
 
   // Bildiren
   const bildirenEl = document.getElementById('durusBildiren');
   if (bildirenEl) bildirenEl.value = (talep.bildiren || '').replace(' (ÜRETİM)', '');
 
-  // Neden (Arıza Türü'ne göre eşleştirme)
-  const nedenMap = {
-    'ELEKTRİK': 'ELEKTRİK ARIZA',
-    'ELEKTRONİK': 'ELEKTRONİK ARIZA',
-    'MEKANİK': 'MEKANİK ARIZA',
-    'HİDROLİK': 'MEKANİK ARIZA',
-    'PNÖMATİK': 'MEKANİK ARIZA'
-  };
-  const neden = nedenMap[talep.arizaTuru] || 'DİĞER';
-
-  // Neden butonunu seç
-  setTimeout(() => {
-    document.querySelectorAll('.durus-neden-btn').forEach(btn => {
-      if (btn.dataset.v === neden) {
-        durusNedenSec(btn);
-      }
-    });
-  }, 150);
-
   // Açıklama
   const aciklamaEl = document.getElementById('durusAciklama');
-  if (aciklamaEl) aciklamaEl.value = (talep.konu || '') + (yapilan ? ' | Yapılan: ' + yapilan : '');
-
-  // Süre
-  const sureEl = document.getElementById('durusSureDk');
-  if (sureEl && sure) sureEl.value = sure;
-
-  // Etki
-  const etkiEl = document.getElementById('durusEtkisi');
-  if (etkiEl && etki) etkiEl.value = etki;
-
-  // Sorumlu bölüm
-  const sorumluBolumEl = document.getElementById('durusSorumluBolum');
-  if (sorumluBolumEl) sorumluBolumEl.value = 'BAKIM';
+  if (aciklamaEl) aciklamaEl.value = talep.konu || '';
 
   // Sorumlu kişi
   setTimeout(() => {
-    const sorumluKisiEl = document.getElementById('durusSorumluKisi');
-    if (sorumluKisiEl && kisi) {
-      sorumluKisiEl.innerHTML = `<option value="${kisi}">${kisi}</option>`;
-      sorumluKisiEl.value = kisi;
+    const sorumluEl = document.getElementById('durusSorumluKisi');
+    if (sorumluEl && currentUser?.name) {
+      sorumluEl.innerHTML = `<option value="${currentUser.name}">${currentUser.name}</option>`;
+      sorumluEl.value = currentUser.name;
     }
-  }, 200);
+  }, 150);
+
+  console.log("Duruş formu talep verisiyle dolduruldu.");
 }
   // ══════════════════════════════════════════════
 // DURUŞLAR
