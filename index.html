@@ -309,7 +309,7 @@ tr:last-child td{border-bottom:none}
           <label>Takım No <span class="req">*</span></label>
           <select id="aTakimNo" onchange="takimSecildi()">
             <option value="">— Seçiniz —</option>
-            <option>KESİM</option><option>TAKIM-2</option><option>TAKIM-3</option>
+            <option>KESİM</option><option>HAZIRLIK-PRES</option><option>AKÜ KESİM</option>
             <option>TAKIM-4</option><option>TAKIM-5</option><option>TAKIM-6</option>
             <option>TAKIM-7</option><option>TAKIM-8</option><option>TAKIM-9</option>
             <option>TAKIM-10</option>
@@ -432,7 +432,7 @@ tr:last-child td{border-bottom:none}
           <label>Takım No <span class="req">*</span></label>
           <select id="giTakimNo" onchange="girisAtamaYukle()">
             <option value="">— Seçiniz —</option>
-            <option>KESİM</option><option>TAKIM-2</option><option>TAKIM-3</option>
+            <option>KESİM</option><option>HAZIRLIK-PRES</option><option>AKÜ KESİM</option>
             <option>TAKIM-4</option><option>TAKIM-5</option><option>TAKIM-6</option>
             <option>TAKIM-7</option><option>TAKIM-8</option><option>TAKIM-9</option>
             <option>TAKIM-10</option>
@@ -567,7 +567,7 @@ tr:last-child td{border-bottom:none}
     </select>
     <select id="raporTakim" onchange="renderRapor()" style="flex:1;min-width:140px;font-size:14px;padding:9px 12px">
       <option value="">Tüm Takımlar</option>
-      <option>KESİM</option><option>TAKIM-2</option><option>TAKIM-3</option>
+      <option>KESİM</option><option>HAZIRLIK-PRES</option><option>AKÜ KESİM</option>
       <option>TAKIM-4</option><option>TAKIM-5</option><option>TAKIM-6</option>
       <option>TAKIM-7</option><option>TAKIM-8</option><option>TAKIM-9</option>
       <option>TAKIM-10</option>
@@ -709,7 +709,7 @@ tr:last-child td{border-bottom:none}
           <label>Takım Seç <span class="req">*</span></label>
           <select id="ymTakim" onchange="ymTakimYukle()">
             <option value="">— Seçiniz —</option>
-            <option>KESİM</option><option>TAKIM-2</option><option>TAKIM-3</option>
+            <option>KESİM</option><option>HAZIRLIK-PRES</option><option>AKÜ KESİM</option>
             <option>TAKIM-4</option><option>TAKIM-5</option><option>TAKIM-6</option>
             <option>TAKIM-7</option><option>TAKIM-8</option><option>TAKIM-9</option>
             <option>TAKIM-10</option>
@@ -1174,22 +1174,19 @@ const BOLUM_MAKINELER = {
   'TEST': ['TP-01','TP-02','TP-03','TP-04','TP-05','TP-06','TP-07','TP-08','TP-09','TP-10','TP-11','TP-12','TP-13','TP-14','TP-15'],
   'KESİM': ['OKM-01','OKM-02','OKM-03','OKM-04','OKM-05','YA-01','YA-02','YA-03','YA-04','YA-05','YA-06','YA-07','HM-1','HM-2','KM-01','KM-02','CT-01','MP-13','HP-01'],
   'ÜRETİM HATLARI': ['HAT 1/A','HAT 1/B','HAT 2/A','HAT 2/B','HAT 3/A','HAT 3/B','HAT 4/A','HAT 4/B','HAT 5/A','HAT 5/B','HAT 6/A','HAT 6/B','HAT 7/A','HAT 7/B','HAT 8/A','HAT 8/B','HAT 9/A','HAT 9/B','HAT 10/A','HAT 10/B','HAT 11/A','HAT 11/B','HAT 12/A','HAT 12/B','HAT 13/A','HAT 13/B','HAT 14/A','HAT 14/B','HAT 15/A','HAT 15/B'],
-  'TESİS': ['JEN-01','UPS-01','UPS-02','KOM-01','FOLKLİFT','YÜK ASANSÖRÜ','PER.ASANSÖRÜ','ISITICILAR','KLİMALAR','AYDINLATMA'],
+  'TESİS': ['JEN-01','UPS-01','UPS-02','KOM-01','AKM-01','FOLKLİFT','YÜK ASANSÖRÜ','PER.ASANSÖRÜ','ISITICILAR','KLİMALAR','AYDINLATMA'],
   'HAZIRLIK': ['MP-01','MP-02','MP-03','MP-04','MP-05','MP-06','MP-07','MP-08','MP-09','MP-10','MP-11','MP-12','MP-14','MP-15','MP-16','US-01','US-02','US-03','KS-01','TWS-01','CT-02','HP-02','PV-01','BM-01'],
   'KALIPLAR': Array.from({length:120}, (_,i) => 'BK-' + String(i+1).padStart(2,'0')),
-  'OTOMATİK MAKİNE': ['OM-01','OM-02','OM-03','OM-04','OM-05','OM-06','OM-07','OM-08','OM-09','OM-10'],
-  'PRESLER': ['PR-01','PR-02','PR-03','PR-04','PR-05','PR-06','PR-07','PR-08'],
-  'AKÜ': ['AKU-01','AKU-02','AKU-03','AKU-04','AKU-05'],
 };
 
 const BOLUM_SORUMLULAR = {
   'BAKIM':    ['MEHMET ERTÜRK','FERHAT OKTAY','SUNAY AVCI','ENES BALKAN'],
-  'ÜRETİM':  ['TUGCE FIRAT','NEZAKET ERDAL','ERHAN İYİSOY','RECEP AKTAŞ'],
-  'KALİTE':  ['KALİTE SORUMLUSU'],
+  'ÜRETİM':  ['TUGCE FIRAT','NEZAKET ERDAL','ZEYNEP ACAR','RECEP AKTAŞ'],
+  'KALİTE':  ['ŞİRİN KUŞKU','NİLAY YILMAZ','AYŞENUR ULUÇAY','YUSUF KAŞ','AYNUR GÜLERDEM','NESLİHAN ŞAHİN'],
   'PLANLAMA':['PLANLAMA'],
   'SATIN ALMA':['SATIN ALMA SORUMLUSU'],
   'LOJİSTİK':['LOJİSTİK SORUMLUSU'],
-  'PROJE / MÜHENDİSLİK':['MÜHENDİSLİK SORUMLUSU'],
+  'PROJE / MÜHENDİSLİK':['ECE ÇELİKTAŞ','ALPEREN DEMİRBAŞ','AHSEN DURGUT','NADİYE MUTLU','HASAN AYTEKİN','ELA NUR PALA'],
   'YÖNETİM': ['CEMAL ÖZMISIR','AHMET ALTIPARMAK','VOLKAN AKAR','YUNUS DİKGÖZ'],
 };
 
@@ -1695,7 +1692,7 @@ function ymTumTakimlariGoster() {
   loadTakimPersoneller();
   const div = document.getElementById('ymTumTakimlar');
   if (!div) return;
-  const takimlar = ['KESİM','TAKIM-2','TAKIM-3','TAKIM-4','TAKIM-5','TAKIM-6','TAKIM-7','TAKIM-8','TAKIM-9','TAKIM-10'];
+  const takimlar = ['KESİM','HAZIRLIK-PRES','AKÜ KESİM','TAKIM-4','TAKIM-5','TAKIM-6','TAKIM-7','TAKIM-8','TAKIM-9','TAKIM-10'];
   div.innerHTML = takimlar.map(t => {
     const personel = takimPersoneller[t]||[];
     return `<div style="margin-bottom:12px;padding:12px;border:1px solid var(--border);border-radius:8px;background:#fafaf8">
