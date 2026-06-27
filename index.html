@@ -310,7 +310,7 @@ tr:last-child td{border-bottom:none}
           <select id="aTakimNo" onchange="takimSecildi()">
             <option value="">— Seçiniz —</option>
             <option>KESİM</option><option>HAZIRLIK-PRES</option><option>AKÜ KESİM</option>
-            <option>TAKIM-4</option><option>TAKIM-5</option><option>TAKIM-6</option>
+            <option>TEST</option><option>TAKIM-5</option><option>TAKIM-6</option>
             <option>TAKIM-7</option><option>TAKIM-8</option><option>TAKIM-9</option>
             <option>TAKIM-10</option>
           </select>
@@ -433,7 +433,7 @@ tr:last-child td{border-bottom:none}
           <select id="giTakimNo" onchange="girisAtamaYukle()">
             <option value="">— Seçiniz —</option>
             <option>KESİM</option><option>HAZIRLIK-PRES</option><option>AKÜ KESİM</option>
-            <option>TAKIM-4</option><option>TAKIM-5</option><option>TAKIM-6</option>
+            <option>TEST</option><option>TAKIM-5</option><option>TAKIM-6</option>
             <option>TAKIM-7</option><option>TAKIM-8</option><option>TAKIM-9</option>
             <option>TAKIM-10</option>
           </select>
@@ -568,7 +568,7 @@ tr:last-child td{border-bottom:none}
     <select id="raporTakim" onchange="renderRapor()" style="flex:1;min-width:140px;font-size:14px;padding:9px 12px">
       <option value="">Tüm Takımlar</option>
       <option>KESİM</option><option>HAZIRLIK-PRES</option><option>AKÜ KESİM</option>
-      <option>TAKIM-4</option><option>TAKIM-5</option><option>TAKIM-6</option>
+      <option>TEST</option><option>TAKIM-5</option><option>TAKIM-6</option>
       <option>TAKIM-7</option><option>TAKIM-8</option><option>TAKIM-9</option>
       <option>TAKIM-10</option>
     </select>
@@ -710,7 +710,7 @@ tr:last-child td{border-bottom:none}
           <select id="ymTakim" onchange="ymTakimYukle()">
             <option value="">— Seçiniz —</option>
             <option>KESİM</option><option>HAZIRLIK-PRES</option><option>AKÜ KESİM</option>
-            <option>TAKIM-4</option><option>TAKIM-5</option><option>TAKIM-6</option>
+            <option>TEST</option><option>TAKIM-5</option><option>TAKIM-6</option>
             <option>TAKIM-7</option><option>TAKIM-8</option><option>TAKIM-9</option>
             <option>TAKIM-10</option>
           </select>
@@ -1271,6 +1271,7 @@ function applyRoleUI(role) {
     nav.innerHTML = `
       <button class="nav-tab active" onclick="goTab('giris',this)">📝 ÜRETİM GİRİŞİ</button>
       <button class="nav-tab" onclick="goTab('talep',this)" style="color:#f5c400;font-weight:700">🔧 BAKIM TALEBİ</button>
+      <button class="nav-tab" onclick="goTab('rapor',this)">📊 RAPORLAR</button>
       <button class="nav-tab" onclick="goTab('durus',this)" style="color:#ff7043;font-weight:700">⏱️ DURUŞLAR</button>`;
     document.getElementById('tab-atama').style.display='none';
     document.getElementById('tab-takim').style.display='none';
@@ -1692,7 +1693,7 @@ function ymTumTakimlariGoster() {
   loadTakimPersoneller();
   const div = document.getElementById('ymTumTakimlar');
   if (!div) return;
-  const takimlar = ['KESİM','HAZIRLIK-PRES','AKÜ KESİM','TAKIM-4','TAKIM-5','TAKIM-6','TAKIM-7','TAKIM-8','TAKIM-9','TAKIM-10'];
+  const takimlar = ['KESİM','HAZIRLIK-PRES','AKÜ KESİM','TEST','TAKIM-5','TAKIM-6','TAKIM-7','TAKIM-8','TAKIM-9','TAKIM-10'];
   div.innerHTML = takimlar.map(t => {
     const personel = takimPersoneller[t]||[];
     return `<div style="margin-bottom:12px;padding:12px;border:1px solid var(--border);border-radius:8px;background:#fafaf8">
