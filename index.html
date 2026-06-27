@@ -1513,61 +1513,84 @@ function yeniTanimKapat() {
 }
 
 async function yeniTanimKaydet() {
-  const musteri   = document.getElementById('yeniMusteri').value.trim();
-  const projeKodu = document.getElementById('yeniProjeKodu').value.trim();
-  const projeTanim= document.getElementById('yeniProjeTanim').value.trim();
-  const durumEl   = document.getElementById('yeniTanimDurum');
+  const musteri    = document.getElementById('yeniMusteri').value.trim();
+  const projeKodu  = document.getElementById('yeniProjeKodu').value.trim().toUpperCase();
+  const projeTanim = document.getElementById('yeniProjeTanim').value.trim();
+  const durumEl    = document.getElementById('yeniTanimDurum');
 
-  if (!musteri)    { showToast('❗ Müşteri adı giriniz!','err'); return; }
-  if (!projeKodu)  { showToast('❗ Proje kodu giriniz!','err'); return; }
-  if (!projeTanim) { showToast('❗ Proje tanımı giriniz!','err'); return; }
+  // === 1. ZORUNLU ALAN KONTROLÜ ===
+  if (!musteri)    { showToast('❗ Müşteri adı giriniz!', 'err'); return; }
+  if (!projeKodu)  { showToast('❗ Proje kodu giriniz!', 'err'); return; }
+  if (!projeTanim) { showToast('❗ Proje tanımı giriniz!', 'err'); return; }
 
-  // Çakışma kontrolü
-  const cakisan = tanimlar.find(t=>t.projeKodu===projeKodu);
-  if (cakisan && !confirm(`"${projeKodu}" kodu zaten ${cakisan.musteri} müşterisinde mevcut. Yine de eklemek istiyor musunuz?`)) return;
+  // === 2. PROJE KODU FORMAT KONTROLÜ (En az 1 harf + 1 rakam) ===
+  const hasLetter = /[A-Za-zĞÜŞİÖÇİğüşıöç]/.test(projeKodu);
+  const hasNumber = /[0-9]/.test(projeKodu);
+  if (!hasLetter || !hasNumber) {
+    showToast('❗ Proje kodu en az 1 harf ve 1 rakam içermelidir!\nÖrnek: BSK-53439500', 'err');
+    return;
+  }
+
+  // === 3. MÜKERRER KONTROLÜ (Müşteri + Proje Kodu) ===
+  const cakisan = tanimlar.find(t =>
+    t.musteri.toUpperCase() === musteri.toUpperCase() &&
+    t.projeKodu.toUpperCase() === projeKodu
+  );
+
+  if (cakisan) {
+    showToast(`❗ Bu müşteri + proje kodu zaten kayıtlı!\n${cakisan.musteri} - ${cakisan.projeKodu}`, 'err');
+    return;
+  }
 
   durumEl.textContent = '⏳ Google Sheets\'e gönderiliyor...';
   durumEl.style.color = '#888';
 
   const yeniSatir = {
-    musteri,
-    projeKodu,
+    musteri: musteri,
+    projeKodu: projeKodu,
     tanim: projeTanim,
     ekleyen: currentUser?.name || '',
     zaman: new Date().toLocaleString('tr-TR')
   };
 
-  // Önce lokal listeye ekle (UI anında güncellenir)
-  tanimlar.push(yeniSatir);
-  musteriDropdownlariDoldur();
-  const aMus = document.getElementById('aMusteri');
-  if (aMus) { aMus.value = musteri; musteriSecildi(); }
-  setTimeout(()=>{
-    const aProje = document.getElementById('aProjeKodu');
-    if (aProje) { aProje.value = projeKodu; projeSecildi(); }
-  }, 150);
-
-  // Sheets'e gönder
+  // === 4. Sheets'e GÖNDER ===
   try {
     const gsYanit = await jsonpGonderTanim({ action: 'saveTanim', data: yeniSatir });
-    durumEl.textContent = '✅ Sheets\'e kaydedildi!';
-    durumEl.style.color = '#00875a';
-    logEkle('TANİM', '✨ Sheets\'e eklendi: ' + projeKodu + ' — ' + musteri, currentUser);
-    showToast('✅ ' + projeKodu + ' Sheets\'e kaydedildi!', 'ok');
-    setTimeout(() => yeniTanimKapat(), 2000);
-  } catch(err) {
-    // GS'ye yazılamadı ama lokal listede var
-    durumEl.innerHTML = '<div style="color:#d32f2f">⚠️ <strong>Sheets\'e yazılamadı!</strong></div>' +
-      '<div style="font-size:11px;color:#888;margin-top:3px">Sebep: ' + err.message + '</div>' +
-      '<div style="font-size:11px;color:#e65100;margin-top:2px">Yerel listeye eklendi (sadece bu oturum için geçerli)</div>';
+
+    if (gsYanit && gsYanit.ok) {
+      // Başarılı → Yerel listeye de ekle
+      tanimlar.push(yeniSatir);
+      musteriDropdownlariDoldur();
+
+      // İş Atama formunu otomatik doldur
+      const aMus = document.getElementById('aMusteri');
+      if (aMus) { aMus.value = musteri; musteriSecildi(); }
+
+      setTimeout(() => {
+        const aProje = document.getElementById('aProjeKodu');
+        if (aProje) { aProje.value = projeKodu; projeSecildi(); }
+      }, 120);
+
+      durumEl.textContent = '✅ Başarıyla eklendi!';
+      durumEl.style.color = '#00875a';
+      showToast('✅ ' + projeKodu + ' başarıyla eklendi!', 'ok');
+      logEkle('TANIM', '✨ Yeni tanım eklendi: ' + projeKodu + ' — ' + musteri, currentUser);
+
+      setTimeout(() => yeniTanimKapat(), 1800);
+    } else {
+      // Sheets reddetti
+      durumEl.innerHTML = `<div style="color:#d32f2f">❌ ${gsYanit?.error || 'Kayıt reddedildi'}</div>`;
+      durumEl.style.color = '#d32f2f';
+      showToast('❌ ' + (gsYanit?.error || 'Kayıt yapılamadı'), 'err');
+    }
+
+  } catch (err) {
+    durumEl.innerHTML = '<div style="color:#d32f2f">⚠️ Sheets\'e yazılamadı!</div>';
     durumEl.style.color = '#d32f2f';
-    console.error('saveTanim GS hatası:', err);
-    showToast('⚠️ Sheets yazılamadı: ' + err.message, 'err');
-    // Yine de formu kapat (5 saniye sonra)
-    setTimeout(() => yeniTanimKapat(), 5000);
+    showToast('⚠️ Bağlantı hatası: ' + err.message, 'err');
+    console.error('yeniTanimKaydet hatası:', err);
   }
 }
-
 function jsonpGonderTanim(payload) {
   return new Promise((resolve, reject) => {
     const cb = 'tanim_cb_' + Date.now();
