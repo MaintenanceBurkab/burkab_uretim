@@ -3659,6 +3659,44 @@ function saveUretimKayitGS(kayit) {
       });
   });
 }
+  // ══════════════════════════════════════════════
+// FORM TEMİZLE (Üretim Girişi)
+// ══════════════════════════════════════════════
+function formTemizle() {
+  // Input ve textarea'ları temizle
+  ['giGerceklesen', 'giFire', 'giNot', 'giFireSebep', 'giFireLokasyon', 'giFireAciklama'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+
+  // Durum select'ini temizle
+  const giDurum = document.getElementById('giDurum');
+  if (giDurum) giDurum.value = '';
+
+  // Fire sebebi bloğunu gizle
+  const fireBlok = document.getElementById('fireSebebiBlok');
+  if (fireBlok) fireBlok.style.display = 'none';
+
+  // Atanan işler bloğunu gizle
+  const atananBlok = document.getElementById('atananIslerBlok');
+  if (atananBlok) atananBlok.style.display = 'none';
+
+  // Seçili iş özetini gizle
+  const ozet = document.getElementById('seciliIsOzet');
+  if (ozet) ozet.style.display = 'none';
+
+  const bilgi = document.getElementById('girisAtamaBilgi');
+  if (bilgi) bilgi.style.display = 'none';
+
+  // Seçili atama ID'sini sıfırla
+  seciliAtamaId = null;
+
+  // Giren kişi alanını tekrar doldur
+  if (currentUser) {
+    const g = document.getElementById('giKisi');
+    if (g) g.value = currentUser.name;
+  }
+}
 </script>
 </body>
 </html>
