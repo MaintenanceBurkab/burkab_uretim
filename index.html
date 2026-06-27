@@ -2012,16 +2012,17 @@ function vardiyaKaydet() {
   }
 
   loadAtamalar();
-
   let secilenAtama = null;
+
   if (seciliAtamaId) {
     secilenAtama = atamalar.find(a => a.id === seciliAtamaId);
   }
+
   if (!secilenAtama) {
     const isler = atamalar.filter(a => a.takim === takim && a.tarih === tarih);
     if (isler.length === 1) {
       secilenAtama = isler[0];
-    } else if (isler.length > 1 && !seciliAtamaId) {
+    } else if (isler.length > 1) {
       showToast('❗ Lütfen bir iş seçiniz!', 'err');
       return;
     }
@@ -2061,8 +2062,8 @@ function vardiyaKaydet() {
   kayitlar.push(yeniKayit);
   saveKayitlar();
 
-  // ✅ GS'ye Üretim Kaydı Gönder
-  saveUretimKayitGS(yeniKayit).then(function(res) {
+  // ✅ GS'ye gönder
+  saveUretimKayitGS(yeniKayit).then(res => {
     if (!res.ok) {
       console.warn('Üretim GS\'ye yazılamadı:', res.error);
     }
@@ -2077,8 +2078,16 @@ function vardiyaKaydet() {
     }
   }
 
-  logEkle('ÜRETİM', `📦 Üretim girişi: ${takim} | ${projeKodu} | Gerçekleşen: ${gercek} | Durum: ${durum}`, currentUser);
-  showToast('✅ Üretim girişi kaydedildi!', 'ok');
+  logEkle('ÜRETİM', `📦 Üretim girişi: ${takim} | ${projeKodu} | Gerçekleşen: ${gercek} | Verim: %${verim}`, currentUser);
+
+  // === YÜKSEK VERİMLİLİK UYARILARI ===
+  if (verim >= 200) {
+    showToast(`⚠️ Verimlilik %${verim}! Hedef çok düşük olabilir. Hedef değerini kontrol edin.`, 'err');
+  } else if (verim >= 150) {
+    showToast(`⚡ Verimlilik %${verim}! Hedefin oldukça üzerinde. Tebrikler!`, 'warn');
+  } else {
+    showToast('✅ Üretim girişi kaydedildi!', 'ok');
+  }
 
   if (durum === 'VARDİYA SONU DURUŞ' && secilenAtama) {
     vardiyaSonuDevamOlustur(secilenAtama);
