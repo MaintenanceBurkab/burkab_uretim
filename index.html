@@ -1700,7 +1700,7 @@ function ymTumTakimlariGoster() {
   loadTakimPersoneller();
   const div = document.getElementById('ymTumTakimlar');
   if (!div) return;
-  const takimlar = ['KESİM','ALT MONTAJ','AKÜ KESİM','TEST','TAKIM-1','TAKIM-2','TAKIM-3','TAKIM-4','ISITMA','ULTRASONİK SPLİCE','T.Ö. PRES','T.S. PRES','EK OPERASYONLAR];
+  const takimlar = ['KESİM','ALT MONTAJ','AKÜ KESİM','TEST','TAKIM-1','TAKIM-2','TAKIM-3','TAKIM-4','ISITMA','ULTRASONİK SPLİCE','T.Ö. PRES','T.S. PRES','EK OPERASYONLAR'];
   div.innerHTML = takimlar.map(t => {
     const personel = takimPersoneller[t]||[];
     return `<div style="margin-bottom:12px;padding:12px;border:1px solid var(--border);border-radius:8px;background:#fafaf8">
