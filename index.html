@@ -483,6 +483,7 @@ tr:last-child td{border-bottom:none}
             <option value="PLANLI DURUŞ">🔵 Planlı Duruş</option>
             <option value="DURDU">🔴 Durdu</option>
             <option value="VARDİYA SONU DURUŞ">🌙 Vardiya Sonu Duruş</option>
+            <option value="İŞ BİTİRİLDİ">🏁 İŞ BİTİRİLDİ</option>
           </select>
         </div>
       </div>
@@ -2000,6 +2001,13 @@ function vardiyaKaydet() {
   const gercek = parseInt(document.getElementById('giGerceklesen').value) || 0;
   const fire = parseInt(document.getElementById('giFire').value) || 0;
   const durum = document.getElementById('giDurum').value;
+   if (durum === 'İŞ BİTİRİLDİ') {
+  const gercek = parseInt(document.getElementById('giGerceklesen').value) || 0;
+  const hedef = secilenAtama ? secilenAtama.hedef : 0;
+  if (gercek < hedef) {
+    showToast('❌ İŞ BİTİRİLDİ için Gerçekleşen Adet, Hedef Adet\'ten küçük olamaz!', 'err');
+    return;
+  }
   const not = document.getElementById('giNot').value.trim();
 
   if (!takim) { showToast('❗ Takım seçiniz!', 'err'); return; }
@@ -2097,7 +2105,7 @@ function vardiyaKaydet() {
   if (durum === 'VARDİYA SONU DURUŞ' && secilenAtama) {
     vardiyaSonuDevamOlustur(secilenAtama);
   }
-
+  
   formTemizle();
 }
 // ══════════════════════════════════════════════
@@ -3503,6 +3511,18 @@ function vardiyaSonuHepsiniDevamEt() {
   renderBugunAtamalar();
   showToast(`✅ ${olusturulan} devam ataması oluşturuldu!`,'ok');
   logEkle('ATAMA', `🌙 Toplu vardiya sonu devam: ${olusturulan} atama oluşturuldu`, currentUser);
+}
+  function durumSecildi() {
+  const durum = document.getElementById('giDurum').value;
+  if (durum !== 'İŞ BİTİRİLDİ') return;
+
+  const gercek = parseInt(document.getElementById('giGerceklesen').value) || 0;
+  const hedef  = parseInt(document.getElementById('aHedef')?.value) || 0; // veya secilenAtama.hedef
+
+  if (gercek < hedef) {
+    showToast('❌ İŞ BİTİRİLDİ seçmek için Gerçekleşen Adet ≥ Hedef Adet olmalıdır!', 'err');
+    document.getElementById('giDurum').value = ''; // geri al
+  }
 }
 // ══ GS SENKRONIZASYON — v2.3 (doPost destekli) ══
 
