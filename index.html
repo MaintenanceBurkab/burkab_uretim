@@ -2004,10 +2004,12 @@ function vardiyaKaydet() {
    if (durum === 'İŞ BİTİRİLDİ') {
   const gercek = parseInt(document.getElementById('giGerceklesen').value) || 0;
   const hedef = secilenAtama ? secilenAtama.hedef : 0;
+  
   if (gercek < hedef) {
     showToast('❌ İŞ BİTİRİLDİ için Gerçekleşen Adet, Hedef Adet\'ten küçük olamaz!', 'err');
     return;
   }
+}
   const not = document.getElementById('giNot').value.trim();
 
   if (!takim) { showToast('❗ Takım seçiniz!', 'err'); return; }
