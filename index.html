@@ -2057,7 +2057,7 @@ function fireSebebiSec(sebep) {
 }
 
 // ══════════════════════════════════════════════
-// KAYDET — VARDİYA (TAM TEMİZ - Hatasız)
+// KAYDET — VARDİYA (TEMİZ + HATASIZ VERSİYON)
 // ══════════════════════════════════════════════
 function vardiyaKaydet() {
   const takim = document.getElementById('giTakimNo').value;
@@ -2066,15 +2066,6 @@ function vardiyaKaydet() {
   const gercek = parseInt(document.getElementById('giGerceklesen').value) || 0;
   const fire = parseInt(document.getElementById('giFire').value) || 0;
   const durum = document.getElementById('giDurum').value;
-   if (durum === 'İŞ BİTİRİLDİ') {
-  const gercek = parseInt(document.getElementById('giGerceklesen').value) || 0;
-  const hedef = secilenAtama ? secilenAtama.hedef : 0;
-  
-  if (gercek < hedef) {
-    showToast('❌ İŞ BİTİRİLDİ için Gerçekleşen Adet, Hedef Adet\'ten küçük olamaz!', 'err');
-    return;
-  }
-}
   const not = document.getElementById('giNot').value.trim();
 
   if (!takim) { showToast('❗ Takım seçiniz!', 'err'); return; }
@@ -2082,28 +2073,26 @@ function vardiyaKaydet() {
   if (!kisi) { showToast('❗ Giren kişi adı giriniz!', 'err'); return; }
   if (!durum) { showToast('❗ Durum seçiniz!', 'err'); return; }
 
+  // Fire kontrolü
   const fireSebep = document.getElementById('giFireSebep')?.value.trim() || '';
   const fireLokasyon = document.getElementById('giFireLokasyon')?.value.trim() || '';
   const fireAciklama = document.getElementById('giFireAciklama')?.value.trim() || '';
-
   if (fire > 0 && !fireSebep) {
     showToast('❗ Fire/Iskarta sebebi giriniz!', 'err');
     return;
   }
 
+  // Seçili atamayı bul
   loadAtamalar();
   let secilenAtama = null;
-
   if (seciliAtamaId) {
     secilenAtama = atamalar.find(a => a.id === seciliAtamaId);
-  }
-
-  if (!secilenAtama) {
+  } else {
     const isler = atamalar.filter(a => a.takim === takim && a.tarih === tarih);
     if (isler.length === 1) {
       secilenAtama = isler[0];
     } else if (isler.length > 1) {
-      showToast('❗ Lütfen bir iş seçiniz!', 'err');
+      showToast('❗ Lütfen listeden bir iş seçiniz!', 'err');
       return;
     }
   }
@@ -2111,8 +2100,19 @@ function vardiyaKaydet() {
   const musteri = secilenAtama ? secilenAtama.musteri : '';
   const projeKodu = secilenAtama ? secilenAtama.projeKodu : '';
   const vardiya = secilenAtama ? secilenAtama.vardiya : 'NORMAL';
+  const hedef = secilenAtama ? (secilenAtama.hedef || 0) : 0;
+
+  // İŞ BİTİRİLDİ kontrolü
+  if (durum === 'İŞ BİTİRİLDİ' && hedef > 0) {
+    if (gercek < hedef) {
+      showToast('❌ İŞ BİTİRİLDİ için Gerçekleşen Adet, Hedef Adet\'ten küçük olamaz!', 'err');
+      return;
+    }
+  }
+
   const verim = hedef > 0 ? Math.round((gercek / hedef) * 100) : 0;
 
+  // Fire sebebini kaydet
   if (fireSebep) fireSebebiKaydet(fireSebep);
 
   loadKayitlar();
@@ -2141,12 +2141,8 @@ function vardiyaKaydet() {
   kayitlar.push(yeniKayit);
   saveKayitlar();
 
-  // ✅ GS'ye gönder
-  saveUretimKayitGS(yeniKayit).then(res => {
-    if (!res.ok) {
-      console.warn('Üretim GS\'ye yazılamadı:', res.error);
-    }
-  });
+  // GS'ye gönder
+  saveUretimKayitGS(yeniKayit);
 
   // Atamayı tamamlandı yap
   if (secilenAtama) {
@@ -2159,20 +2155,22 @@ function vardiyaKaydet() {
 
   logEkle('ÜRETİM', `📦 Üretim girişi: ${takim} | ${projeKodu} | Gerçekleşen: ${gercek} | Verim: %${verim}`, currentUser);
 
-  // === YÜKSEK VERİMLİLİK UYARILARI ===
+  // Verimlilik uyarıları
   if (verim >= 200) {
-    showToast(`⚠️ Verimlilik %${verim}! Hedef çok düşük olabilir. Hedef değerini kontrol edin.`, 'err');
+    showToast(`⚠️ Verimlilik %${verim}! Hedef çok düşük olabilir.`, 'err');
   } else if (verim >= 150) {
-    showToast(`⚡ Verimlilik %${verim}! Hedefin oldukça üzerinde. Tebrikler!`, 'warn');
+    showToast(`⚡ Mükemmel! Verimlilik %${verim}`, 'ok');
   } else {
     showToast('✅ Üretim girişi kaydedildi!', 'ok');
   }
 
+  // Vardiya sonu devam ataması
   if (durum === 'VARDİYA SONU DURUŞ' && secilenAtama) {
     vardiyaSonuDevamOlustur(secilenAtama);
   }
-  
+
   formTemizle();
+  renderBugunAtamalar(); // Güncelle
 }
 // ══════════════════════════════════════════════
 // TAKIM DURUMU
