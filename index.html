@@ -1327,20 +1327,20 @@ function applyRoleUI(role) {
   const nav = document.getElementById('navTabs');
   if (role === 'yonetici') {
     nav.innerHTML = `
-      <button class="nav-tab active" onclick="goTab('atama',this)">📋 İŞ ATAMA</button>
-      <button class="nav-tab" onclick="goTab('durum',this)">🏭 TAKIM DURUMU</button>
-      <button class="nav-tab" onclick="goTab('rapor',this)">📊 RAPORLAR</button>
-      <button class="nav-tab" onclick="goTab('gecmis',this)">📋 GEÇMİŞ</button>
-      <button class="nav-tab" onclick="goTab('takim',this)">👥 TAKIM YÖNETİMİ</button>
-      <button class="nav-tab" onclick="goTab('durus',this)" style="color:#ff7043;font-weight:700">⏱️ DURUŞLAR</button>`;
+      <button class="nav-tab active" onclick="('atama',this)">📋 İŞ ATAMA</button>
+      <button class="nav-tab" onclick="('durum',this)">🏭 TAKIM DURUMU</button>
+      <button class="nav-tab" onclick="('rapor',this)">📊 RAPORLAR</button>
+      <button class="nav-tab" onclick="('gecmis',this)">📋 GEÇMİŞ</button>
+      <button class="nav-tab" onclick="('takim',this)">👥 TAKIM YÖNETİMİ</button>
+      <button class="nav-tab" onclick="('durus',this)" style="color:#ff7043;font-weight:700">⏱️ DURUŞLAR</button>`;
     document.getElementById('tab-giris').style.display='none';
     document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
     document.getElementById('tab-atama').classList.add('active');
     renderBugunAtamalar();
   } else if (role==='uretim') {
     nav.innerHTML = `
-      <button class="nav-tab active" onclick="goTab('giris',this)">📝 ÜRETİM GİRİŞİ</button>
-      <button class="nav-tab" onclick="goTab('talep',this)" style="color:#f5c400;font-weight:700">🔧 BAKIM TALEBİ</button>
+      <button class="nav-tab active" onclick="('giris',this)">📝 ÜRETİM GİRİŞİ</button>
+      <button class="nav-tab" onclick="('talep',this)" style="color:#f5c400;font-weight:700">🔧 BAKIM TALEBİ</button>
       <button class="nav-tab" onclick="goTab('rapor',this)">📊 RAPORLAR</button>
       <button class="nav-tab" onclick="goTab('durus',this)" style="color:#ff7043;font-weight:700">⏱️ DURUŞLAR</button>`;
     document.getElementById('tab-atama').style.display='none';
@@ -1420,8 +1420,11 @@ function goTab(id, btn) {
   if (id==='talep')  {
     renderTalepGecmis();
     if (currentUser) document.getElementById('talepBildiren').value = currentUser.name;
-  }
-  if (id==='durus')  { renderDurusGecmis(); durusKpiGuncelle(); renderAktifDuruslar(); }
+  }if (id==='durus')  { 
+  renderDurusGecmis(); 
+  durusKpiGuncelle(); 
+  renderAktifDuruslar(); 
+}
   if (id==='admin')  { renderAdminPanel(); }
   if (id==='giris')  { vardiyaSonuBannerKontrol(); }
 }
@@ -3907,6 +3910,7 @@ function formTemizle() {
     if (g) g.value = currentUser.name;
   }
 }
+// ====================== DURUŞ BİTİR MODALI (TEMİZ VERSİYON) ======================
 let bitirilecekDurusId = null;
 
 function durusBitir(id) {
@@ -3919,56 +3923,11 @@ function durusBitir(id) {
 
   bitirilecekDurusId = id;
 
-  // Gerçek geçen süreyi güvenli hesapla
-  let gecenSure = 0;
+  let gecenSure = 10;
   try {
     const baslangic = new Date(kayit.baslangicZamani);
-    if (isNaN(baslangic.getTime())) {
-      // Eski kayıtlar için fallback
-      gecenSure = parseInt(kayit.sureDk) || 15;
-    } else {
-      gecenSure = Math.round((Date.now() - baslangic.getTime()) / 60000);
-    }
-  } catch(e) {
-    gecenSure = 10; // güvenlik
-  }
-
-  // Modal bilgilerini doldur
-  document.getElementById('modalDurusBilgi').innerHTML = `
-    <strong>${kayit.bolum || ''} — ${kayit.makine || ''}</strong><br>
-    ${kayit.neden || ''}<br>
-    <small>Başlangıç: ${kayit.saat || ''}</small>
-  `;
-
-  document.getElementById('modalGercekSure').value = `${gecenSure} dakika`;
-  document.getElementById('modalKokNeden').value = kayit.kokNeden || '';
-  document.getElementById('modalYapilan').value = kayit.yapilan || '';
-  document.getElementById('modalAciklama').value = kayit.aciklama || '';
-
-  document.getElementById('durusBitirModal').classList.add('open');
-
-}
-  // ==================== DURUŞ BİTİR MODAL FONKSİYONLARI ====================
-
-let bitirilecekDurusId = null;
-
-function durusBitir(id) {
-  const liste = duruslariYukle();
-  const kayit = liste.find(d => d.id === id);
-  if (!kayit) {
-    showToast('Kayıt bulunamadı!', 'err');
-    return;
-  }
-
-  bitirilecekDurusId = id;
-
-  let gecenSure = 0;
-  try {
-    const baslangic = new Date(kayit.baslangicZamani);
-    gecenSure = isNaN(baslangic.getTime()) ? 10 : Math.round((Date.now() - baslangic.getTime()) / 60000);
-  } catch(e) {
-    gecenSure = 10;
-  }
+    gecenSure = Math.round((Date.now() - baslangic.getTime()) / 60000);
+  } catch(e) {}
 
   document.getElementById('modalDurusBilgi').innerHTML = `
     <strong>${kayit.bolum || ''} — ${kayit.makine || ''}</strong><br>
@@ -4021,73 +3980,11 @@ function durusBitirOnayla() {
   renderDurusGecmis();
   durusKpiGuncelle();
 }
-  // ==================== DURUŞ BİTİR MODAL ====================
-let bitirilecekDurusId = null;
 
-window.durusBitir = function(id) {
-  const liste = duruslariYukle();
-  const kayit = liste.find(d => d.id === id);
-  if (!kayit) return;
-
-  bitirilecekDurusId = id;
-
-  let gecenSure = 10;
-  try {
-    const baslangic = new Date(kayit.baslangicZamani);
-    gecenSure = Math.round((Date.now() - baslangic.getTime()) / 60000);
-  } catch(e) {}
-
-  document.getElementById('modalDurusBilgi').innerHTML = `
-    <strong>${kayit.bolum || ''} — ${kayit.makine || ''}</strong><br>
-    ${kayit.neden || ''}<br>
-    <small>Başlangıç: ${kayit.saat || ''}</small>
-  `;
-
-  document.getElementById('modalGercekSure').value = `${gecenSure} dakika`;
-  document.getElementById('modalKokNeden').value = kayit.kokNeden || '';
-  document.getElementById('modalYapilan').value = kayit.yapilan || '';
-  document.getElementById('modalAciklama').value = kayit.aciklama || '';
-
-  document.getElementById('durusBitirModal').classList.add('open');
-};
-
-window.durusBitirModalKapat = function() {
-  document.getElementById('durusBitirModal').classList.remove('open');
-  bitirilecekDurusId = null;
-};
-
-window.durusBitirOnayla = function() {
-  if (!bitirilecekDurusId) return;
-
-  const kokNeden = document.getElementById('modalKokNeden').value.trim();
-  if (!kokNeden) {
-    showToast('❗ Kök Neden alanını doldurunuz!', 'err');
-    return;
-  }
-
-  let liste = duruslariYukle();
-  const index = liste.findIndex(d => d.id === bitirilecekDurusId);
-  if (index === -1) return;
-
-  const kayit = liste[index];
-  const simdi = new Date();
-
-  kayit.durum = 'BITTI';
-  kayit.bitisZamani = simdi.toISOString();
-  kayit.gercekSureDk = Math.round((simdi - new Date(kayit.baslangicZamani)) / 60000);
-  kayit.kokNeden = kokNeden;
-  kayit.yapilan = document.getElementById('modalYapilan').value.trim();
-  kayit.aciklama = document.getElementById('modalAciklama').value.trim();
-
-  duruslariKaydet(liste);
-  durusBitirModalKapat();
-  
-  showToast(`✅ Duruş bitirildi • ${kayit.gercekSureDk} dakika`, 'ok');
-
-  renderAktifDuruslar();
-  renderDurusGecmis();
-  durusKpiGuncelle();
-};
+// Sayfa yüklendiğinde aktif duruşları göster
+window.addEventListener('load', () => {
+  setTimeout(renderAktifDuruslar, 800);
+});
 </script>
 </body>
 </html>
