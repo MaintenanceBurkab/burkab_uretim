@@ -3620,6 +3620,8 @@ function saveUretimKayitGS(kayit) {
 }
 
 function saveDurusKayitGS(kayit) {
+  const gercekSure = Number(kayit.gercekSureDk || kayit.sureDk || 0);
+
   var payload = { 
     action: 'saveDurusKayit', 
     kayit: {
@@ -3631,8 +3633,8 @@ function saveDurusKayitGS(kayit) {
       bildiren:       String(kayit.bildiren || ''),
       neden:          String(kayit.neden || ''),
       etkisi:         String(kayit.etkisi || ''),
-      sureDk:         Number(kayit.sureDk || 0),           // tahmini süre
-      hesaplanan:     Number(kayit.gercekSureDk || 0),     // ← GERÇEK SÜRE (bitince dolar)
+      sureDk:         gercekSure,                    // ← GERÇEK SÜRE BURAYA
+      hesaplanan:     gercekSure,
       projeNo:        String(kayit.projeNo || ''),
       sorumluBolum:   String(kayit.sorumluBolum || ''),
       sorumluKisi:    String(kayit.sorumluKisi || ''),
@@ -3646,7 +3648,7 @@ function saveDurusKayitGS(kayit) {
 
   jsonpGonderGS(GS_URL, payload)
     .then(function(s) {
-      if (s && s.ok) console.log('✅ GS Duruş OK');
+      if (s && s.ok) console.log('✅ GS Duruş OK - Süre:', gercekSure);
     })
     .catch(function(e) {
       console.warn('GS Duruş Hatası:', e.message);
