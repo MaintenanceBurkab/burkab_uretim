@@ -3620,7 +3620,13 @@ function saveUretimKayitGS(kayit) {
 }
 
 function saveDurusKayitGS(kayit) {
-  const gercekSure = Number(kayit.gercekSureDk || kayit.sureDk || 0);
+  const gercekSure = Number(kayit.gercekSureDk || 0);
+  let hesaplanan = gercekSure;
+
+  // Kısmi Duruş mantığı
+  if (kayit.etkisi === 'KISMİ DURUŞ') {
+    hesaplanan = Math.round(gercekSure * 0.7);   // %30 azalma
+  }
 
   var payload = { 
     action: 'saveDurusKayit', 
@@ -3633,8 +3639,8 @@ function saveDurusKayitGS(kayit) {
       bildiren:       String(kayit.bildiren || ''),
       neden:          String(kayit.neden || ''),
       etkisi:         String(kayit.etkisi || ''),
-      sureDk:         gercekSure,                    // ← GERÇEK SÜRE BURAYA
-      hesaplanan:     gercekSure,
+      sureDk:         gercekSure,           // Gerçek geçen süre
+      hesaplanan:     hesaplanan,           // Hesaplanan (Kısmi ise %70)
       projeNo:        String(kayit.projeNo || ''),
       sorumluBolum:   String(kayit.sorumluBolum || ''),
       sorumluKisi:    String(kayit.sorumluKisi || ''),
@@ -3648,7 +3654,7 @@ function saveDurusKayitGS(kayit) {
 
   jsonpGonderGS(GS_URL, payload)
     .then(function(s) {
-      if (s && s.ok) console.log('✅ GS Duruş OK - Süre:', gercekSure);
+      if (s && s.ok) console.log('✅ GS Duruş OK | Gerçek:', gercekSure, 'Hesaplanan:', hesaplanan);
     })
     .catch(function(e) {
       console.warn('GS Duruş Hatası:', e.message);
