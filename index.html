@@ -3937,6 +3937,79 @@ function durusBitir(id) {
   document.getElementById('durusBitirModal').classList.add('open');
 
 }
+  // ==================== DURUŞ BİTİR MODAL FONKSİYONLARI ====================
+
+let bitirilecekDurusId = null;
+
+function durusBitir(id) {
+  const liste = duruslariYukle();
+  const kayit = liste.find(d => d.id === id);
+  if (!kayit) {
+    showToast('Kayıt bulunamadı!', 'err');
+    return;
+  }
+
+  bitirilecekDurusId = id;
+
+  let gecenSure = 0;
+  try {
+    const baslangic = new Date(kayit.baslangicZamani);
+    gecenSure = isNaN(baslangic.getTime()) ? 10 : Math.round((Date.now() - baslangic.getTime()) / 60000);
+  } catch(e) {
+    gecenSure = 10;
+  }
+
+  document.getElementById('modalDurusBilgi').innerHTML = `
+    <strong>${kayit.bolum || ''} — ${kayit.makine || ''}</strong><br>
+    ${kayit.neden || ''}<br>
+    <small>Başlangıç: ${kayit.saat || ''}</small>
+  `;
+
+  document.getElementById('modalGercekSure').value = `${gecenSure} dakika`;
+  document.getElementById('modalKokNeden').value = kayit.kokNeden || '';
+  document.getElementById('modalYapilan').value = kayit.yapilan || '';
+  document.getElementById('modalAciklama').value = kayit.aciklama || '';
+
+  document.getElementById('durusBitirModal').classList.add('open');
+}
+
+function durusBitirModalKapat() {
+  document.getElementById('durusBitirModal').classList.remove('open');
+  bitirilecekDurusId = null;
+}
+
+function durusBitirOnayla() {
+  if (!bitirilecekDurusId) return;
+
+  const kokNeden = document.getElementById('modalKokNeden').value.trim();
+  if (!kokNeden) {
+    showToast('❗ Kök Neden alanını doldurunuz!', 'err');
+    return;
+  }
+
+  let liste = duruslariYukle();
+  const index = liste.findIndex(d => d.id === bitirilecekDurusId);
+  if (index === -1) return;
+
+  const kayit = liste[index];
+  const simdi = new Date();
+
+  kayit.durum = 'BITTI';
+  kayit.bitisZamani = simdi.toISOString();
+  kayit.gercekSureDk = Math.round((simdi - new Date(kayit.baslangicZamani)) / 60000);
+  kayit.kokNeden = kokNeden;
+  kayit.yapilan = document.getElementById('modalYapilan').value.trim();
+  kayit.aciklama = document.getElementById('modalAciklama').value.trim();
+
+  duruslariKaydet(liste);
+  durusBitirModalKapat();
+  
+  showToast(`✅ Duruş bitirildi • ${kayit.gercekSureDk} dakika`, 'ok');
+
+  renderAktifDuruslar();
+  renderDurusGecmis();
+  durusKpiGuncelle();
+}
 </script>
 </body>
 </html>
