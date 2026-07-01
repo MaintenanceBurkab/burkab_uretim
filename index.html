@@ -1030,7 +1030,51 @@ tr:last-child td{border-bottom:none}
       </div>
     </div>
   </div>
+<!-- DURUŞ BİTİR MODAL -->
+<div id="durusBitirModal" class="modal-overlay">
+  <div class="modal-box" style="max-width:480px;">
+    <div class="modal-head">
+      <div class="modal-title">⏱️ Duruşu Bitir</div>
+      <button class="modal-close" onclick="durusBitirModalKapat()">✕</button>
+    </div>
+    
+    <div id="modalDurusBilgi" style="background:#fff3e0; padding:12px; border-radius:8px; margin-bottom:16px; font-size:14px;"></div>
 
+    <div class="field" style="margin-bottom:14px">
+      <label>Gerçek Geçen Süre <span class="req">*</span></label>
+      <input type="text" id="modalGercekSure" readonly style="background:#f0f0ec; font-size:18px; font-weight:700; text-align:center;">
+    </div>
+
+    <div class="field" style="margin-bottom:14px">
+      <label>Kök Neden <span class="req">*</span></label>
+      <input type="text" id="modalKokNeden" placeholder="Kök nedeni detaylı yazın..." 
+             oninput="this.value=this.value.toUpperCase()" style="font-weight:600;">
+    </div>
+
+    <div class="field" style="margin-bottom:14px">
+      <label>Yapılan İşlemler / Müdahale</label>
+      <textarea id="modalYapilan" rows="3" placeholder="Bakım ekibi ne yaptı? Değiştirilen parça vs..." 
+                oninput="this.value=this.value.toUpperCase()"></textarea>
+    </div>
+
+    <div class="field">
+      <label>Ek Açıklama</label>
+      <textarea id="modalAciklama" rows="2" placeholder="Varsa ek not..." 
+                oninput="this.value=this.value.toUpperCase()"></textarea>
+    </div>
+
+    <div style="margin-top:20px; display:flex; gap:10px;">
+      <button onclick="durusBitirOnayla()" 
+              style="flex:1; background:#d32f2f; color:white; border:none; padding:14px; border-radius:8px; font-weight:700; font-size:16px;">
+        ✅ DURUŞU BİTİR VE KAYDET
+      </button>
+      <button onclick="durusBitirModalKapat()" 
+              style="background:#f0f0ec; color:#444; border:none; padding:14px 20px; border-radius:8px;">
+        İptal
+      </button>
+    </div>
+  </div>
+</div>
   <div class="section">
     <div class="section-head"><div class="dot" style="background:#ff7043"></div>📋 DURUŞ KAYITLARI</div>
     <div class="section-body">
@@ -3806,6 +3850,72 @@ function formTemizle() {
     const g = document.getElementById('giKisi');
     if (g) g.value = currentUser.name;
   }
+}
+let bitirilecekDurusId = null;
+
+function durusBitir(id) {
+  const liste = duruslariYukle();
+  const kayit = liste.find(d => d.id === id);
+  if (!kayit) return;
+
+  bitirilecekDurusId = id;
+
+  const baslangic = new Date(kayit.baslangicZamani);
+  const simdi = new Date();
+  const gecenSure = Math.round((simdi - baslangic) / 60000);
+
+  // Modal bilgilerini doldur
+  document.getElementById('modalDurusBilgi').innerHTML = `
+    <strong>${kayit.bolum} — ${kayit.makine}</strong><br>
+    ${kayit.neden} <br>
+    <small>Başlangıç: ${kayit.saat}</small>
+  `;
+
+  document.getElementById('modalGercekSure').value = `${gecenSure} dakika`;
+  document.getElementById('modalKokNeden').value = kayit.kokNeden || '';
+  document.getElementById('modalYapilan').value = kayit.yapilan || '';
+  document.getElementById('modalAciklama').value = kayit.aciklama || '';
+
+  document.getElementById('durusBitirModal').classList.add('open');
+}
+
+function durusBitirModalKapat() {
+  document.getElementById('durusBitirModal').classList.remove('open');
+  bitirilecekDurusId = null;
+}
+
+function durusBitirOnayla() {
+  if (!bitirilecekDurusId) return;
+
+  const kokNeden = document.getElementById('modalKokNeden').value.trim();
+  if (!kokNeden) {
+    showToast('❗ Kök Neden alanını doldurunuz!', 'err');
+    return;
+  }
+
+  let liste = duruslariYukle();
+  const index = liste.findIndex(d => d.id === bitirilecekDurusId);
+  if (index === -1) return;
+
+  const kayit = liste[index];
+  const simdi = new Date();
+
+  kayit.durum = 'BITTI';
+  kayit.bitisZamani = simdi.toISOString();
+  kayit.gercekSureDk = Math.round((simdi - new Date(kayit.baslangicZamani)) / 60000);
+  kayit.kokNeden = kokNeden;
+  kayit.yapilan = document.getElementById('modalYapilan').value.trim();
+  kayit.aciklama = document.getElementById('modalAciklama').value.trim();
+
+  duruslariKaydet(liste);
+
+  durusBitirModalKapat();
+  
+  showToast(`✅ Duruş başarıyla bitirildi (${kayit.gercekSureDk} dk)`, 'ok');
+
+  renderAktifDuruslar();
+  renderDurusGecmis();
+  durusKpiGuncelle();
 }
 </script>
 </body>
