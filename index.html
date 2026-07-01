@@ -1030,6 +1030,13 @@ tr:last-child td{border-bottom:none}
       </div>
     </div>
   </div>
+  <!-- AKTİF DEVAM EDEN DURUŞLAR -->
+<div id="aktifDuruslarBandi" style="display:none; background:#ffebee; border:2px solid #d32f2f; border-radius:10px; padding:14px 16px; margin-bottom:20px;">
+  <div style="font-size:15px; font-weight:800; color:#d32f2f; margin-bottom:10px;">
+    ⏱️ AKTİF DEVAM EDEN DURUŞLAR
+  </div>
+  <div id="aktifDurusListesi" style="display:flex; flex-direction:column; gap:10px;"></div>
+</div>
 <!-- DURUŞ BİTİR MODAL -->
 <div id="durusBitirModal" class="modal-overlay">
   <div class="modal-box" style="max-width:480px;">
@@ -1403,7 +1410,7 @@ function goTab(id, btn) {
     renderTalepGecmis();
     if (currentUser) document.getElementById('talepBildiren').value = currentUser.name;
   }
-  if (id==='durus')  { renderDurusGecmis(); durusKpiGuncelle(); }
+  if (id==='durus')  { renderDurusGecmis(); durusKpiGuncelle(); renderAktifDuruslar(); }
   if (id==='admin')  { renderAdminPanel(); }
   if (id==='giris')  { vardiyaSonuBannerKontrol(); }
 }
@@ -3094,7 +3101,7 @@ function initPage(){
   }
   tanimlarYukle().then(()=>{renderBugunAtamalar();});
 }
-
+renderAktifDuruslar();
 // ══════════════════════════════════════════════
 // GS BAĞLANTI TANIMLAMA DEBUG
 // ══════════════════════════════════════════════
@@ -3813,6 +3820,40 @@ function saveUretimKayitGS(kayit) {
         resolve({ ok: false, error: e.message });
       });
   });
+}
+  function renderAktifDuruslar() {
+  const liste = duruslariYukle().filter(d => d.durum === 'DEVAM' || !d.durum);
+  const bandi = document.getElementById('aktifDuruslarBandi');
+  const container = document.getElementById('aktifDurusListesi');
+
+  if (!bandi || !container) return;
+
+  if (liste.length === 0) {
+    bandi.style.display = 'none';
+    return;
+  }
+
+  bandi.style.display = 'block';
+
+  container.innerHTML = liste.map(d => {
+    const baslangic = new Date(d.baslangicZamani || d.kayitZamani);
+    const gecenSure = Math.round((Date.now() - baslangic) / 60000);
+
+    return `
+      <div style="background:#fff; padding:12px 14px; border-radius:8px; border-left:4px solid #d32f2f;">
+        <div style="display:flex; justify-content:space-between; align-items:start;">
+          <div style="flex:1;">
+            <strong>${d.bolum} • ${d.makine}</strong><br>
+            <span style="color:#c62828;">${d.neden}</span><br>
+            <small style="color:#666;">${d.bildiren} • ${gecenSure} dakika geçti</small>
+          </div>
+          <button onclick="durusBitir(${d.id})" 
+                  style="background:#d32f2f; color:white; border:none; padding:8px 14px; border-radius:6px; font-weight:700; font-size:13px; cursor:pointer; white-space:nowrap;">
+            Bitir
+          </button>
+        </div>
+      </div>`;
+  }).join('');
 }
   // ══════════════════════════════════════════════
 // FORM TEMİZLE (Üretim Girişi)
