@@ -2826,6 +2826,7 @@ async function durusKaydet(){
   const makine    = document.getElementById('durusMakine')?.value?.trim() || '';
   const bildiren  = document.getElementById('durusBildiren').value.trim();
   const neden     = document.getElementById('durusNeden').value;
+  const etkisi    = document.getElementById('durusEtkisi')?.value || '';   // ← EKLENDİ
   const aciklama  = document.getElementById('durusAciklama').value.trim();
   const sorumluB  = document.getElementById('durusSorumluBolum').value;
   const sorumluK  = document.getElementById('durusSorumluKisi')?.value || '';
@@ -2857,6 +2858,8 @@ async function durusKaydet(){
     makine,
     bildiren,
     neden,
+    etkisi,                    // ← EKLENDİ
+    sureDk: 0,                 // ← EKLENDİ (başlangıçta 0)
     aciklama,
     sorumluBolum: sorumluB,
     sorumluKisi: sorumluK,
@@ -3617,37 +3620,40 @@ function saveUretimKayitGS(kayit) {
 }
 
 function saveDurusKayitGS(kayit) {
-  var payload = { action: 'saveDurusKayit', kayit: {
-    formNo:       String(kayit.formNo || ''),
-    tarih:        String(kayit.tarih || ''),
-    saat:         String(kayit.saat || ''),
-    bolum:        String(kayit.bolum || ''),
-    makine:       String(kayit.makine || ''),
-    bildiren:     String(kayit.bildiren || ''),
-    neden:        String(kayit.neden || ''),
-    etkisi:       String(kayit.etkisi || ''),
-    sureDk:       Number(kayit.sureDk || 0),
-    hesaplanan:   Number(kayit.hesaplanan || 0),
-    projeNo:      String(kayit.projeNo || ''),
-    sorumluBolum: String(kayit.sorumluBolum || ''),
-    sorumluKisi:  String(kayit.sorumluKisi || ''),
-    kokNeden:     String(kayit.kokNeden || ''),
-    aciklama:     String(kayit.aciklama || ''),
-    yapilan:      String(kayit.yapilan || ''),
-    kaynakFormNo: String(kayit.kaynakFormNo || ''),
-    kayitZamani:  String(kayit.kayitZamani || new Date().toLocaleString('tr-TR'))
-  }};
+  var payload = { 
+    action: 'saveDurusKayit', 
+    kayit: {
+      formNo:       String(kayit.formNo || ''),
+      tarih:        String(kayit.tarih || ''),
+      saat:         String(kayit.saat || ''),
+      bolum:        String(kayit.bolum || ''),
+      makine:       String(kayit.makine || ''),
+      bildiren:     String(kayit.bildiren || ''),
+      neden:        String(kayit.neden || ''),
+      etkisi:       String(kayit.etkisi || ''),           // ← EKLENDİ
+      sureDk:       Number(kayit.sureDk || 0),           // ← EKLENDİ (tahmini)
+      hesaplanan:   Number(kayit.gercekSureDk || 0),     // ← Gerçek süre buraya
+      projeNo:      String(kayit.projeNo || ''),
+      sorumluBolum: String(kayit.sorumluBolum || ''),
+      sorumluKisi:  String(kayit.sorumluKisi || ''),
+      kokNeden:     String(kayit.kokNeden || ''),
+      aciklama:     String(kayit.aciklama || ''),
+      yapilan:      String(kayit.yapilan || ''),
+      kaynakFormNo: String(kayit.kaynakFormNo || ''),
+      kayitZamani:  String(kayit.kayitZamani || new Date().toLocaleString('tr-TR'))
+    }
+  };
 
   jsonpGonderGS(GS_URL, payload)
     .then(function(s) {
       if (s && s.ok) {
-        console.log('✅ GS Duruslar OK:', s.mode, '| FormNo:', kayit.formNo);
+        console.log('✅ GS Duruş Kaydı Başarılı');
       } else {
-        console.warn('⚠️ GS Duruslar HATA:', JSON.stringify(s));
+        console.warn('⚠️ GS Duruş Hatası:', s);
       }
     })
     .catch(function(e) {
-      console.warn('⚠️ GS Duruslar bağlantı hatası:', e.message);
+      console.warn('⚠️ GS Duruş Bağlantı Hatası:', e.message);
     });
 }
 
