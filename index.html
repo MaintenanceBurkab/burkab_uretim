@@ -3927,24 +3927,29 @@ function durusBitirOnayla() {
   kayit.durum = 'BITTI';
   kayit.bitisZamani = simdi.toISOString();
   kayit.gercekSureDk = Math.round((simdi - new Date(kayit.baslangicZamani)) / 60000);
+  
+  // SÜRE ALANLARINI GÜNCELLE
+  kayit.sureDk = kayit.gercekSureDk;           // tahmini = gerçek
+  kayit.hesaplanan = kayit.gercekSureDk;       // HesaplananDk için
+
+  // Kısmi Duruş mantığı (isteğe bağlı)
+  if (kayit.etkisi === 'KISMİ DURUŞ') {
+    kayit.hesaplanan = Math.round(kayit.gercekSureDk * 0.7);
+  }
+
   kayit.kokNeden = kokNeden;
   kayit.yapilan = document.getElementById('modalYapilan').value.trim();
   kayit.aciklama = document.getElementById('modalAciklama').value.trim();
 
   duruslariKaydet(liste);
   durusBitirModalKapat();
-  
+ 
   showToast(`✅ Duruş bitirildi • ${kayit.gercekSureDk} dakika`, 'ok');
 
   renderAktifDuruslar();
   renderDurusGecmis();
   durusKpiGuncelle();
 }
-
-// Sayfa yüklendiğinde aktif duruşları göster
-window.addEventListener('load', () => {
-  setTimeout(renderAktifDuruslar, 800);
-});
   function formTemizleDurus() {
   ['durusBolum','durusNeden','durusAciklama','durusSorumluBolum','durusKokNeden','durusYapilan','durusProjeNo'].forEach(id => {
     const el = document.getElementById(id);
