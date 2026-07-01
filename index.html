@@ -3623,40 +3623,35 @@ function saveDurusKayitGS(kayit) {
   var payload = { 
     action: 'saveDurusKayit', 
     kayit: {
-      formNo:       String(kayit.formNo || ''),
-      tarih:        String(kayit.tarih || ''),
-      saat:         String(kayit.saat || ''),
-      bolum:        String(kayit.bolum || ''),
-      makine:       String(kayit.makine || ''),
-      bildiren:     String(kayit.bildiren || ''),
-      neden:        String(kayit.neden || ''),
-      etkisi:       String(kayit.etkisi || ''),           // ← EKLENDİ
-      sureDk:       Number(kayit.sureDk || 0),           // ← EKLENDİ (tahmini)
-      hesaplanan:   Number(kayit.gercekSureDk || 0),     // ← Gerçek süre buraya
-      projeNo:      String(kayit.projeNo || ''),
-      sorumluBolum: String(kayit.sorumluBolum || ''),
-      sorumluKisi:  String(kayit.sorumluKisi || ''),
-      kokNeden:     String(kayit.kokNeden || ''),
-      aciklama:     String(kayit.aciklama || ''),
-      yapilan:      String(kayit.yapilan || ''),
-      kaynakFormNo: String(kayit.kaynakFormNo || ''),
-      kayitZamani:  String(kayit.kayitZamani || new Date().toLocaleString('tr-TR'))
+      formNo:         String(kayit.formNo || ''),
+      tarih:          String(kayit.tarih || ''),
+      saat:           String(kayit.saat || ''),
+      bolum:          String(kayit.bolum || ''),
+      makine:         String(kayit.makine || ''),
+      bildiren:       String(kayit.bildiren || ''),
+      neden:          String(kayit.neden || ''),
+      etkisi:         String(kayit.etkisi || ''),
+      sureDk:         Number(kayit.sureDk || 0),           // tahmini süre
+      hesaplanan:     Number(kayit.gercekSureDk || 0),     // ← GERÇEK SÜRE (bitince dolar)
+      projeNo:        String(kayit.projeNo || ''),
+      sorumluBolum:   String(kayit.sorumluBolum || ''),
+      sorumluKisi:    String(kayit.sorumluKisi || ''),
+      kokNeden:       String(kayit.kokNeden || ''),
+      aciklama:       String(kayit.aciklama || ''),
+      yapilan:        String(kayit.yapilan || ''),
+      kaynakFormNo:   String(kayit.kaynakFormNo || ''),
+      kayitZamani:    String(kayit.kayitZamani || new Date().toLocaleString('tr-TR'))
     }
   };
 
   jsonpGonderGS(GS_URL, payload)
     .then(function(s) {
-      if (s && s.ok) {
-        console.log('✅ GS Duruş Kaydı Başarılı');
-      } else {
-        console.warn('⚠️ GS Duruş Hatası:', s);
-      }
+      if (s && s.ok) console.log('✅ GS Duruş OK');
     })
     .catch(function(e) {
-      console.warn('⚠️ GS Duruş Bağlantı Hatası:', e.message);
+      console.warn('GS Duruş Hatası:', e.message);
     });
 }
-
 function saveLogGS(log) {
   jsonpGonderGS(GS_URL, { action: 'saveLog', log: log })
     .then(function() {}).catch(function() {});
