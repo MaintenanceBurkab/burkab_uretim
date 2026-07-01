@@ -1202,7 +1202,18 @@ tr:last-child td{border-bottom:none}
 </div><!-- /main -->
 
 <div class="toast" id="toast"></div>
+<!-- Diğer içerikler -->
 
+</div><!-- /main -->
+
+<!-- DURUŞ BİTİR MODALI BURAYA TAŞI -->
+<div id="durusBitirModal" class="modal-overlay"> ... </div>
+
+<script>
+// Tüm JavaScript kodların burada
+</script>
+</body>
+</html>
 <script>
 // ══════════════════════════════════════════════
 // SABITLER & VERİ YAPILARI
@@ -4010,6 +4021,73 @@ function durusBitirOnayla() {
   renderDurusGecmis();
   durusKpiGuncelle();
 }
+  // ==================== DURUŞ BİTİR MODAL ====================
+let bitirilecekDurusId = null;
+
+window.durusBitir = function(id) {
+  const liste = duruslariYukle();
+  const kayit = liste.find(d => d.id === id);
+  if (!kayit) return;
+
+  bitirilecekDurusId = id;
+
+  let gecenSure = 10;
+  try {
+    const baslangic = new Date(kayit.baslangicZamani);
+    gecenSure = Math.round((Date.now() - baslangic.getTime()) / 60000);
+  } catch(e) {}
+
+  document.getElementById('modalDurusBilgi').innerHTML = `
+    <strong>${kayit.bolum || ''} — ${kayit.makine || ''}</strong><br>
+    ${kayit.neden || ''}<br>
+    <small>Başlangıç: ${kayit.saat || ''}</small>
+  `;
+
+  document.getElementById('modalGercekSure').value = `${gecenSure} dakika`;
+  document.getElementById('modalKokNeden').value = kayit.kokNeden || '';
+  document.getElementById('modalYapilan').value = kayit.yapilan || '';
+  document.getElementById('modalAciklama').value = kayit.aciklama || '';
+
+  document.getElementById('durusBitirModal').classList.add('open');
+};
+
+window.durusBitirModalKapat = function() {
+  document.getElementById('durusBitirModal').classList.remove('open');
+  bitirilecekDurusId = null;
+};
+
+window.durusBitirOnayla = function() {
+  if (!bitirilecekDurusId) return;
+
+  const kokNeden = document.getElementById('modalKokNeden').value.trim();
+  if (!kokNeden) {
+    showToast('❗ Kök Neden alanını doldurunuz!', 'err');
+    return;
+  }
+
+  let liste = duruslariYukle();
+  const index = liste.findIndex(d => d.id === bitirilecekDurusId);
+  if (index === -1) return;
+
+  const kayit = liste[index];
+  const simdi = new Date();
+
+  kayit.durum = 'BITTI';
+  kayit.bitisZamani = simdi.toISOString();
+  kayit.gercekSureDk = Math.round((simdi - new Date(kayit.baslangicZamani)) / 60000);
+  kayit.kokNeden = kokNeden;
+  kayit.yapilan = document.getElementById('modalYapilan').value.trim();
+  kayit.aciklama = document.getElementById('modalAciklama').value.trim();
+
+  duruslariKaydet(liste);
+  durusBitirModalKapat();
+  
+  showToast(`✅ Duruş bitirildi • ${kayit.gercekSureDk} dakika`, 'ok');
+
+  renderAktifDuruslar();
+  renderDurusGecmis();
+  durusKpiGuncelle();
+};
 </script>
 </body>
 </html>
