@@ -951,26 +951,15 @@ tr:last-child td{border-bottom:none}
       </div>
       <input type="hidden" id="durusNeden">
 
-      <div class="fg g3" style="margin-bottom:14px">
-        <div class="field">
-          <label>Duruş Etkisi <span class="req">*</span></label>
-          <select id="durusEtkisi" onchange="durusSuresiHesaplaD()">
-            <option value="">— Seçiniz —</option>
-            <option value="TAM DURUŞ">TAM DURUŞ</option>
-            <option value="KISMİ DURUŞ">KISMİ DURUŞ (%30 verimlilikle devam)</option>
-            <option value="PLANLI DURUŞ">PLANLI DURUŞ</option>
-            <option value="DURUŞ YOK">DURUŞ YOK (sadece kayıt)</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Duruş Süresi (dk) <span class="req">*</span></label>
-          <input type="number" id="durusSureDk" placeholder="0" min="0" oninput="durusSuresiHesaplaD()">
-        </div>
-        <div class="field">
-          <label>Hesaplanan Duruş (dk)</label>
-          <input type="text" id="durusHesaplanan" readonly style="background:#f0f0ec;color:#333;font-weight:700;font-family:'IBM Plex Mono',monospace">
-          <div id="durusHesapAciklama" style="font-size:11px;color:var(--muted);margin-top:3px"></div>
-        </div>
+            <div class="field" style="margin-bottom:14px">
+        <label>Duruş Etkisi <span class="req">*</span></label>
+        <select id="durusEtkisi">
+          <option value="">— Seçiniz —</option>
+          <option value="TAM DURUŞ">TAM DURUŞ</option>
+          <option value="KISMİ DURUŞ">KISMİ DURUŞ</option>
+          <option value="PLANLI DURUŞ">PLANLI DURUŞ</option>
+          <option value="DURUŞ YOK">DURUŞ YOK (sadece kayıt)</option>
+        </select>
       </div>
 
       <div class="fg g3" style="margin-bottom:14px">
