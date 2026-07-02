@@ -3945,7 +3945,7 @@ function durusBitirOnayla() {
   durusBitirModalKapat();
  
   showToast(`✅ Duruş bitirildi • ${kayit.gercekSureDk} dakika`, 'ok');
-
+   saveDurusKayitGS(kayit);
   renderAktifDuruslar();
   renderDurusGecmis();
   durusKpiGuncelle();
