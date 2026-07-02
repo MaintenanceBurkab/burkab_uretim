@@ -2570,7 +2570,7 @@ async function talepGonder(){
   }
 
   try{
-    await jsonpTalep({action:'save',headers:BAKIM_COLS,row});
+    await jsonpTalep({action:'saveKayit', kayit});
     const talepler=taleplerYukle();
     talepler.unshift({...kayit,oncelik,gonderimZamani:simdi.toLocaleString('tr-TR')});
     taleplerKaydet(talepler);
