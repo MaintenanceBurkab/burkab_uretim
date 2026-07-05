@@ -752,6 +752,25 @@ tr:last-child td{border-bottom:none}
     <div class="section-body">
       <div class="fg">
         <div class="field">
+          <label>Müşteri</label>
+          <select id="prMusteri" onchange="prMusteriSecildi()">
+            <option value="">— Seçiniz —</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Proje Kodu</label>
+          <select id="prProjeKodu" onchange="prProjeSecildi()">
+            <option value="">— Önce müşteri seçiniz —</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Proje Tanımı</label>
+          <input type="text" id="prProjeTanim" readonly style="background:#f0f0f0">
+        </div>
+      </div>
+
+      <div class="fg" style="margin-top:14px">
+        <div class="field">
           <label>Takım <span class="req">*</span></label>
           <select id="prTakim" onchange="prPersonelDoldur()">
             <option value="">— Seçiniz —</option>
@@ -1578,6 +1597,8 @@ function musteriDropdownlariDoldur() {
     dp.innerHTML = '<option value="">— Seçiniz —</option>' +
       tanimlar.map(t=>`<option value="${t.projeKodu}">${t.projeKodu}${t.tanim?' — '+t.tanim:''}</option>`).join('');
   }
+    const prMus = document.getElementById('prMusteri');
+  if (prMus) prMus.innerHTML = opts;
 }
 
 function musteriSecildi() {
@@ -1597,7 +1618,23 @@ function projeSecildi() {
   const aTanim = document.getElementById('aProjeTanim');
   if (aTanim) aTanim.value = bulunan ? bulunan.tanim : '';
 }
+function prMusteriSecildi() {
+  const musteri = document.getElementById('prMusteri')?.value;
+  const projeler = tanimlar.filter(t => t.musteri === musteri);
+  const projeOpts = '<option value="">— Seçiniz —</option>' +
+    projeler.map(p=>`<option value="${p.projeKodu}">${p.projeKodu} — ${p.tanim}</option>`).join('');
+  const pProje = document.getElementById('prProjeKodu');
+  if (pProje) pProje.innerHTML = projeOpts;
+  const pTanim = document.getElementById('prProjeTanim');
+  if (pTanim) pTanim.value = '';
+}
 
+function prProjeSecildi() {
+  const kod = document.getElementById('prProjeKodu')?.value;
+  const bulunan = tanimlar.find(t => t.projeKodu === kod);
+  const pTanim = document.getElementById('prProjeTanim');
+  if (pTanim) pTanim.value = bulunan ? bulunan.tanim : '';
+}
 function talepModelSecildi() {
   const kod = document.getElementById('talepModelNo')?.value;
   const bulunan = tanimlar.find(t=>t.projeKodu===kod);
@@ -2007,7 +2044,10 @@ function prKaydet() {
     proses: proses,
     kaydeden: (currentUser && currentUser.name) || '',
     kayitZamani: new Date().toISOString(),
-    durum: 'AKTİF'
+    durum: 'AKTİF',
+    musteri: document.getElementById('prMusteri')?.value || '',
+    projeKodu: document.getElementById('prProjeKodu')?.value || '',
+    projeTanim: document.getElementById('prProjeTanim')?.value || ''
   };
 
   jsonpGonderGS(GS_URL, { action: 'saveProsesAtama', kayit: kayit })
