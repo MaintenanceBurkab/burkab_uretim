@@ -290,6 +290,7 @@ tr:last-child td{border-bottom:none}
   <button class="nav-tab" onclick="goTab('rapor',this)">📊 RAPORLAR</button>
   <button class="nav-tab" onclick="goTab('gecmis',this)">📋 GEÇMİŞ</button>
   <button class="nav-tab" onclick="goTab('takim',this)">👥 TAKIM YÖNETİMİ</button>
+  <button class="nav-tab" onclick="goTab('proses',this)">🛠️ PROSES</button>
   <button class="nav-tab" onclick="goTab('talep',this)" style="color:#f5c400;font-weight:700">🔧 BAKIM TALEBİ</button>
   <button class="nav-tab" onclick="goTab('durus',this)" style="color:#ff7043;font-weight:700">⏱️ DURUŞLAR</button>
   <button class="nav-tab" id="adminNavBtn" onclick="goTab('admin',this)" style="color:#a78bfa;font-weight:700;display:none">🛡️ ADMİN</button>
@@ -744,7 +745,64 @@ tr:last-child td{border-bottom:none}
     <div class="section-body"><div id="ymTumTakimlar"></div></div>
   </div>
 </div>
+<!-- ══════════════ PROSES ATAMA ══════════════ -->
+<div class="tab-pane" id="tab-proses">
+  <div class="section">
+    <div class="section-head"><div class="dot"></div>🛠️ PROSES ATAMA</div>
+    <div class="section-body">
+      <div class="fg">
+        <div class="field">
+          <label>Takım <span class="req">*</span></label>
+          <select id="prTakim" onchange="prPersonelDoldur()">
+            <option value="">— Seçiniz —</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Personel <span class="req">*</span></label>
+          <select id="prPersonel">
+            <option value="">— Önce takım seçin —</option>
+          </select>
+        </div>
+      </div>
 
+      <div class="fg" style="margin-top:14px">
+        <div class="field">
+          <label>Başlama Tarihi <span class="req">*</span></label>
+          <input type="date" id="prTarih">
+        </div>
+        <div class="field">
+          <label>Başlama Saati <span class="req">*</span></label>
+          <input type="time" id="prSaat">
+        </div>
+        <div class="field">
+          <label>Proses Atama <span class="req">*</span></label>
+          <select id="prProses">
+            <option value="">— Seçiniz —</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="fg" style="margin-top:14px">
+        <div class="field">
+          <label>Kaydeden</label>
+          <input type="text" id="prKaydeden" readonly style="background:#f0f0f0">
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button class="btn-sm" onclick="prKaydet()" style="flex:1;padding:10px;background:#f5c400;font-weight:700">💾 KAYDET</button>
+        <button class="btn-sm" onclick="prFormTemizle()" style="flex:1;padding:10px">🧹 Temizle</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head"><div class="dot"></div>📋 AKTİF PROSES ATAMALARI</div>
+    <div class="section-body">
+      <div id="prListe" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+  </div>
+</div>
 <!-- ══════════════ BAKIM TALEBİ ══════════════ -->
 <div class="tab-pane" id="tab-talep">
   <div class="section">
@@ -1408,10 +1466,17 @@ function goTab(id, btn) {
     ymTakimDropdownDoldur();
     ymTumTakimlariGoster();
   });
+    if (id==='proses') {
+    gsTakimlariYukle().then(function() { prTakimDropdownDoldur(); });
+    gsProseslerYukle();
+    gsProsesAtamalariYukle();
+    document.getElementById('prKaydeden').value = (currentUser && currentUser.name) || '';
+  }
   if (id==='talep')  {
     renderTalepGecmis();
     if (currentUser) document.getElementById('talepBildiren').value = currentUser.name;
-  }if (id==='durus')  { 
+  }
+  if (id==='durus')  { 
   renderDurusGecmis(); 
   durusKpiGuncelle(); 
   renderAktifDuruslar(); 
@@ -1857,6 +1922,176 @@ function ymTumTakimlariGoster() {
     </div>`;
   }).join('');
 }
+  // ══════════════════════════════════════════════
+// PROSES ATAMA
+// ══════════════════════════════════════════════
+var prosesAtamalari = [];
+var prosesListesi = [];
+var prSecilenId = null;
+
+function prTakimDropdownDoldur() {
+  const select = document.getElementById('prTakim');
+  if (!select) return;
+  const takimlar = Object.keys(takimPersoneller);
+  select.innerHTML = '<option value="">— Seçiniz —</option>' +
+    takimlar.map(t => `<option>${t}</option>`).join('');
+}
+
+function prPersonelDoldur() {
+  const takim = document.getElementById('prTakim')?.value;
+  const select = document.getElementById('prPersonel');
+  if (!select) return;
+  if (!takim) {
+    select.innerHTML = '<option value="">— Önce takım seçin —</option>';
+    return;
+  }
+  const personel = takimPersoneller[takim] || [];
+  select.innerHTML = '<option value="">— Seçiniz —</option>' +
+    personel.map(p => `<option>${p}</option>`).join('');
+}
+
+function gsProseslerYukle() {
+  return jsonpGonderGS(GS_URL, { action: 'getProsesler' })
+    .then(function(s) {
+      if (s && s.ok) {
+        prosesListesi = s.data || [];
+        const select = document.getElementById('prProses');
+        if (select) {
+          select.innerHTML = '<option value="">— Seçiniz —</option>' +
+            prosesListesi.map(p => `<option>${p}</option>`).join('');
+        }
+      }
+    })
+    .catch(function(e) { console.warn('Prosesler yüklenemedi:', e.message); });
+}
+
+function gsProsesAtamalariYukle() {
+  return jsonpGonderGS(GS_URL, { action: 'getProsesAtamalari' })
+    .then(function(s) {
+      if (s && s.ok) {
+        prosesAtamalari = s.data || [];
+        prListeGoster();
+      }
+    })
+    .catch(function(e) { console.warn('Proses atamaları yüklenemedi:', e.message); });
+}
+
+function prFormTemizle() {
+  document.getElementById('prTakim').value = '';
+  document.getElementById('prPersonel').innerHTML = '<option value="">— Önce takım seçin —</option>';
+  document.getElementById('prTarih').value = '';
+  document.getElementById('prSaat').value = '';
+  document.getElementById('prProses').value = '';
+  prSecilenId = null;
+}
+
+function prKaydet() {
+  const takim    = document.getElementById('prTakim')?.value;
+  const personel = document.getElementById('prPersonel')?.value;
+  const tarih    = document.getElementById('prTarih')?.value;
+  const saat     = document.getElementById('prSaat')?.value;
+  const proses   = document.getElementById('prProses')?.value;
+
+  if (!takim)    { showToast('❗ Takım seçiniz!', 'err'); return; }
+  if (!personel) { showToast('❗ Personel seçiniz!', 'err'); return; }
+  if (!tarih)    { showToast('❗ Başlama tarihi giriniz!', 'err'); return; }
+  if (!saat)     { showToast('❗ Başlama saati giriniz!', 'err'); return; }
+  if (!proses)   { showToast('❗ Proses seçiniz!', 'err'); return; }
+
+  const kayit = {
+    id: prSecilenId || String(Date.now()),
+    takim: takim,
+    personel: personel,
+    baslamaTarihi: tarih,
+    baslamaSaati: saat,
+    proses: proses,
+    kaydeden: (currentUser && currentUser.name) || '',
+    kayitZamani: new Date().toISOString(),
+    durum: 'AKTİF'
+  };
+
+  jsonpGonderGS(GS_URL, { action: 'saveProsesAtama', kayit: kayit })
+    .then(function(s) {
+      if (s && s.ok) {
+        showToast(prSecilenId ? '✅ Güncellendi!' : '✅ Proses ataması kaydedildi!', 'ok');
+        prFormTemizle();
+        gsProsesAtamalariYukle();
+      } else {
+        showToast('❌ ' + (s?.error || 'Kaydedilemedi'), 'err');
+      }
+    })
+    .catch(function(e) { showToast('❌ GS bağlantı hatası', 'err'); });
+}
+
+function prDuzenle(id) {
+  const kayit = prosesAtamalari.find(k => k.id === id);
+  if (!kayit) return;
+  document.getElementById('prTakim').value = kayit.takim;
+  prPersonelDoldur();
+  document.getElementById('prPersonel').value = kayit.personel;
+  document.getElementById('prTarih').value = kayit.baslamaTarihi;
+  document.getElementById('prSaat').value = kayit.baslamaSaati;
+  document.getElementById('prProses').value = kayit.proses;
+  prSecilenId = id;
+  showToast('✏️ Düzenleme modu — değiştirip KAYDET\'e basın', '');
+}
+
+function prSil(id) {
+  if (!confirm('Bu proses atamasını silmek istiyor musunuz?')) return;
+  jsonpGonderGS(GS_URL, { action: 'deleteProsesAtama', id: id })
+    .then(function(s) {
+      if (s && s.ok) {
+        showToast('🗑️ Silindi', 'ok');
+        gsProsesAtamalariYukle();
+      } else {
+        showToast('❌ ' + (s?.error || 'Silinemedi'), 'err');
+      }
+    });
+}
+
+function prGecenSureHesapla(tarih, saat) {
+  const baslangic = new Date(tarih + 'T' + saat + ':00');
+  const simdi = new Date();
+  let farkMs = simdi - baslangic;
+  if (farkMs < 0) farkMs = 0;
+  const toplamDk = Math.floor(farkMs / 60000);
+  const saatKisim = Math.floor(toplamDk / 60);
+  const dkKisim = toplamDk % 60;
+  return String(saatKisim).padStart(2,'0') + ':' + String(dkKisim).padStart(2,'0');
+}
+
+function prListeGoster() {
+  const div = document.getElementById('prListe');
+  if (!div) return;
+  if (!prosesAtamalari.length) {
+    div.innerHTML = '<div style="color:var(--muted);font-size:13px">Henüz proses ataması yok.</div>';
+    return;
+  }
+  div.innerHTML = prosesAtamalari.map(k => {
+    const gecenSure = prGecenSureHesapla(k.baslamaTarihi, k.baslamaSaati);
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border:1px solid var(--border);border-radius:8px;background:#fafaf8">
+      <div>
+        <strong style="font-size:13px">${k.personel}</strong>
+        <span style="font-size:11px;color:var(--muted)"> · ${k.takim} · ${k.proses}</span>
+        <div style="font-size:11px;color:var(--muted)">Başlama: ${k.baslamaTarihi} ${k.baslamaSaati}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-family:monospace;font-weight:700;color:#f5c400;font-size:15px" data-pr-timer="${k.id}" data-pr-tarih="${k.baslamaTarihi}" data-pr-saat="${k.baslamaSaati}">${gecenSure}</span>
+        <button onclick="prDuzenle('${k.id}')" style="background:none;border:none;color:#1976d2;cursor:pointer">✏️</button>
+        <button onclick="prSil('${k.id}')" style="background:none;border:none;color:#d32f2f;cursor:pointer">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Her dakika listedeki tüm sayaçları güncelle
+setInterval(function() {
+  document.querySelectorAll('[data-pr-timer]').forEach(function(el) {
+    const tarih = el.getAttribute('data-pr-tarih');
+    const saat  = el.getAttribute('data-pr-saat');
+    el.textContent = prGecenSureHesapla(tarih, saat);
+  });
+}, 3000);
 // ══════════════════════════════════════════════
 // İŞ ATAMA
 // ══════════════════════════════════════════════
