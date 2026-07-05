@@ -1394,6 +1394,7 @@ function applyRoleUI(role) {
       <button class="nav-tab" onclick="('durum',this)">🏭 TAKIM DURUMU</button>
       <button class="nav-tab" onclick="('rapor',this)">📊 RAPORLAR</button>
       <button class="nav-tab" onclick="('gecmis',this)">📋 GEÇMİŞ</button>
+      
       <button class="nav-tab" onclick="('takim',this)">👥 TAKIM YÖNETİMİ</button>
       <button class="nav-tab" onclick="('durus',this)" style="color:#ff7043;font-weight:700">⏱️ DURUŞLAR</button>`;
     document.getElementById('tab-giris').style.display='none';
@@ -1403,6 +1404,7 @@ function applyRoleUI(role) {
   } else if (role==='uretim') {
     nav.innerHTML = `
       <button class="nav-tab active" onclick="('giris',this)">📝 ÜRETİM GİRİŞİ</button>
+      <button class="nav-tab" onclick="goTab('proses',this)">🛠️ PROSES</button>
       <button class="nav-tab" onclick="('talep',this)" style="color:#f5c400;font-weight:700">🔧 BAKIM TALEBİ</button>
       <button class="nav-tab" onclick="goTab('rapor',this)">📊 RAPORLAR</button>
       <button class="nav-tab" onclick="goTab('durus',this)" style="color:#ff7043;font-weight:700">⏱️ DURUŞLAR</button>`;
