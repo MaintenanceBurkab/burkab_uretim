@@ -2052,12 +2052,12 @@ function prSil(id) {
 function prGecenSureHesapla(tarih, saat) {
   const baslangic = new Date(tarih + 'T' + saat + ':00');
   const simdi = new Date();
-  let farkMs = simdi - baslangic;
-  if (farkMs < 0) farkMs = 0;
-  const toplamDk = Math.floor(farkMs / 60000);
-  const saatKisim = Math.floor(toplamDk / 60);
-  const dkKisim = toplamDk % 60;
-  return String(saatKisim).padStart(2,'0') + ':' + String(dkKisim).padStart(2,'0');
+  let farkSaniye = Math.floor((simdi - baslangic) / 1000);
+  if (farkSaniye < 0) farkSaniye = 0;
+  const saatKisim = Math.floor(farkSaniye / 3600);
+  const dkKisim   = Math.floor((farkSaniye % 3600) / 60);
+  const snKisim   = farkSaniye % 60;
+  return String(saatKisim).padStart(2,'0') + ':' + String(dkKisim).padStart(2,'0') + ':' + String(snKisim).padStart(2,'0');
 }
 
 function prListeGoster() {
@@ -2083,15 +2083,14 @@ function prListeGoster() {
     </div>`;
   }).join('');
 }
-
-// Her dakika listedeki tüm sayaçları güncelle
+// Her saniye listedeki tüm sayaçları güncelle
 setInterval(function() {
   document.querySelectorAll('[data-pr-timer]').forEach(function(el) {
     const tarih = el.getAttribute('data-pr-tarih');
     const saat  = el.getAttribute('data-pr-saat');
     el.textContent = prGecenSureHesapla(tarih, saat);
   });
-}, 3000);
+}, 1000);
 // ══════════════════════════════════════════════
 // İŞ ATAMA
 // ══════════════════════════════════════════════
