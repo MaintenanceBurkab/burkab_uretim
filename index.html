@@ -715,10 +715,14 @@ tr:last-child td{border-bottom:none}
           <label>Takım Seç <span class="req">*</span></label>
           <select id="ymTakim" onchange="ymTakimYukle()">
             <option value="">— Seçiniz —</option>
-            <option>KESİM</option><option>ALT MONTAJ</option><option>AKÜ KESİM</option>
-            <option>TEST</option><option>TAKIM-1</option><option>TAKIM-2</option>
-            <option>TAKIM-3</option><option>TAKIM-4</option><option>T.Ö. PRES</option><option>T.S. PRES</option>
           </select>
+        </div>
+        <div class="field">
+          <label>Yeni Takım Ekle</label>
+          <div style="display:flex;gap:8px">
+            <input type="text" id="ymYeniTakimAd" placeholder="Takım Adı" oninput="this.value=this.value.toUpperCase()" style="flex:1">
+            <button class="btn-sm" onclick="ymYeniTakimEkle()" style="padding:0 16px">＋ Takım Oluştur</button>
+          </div>
         </div>
         <div class="field">
           <label>Personel Ekle</label>
@@ -1400,7 +1404,10 @@ function goTab(id, btn) {
   if (id==='durum')  renderDurum();
   if (id==='rapor')  { ensureChartJs(()=>{ renderRapor(); renderDurusRapor(); renderFireSebebiRapor(); }); }
   if (id==='gecmis') renderGecmis();
-  if (id==='takim')  ymTumTakimlariGoster();
+  if (id==='takim')  gsTakimlariYukle().then(function() {
+    ymTakimDropdownDoldur();
+    ymTumTakimlariGoster();
+  });
   if (id==='talep')  {
     renderTalepGecmis();
     if (currentUser) document.getElementById('talepBildiren').value = currentUser.name;
@@ -1682,7 +1689,7 @@ function jsonpGonderTanim(payload) {
 }
 
 // ══════════════════════════════════════════════
-// TAKIM YÖNETİMİ
+// TAKIM YÖNETİMİ (GS ENTEGRE)
 // ══════════════════════════════════════════════
 function takimSecildi() {
   const takim = document.getElementById('aTakimNo')?.value;
@@ -1697,10 +1704,72 @@ function takimSecildi() {
   ).join('');
 }
 
+function gsTakimlariYukle() {
+  return jsonpGonderGS(GS_URL, { action: 'getTakimlar' })
+    .then(function(s) {
+      if (s && s.ok) {
+        takimPersoneller = s.data || {};
+        localStorage.setItem(TAKIM_PERSONEL_KEY, JSON.stringify(takimPersoneller));
+      } else {
+        console.warn('⚠️ GS Takımlar okunamadı, localStorage kullanılıyor');
+        loadTakimPersoneller();
+      }
+    })
+    .catch(function(e) {
+      console.warn('GS Takım okuma hatası:', e.message);
+      loadTakimPersoneller();
+    });
+}
+
+function ymYeniTakimEkle() {
+  const input = document.getElementById('ymYeniTakimAd');
+  const ad = input?.value.trim().toUpperCase();
+  if (!ad) { showToast('❗ Takım adı giriniz!', 'err'); return; }
+
+  jsonpGonderGS(GS_URL, { action: 'saveTakim', data: { takimAdi: ad } })
+    .then(function(s) {
+      if (s && s.ok) {
+        showToast('✅ Takım eklendi: ' + ad, 'ok');
+        input.value = '';
+        gsTakimlariYukle().then(function() {
+          ymTakimDropdownDoldur();
+          ymTumTakimlariGoster();
+        });
+      } else {
+        showToast('❌ ' + (s?.error || 'Takım eklenemedi'), 'err');
+      }
+    })
+    .catch(function(e) { showToast('❌ GS bağlantı hatası', 'err'); });
+}
+
+function ymTakimSil(takim) {
+  if (!confirm(takim + ' takımını ve tüm personelini silmek istiyor musunuz?')) return;
+  jsonpGonderGS(GS_URL, { action: 'deleteTakim', takimAdi: takim })
+    .then(function(s) {
+      if (s && s.ok) {
+        showToast('🗑️ ' + takim + ' silindi', 'ok');
+        gsTakimlariYukle().then(function() {
+          ymTakimDropdownDoldur();
+          ymTumTakimlariGoster();
+        });
+      } else {
+        showToast('❌ ' + (s?.error || 'Silinemedi'), 'err');
+      }
+    });
+}
+
+function ymTakimDropdownDoldur() {
+  const select = document.getElementById('ymTakim');
+  if (!select) return;
+  const secili = select.value;
+  const takimlar = Object.keys(takimPersoneller);
+  select.innerHTML = '<option value="">— Seçiniz —</option>' +
+    takimlar.map(t => `<option${t===secili?' selected':''}>${t}</option>`).join('');
+}
+
 function ymTakimYukle() {
   const takim = document.getElementById('ymTakim')?.value;
   if (!takim) return;
-  loadTakimPersoneller();
   const personel = takimPersoneller[takim] || [];
   const listeDiv = document.getElementById('ymPersonelListe');
   const blok     = document.getElementById('ymPersonelListeBlok');
@@ -1721,42 +1790,63 @@ function ymTakimYukle() {
 
 function ymPersonelEkle() {
   const takim = document.getElementById('ymTakim')?.value;
-  const ad    = document.getElementById('ymPersonelAd')?.value.trim();
+  const ad    = document.getElementById('ymPersonelAd')?.value.trim().toUpperCase();
   if (!takim) { showToast('❗ Önce takım seçiniz!','err'); return; }
   if (!ad)    { showToast('❗ Personel adı giriniz!','err'); return; }
-  loadTakimPersoneller();
-  if (!takimPersoneller[takim]) takimPersoneller[takim]=[];
-  if (takimPersoneller[takim].includes(ad)) { showToast('⚠️ Bu personel zaten listede!','err'); return; }
-  takimPersoneller[takim].push(ad);
-  localStorage.setItem(TAKIM_PERSONEL_KEY, JSON.stringify(takimPersoneller));
-  document.getElementById('ymPersonelAd').value='';
-  ymTakimYukle();
-  showToast('✅ '+ad+' eklendi!','ok');
+
+  jsonpGonderGS(GS_URL, { action: 'addPersonelToTakim', data: { takimAdi: takim, personel: ad } })
+    .then(function(s) {
+      if (s && s.ok) {
+        document.getElementById('ymPersonelAd').value='';
+        showToast('✅ '+ad+' eklendi!','ok');
+        gsTakimlariYukle().then(function() {
+          ymTakimYukle();
+          ymTumTakimlariGoster();
+        });
+      } else {
+        showToast('❌ ' + (s?.error || 'Eklenemedi'), 'err');
+      }
+    })
+    .catch(function(e) { showToast('❌ GS bağlantı hatası', 'err'); });
 }
 
 function ymPersonelSil(idx) {
   const takim = document.getElementById('ymTakim')?.value;
   if (!takim) return;
-  loadTakimPersoneller();
   const ad = takimPersoneller[takim][idx];
   if (!confirm(ad+' kişisini listeden çıkar?')) return;
-  takimPersoneller[takim].splice(idx,1);
-  localStorage.setItem(TAKIM_PERSONEL_KEY, JSON.stringify(takimPersoneller));
-  ymTakimYukle();
-  showToast('🗑️ '+ad+' çıkarıldı','ok');
+
+  jsonpGonderGS(GS_URL, { action: 'deletePersonelFromTakim', data: { takimAdi: takim, personel: ad } })
+    .then(function(s) {
+      if (s && s.ok) {
+        showToast('🗑️ '+ad+' çıkarıldı','ok');
+        gsTakimlariYukle().then(function() {
+          ymTakimYukle();
+          ymTumTakimlariGoster();
+        });
+      } else {
+        showToast('❌ ' + (s?.error || 'Silinemedi'), 'err');
+      }
+    });
 }
 
 function ymTumTakimlariGoster() {
-  loadTakimPersoneller();
   const div = document.getElementById('ymTumTakimlar');
   if (!div) return;
-  const takimlar = ['KESİM','ALT MONTAJ','AKÜ KESİM','TEST','TAKIM-1','TAKIM-2','TAKIM-3','TAKIM-4','T.Ö. PRES','T.S. PRES'];
+  const takimlar = Object.keys(takimPersoneller);
+  if (!takimlar.length) {
+    div.innerHTML = '<div style="color:var(--muted);font-size:13px">Henüz takım oluşturulmadı.</div>';
+    return;
+  }
   div.innerHTML = takimlar.map(t => {
     const personel = takimPersoneller[t]||[];
     return `<div style="margin-bottom:12px;padding:12px;border:1px solid var(--border);border-radius:8px;background:#fafaf8">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
         <strong style="font-size:13px">${t}</strong>
-        <span style="font-size:11px;color:var(--muted)">${personel.length} kişi</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:11px;color:var(--muted)">${personel.length} kişi</span>
+          <button onclick="ymTakimSil('${t}')" style="background:none;border:none;color:#d32f2f;cursor:pointer;font-size:14px">🗑️</button>
+        </div>
       </div>
       ${personel.length
         ? '<div style="display:flex;flex-wrap:wrap;gap:6px">'+personel.map(p=>
@@ -1767,7 +1857,6 @@ function ymTumTakimlariGoster() {
     </div>`;
   }).join('');
 }
-
 // ══════════════════════════════════════════════
 // İŞ ATAMA
 // ══════════════════════════════════════════════
