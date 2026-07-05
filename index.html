@@ -2059,7 +2059,43 @@ function prGecenSureHesapla(tarih, saat) {
   const snKisim   = farkSaniye % 60;
   return String(saatKisim).padStart(2,'0') + ':' + String(dkKisim).padStart(2,'0') + ':' + String(snKisim).padStart(2,'0');
 }
+function prSureFarkiHesapla(baslamaTarih, baslamaSaat, bitisTarih, bitisSaat) {
+  const baslangic = new Date(baslamaTarih + 'T' + baslamaSaat + ':00');
+  const bitis     = new Date(bitisTarih + 'T' + bitisSaat + ':00');
+  let farkSaniye = Math.floor((bitis - baslangic) / 1000);
+  if (farkSaniye < 0) farkSaniye = 0;
+  const saatKisim = Math.floor(farkSaniye / 3600);
+  const dkKisim   = Math.floor((farkSaniye % 3600) / 60);
+  const snKisim   = farkSaniye % 60;
+  return String(saatKisim).padStart(2,'0') + ':' + String(dkKisim).padStart(2,'0') + ':' + String(snKisim).padStart(2,'0');
+}
 
+function prBitir(id) {
+  const kayit = prosesAtamalari.find(k => k.id === id);
+  if (!kayit) return;
+  if (!confirm(kayit.personel + ' için prosesi bitirmek istiyor musunuz?')) return;
+
+  const simdi = new Date();
+  const bitisTarihi = simdi.toISOString().split('T')[0];
+  const bitisSaati  = String(simdi.getHours()).padStart(2,'0') + ':' + String(simdi.getMinutes()).padStart(2,'0');
+
+  const guncelKayit = Object.assign({}, kayit, {
+    durum: 'TAMAMLANDI',
+    bitisTarihi: bitisTarihi,
+    bitisSaati: bitisSaati
+  });
+
+  jsonpGonderGS(GS_URL, { action: 'saveProsesAtama', kayit: guncelKayit })
+    .then(function(s) {
+      if (s && s.ok) {
+        showToast('✅ Proses tamamlandı!', 'ok');
+        gsProsesAtamalariYukle();
+      } else {
+        showToast('❌ ' + (s?.error || 'Bitirilemedi'), 'err');
+      }
+    })
+    .catch(function(e) { showToast('❌ GS bağlantı hatası', 'err'); });
+}
 function prListeGoster() {
   const div = document.getElementById('prListe');
   if (!div) return;
@@ -2068,15 +2104,25 @@ function prListeGoster() {
     return;
   }
   div.innerHTML = prosesAtamalari.map(k => {
-    const gecenSure = prGecenSureHesapla(k.baslamaTarihi, k.baslamaSaati);
-    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border:1px solid var(--border);border-radius:8px;background:#fafaf8">
+    const tamamlandi = k.durum === 'TAMAMLANDI';
+    const gecenSure = tamamlandi
+      ? prSureFarkiHesapla(k.baslamaTarihi, k.baslamaSaati, k.bitisTarihi, k.bitisSaati)
+      : prGecenSureHesapla(k.baslamaTarihi, k.baslamaSaati);
+
+    const timerAttr = tamamlandi ? '' : `data-pr-timer="${k.id}" data-pr-tarih="${k.baslamaTarihi}" data-pr-saat="${k.baslamaSaati}"`;
+    const renk = tamamlandi ? '#888' : '#f5c400';
+    const rozet = tamamlandi ? '<span style="background:#e8f5e9;color:#2e7d32;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:8px">TAMAMLANDI</span>' : '';
+    const bitirBtn = tamamlandi ? '' : `<button onclick="prBitir('${k.id}')" style="background:none;border:none;color:#2e7d32;cursor:pointer" title="Prosesi Bitir">✅</button>`;
+
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border:1px solid var(--border);border-radius:8px;background:${tamamlandi ? '#f5f5f5' : '#fafaf8'}">
       <div>
         <strong style="font-size:13px">${k.personel}</strong>
-        <span style="font-size:11px;color:var(--muted)"> · ${k.takim} · ${k.proses}</span>
-        <div style="font-size:11px;color:var(--muted)">Başlama: ${k.baslamaTarihi} ${k.baslamaSaati}</div>
+        <span style="font-size:11px;color:var(--muted)"> · ${k.takim} · ${k.proses}</span>${rozet}
+        <div style="font-size:11px;color:var(--muted)">Başlama: ${k.baslamaTarihi} ${k.baslamaSaati}${tamamlandi ? ' · Bitiş: ' + k.bitisTarihi + ' ' + k.bitisSaati : ''}</div>
       </div>
       <div style="display:flex;align-items:center;gap:10px">
-        <span style="font-family:monospace;font-weight:700;color:#f5c400;font-size:15px" data-pr-timer="${k.id}" data-pr-tarih="${k.baslamaTarihi}" data-pr-saat="${k.baslamaSaati}">${gecenSure}</span>
+        <span style="font-family:monospace;font-weight:700;color:${renk};font-size:15px" ${timerAttr}>${gecenSure}</span>
+        ${bitirBtn}
         <button onclick="prDuzenle('${k.id}')" style="background:none;border:none;color:#1976d2;cursor:pointer">✏️</button>
         <button onclick="prSil('${k.id}')" style="background:none;border:none;color:#d32f2f;cursor:pointer">🗑️</button>
       </div>
