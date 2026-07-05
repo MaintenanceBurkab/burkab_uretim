@@ -1404,7 +1404,7 @@ function goTab(id, btn) {
   if (id==='durum')  renderDurum();
   if (id==='rapor')  { ensureChartJs(()=>{ renderRapor(); renderDurusRapor(); renderFireSebebiRapor(); }); }
   if (id==='gecmis') renderGecmis();
-  if (id==='takim')  gs TakimlariYukle().then(function() {
+  if (id==='takim')  gsTakimlariYukle().then(function() {
     ymTakimDropdownDoldur();
     ymTumTakimlariGoster();
   });
