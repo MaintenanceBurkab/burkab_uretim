@@ -3146,117 +3146,212 @@ function bolumDegisti(){
   }
 }
 
-async function talepGonder(){
-  const tip      =document.getElementById('talepTip').value;
-  const bolum    =document.getElementById('talepBolum').value;
-  const modelNo  =document.getElementById('talepModelNo').value;
-  const musteri  =document.getElementById('talepMusteri')?.value||'';
-  const makine   =document.getElementById('talepMakine')?.value?.trim();
-  const bildiren =document.getElementById('talepBildiren').value.trim();
-  const arizaTuru=document.getElementById('talepArizaTuru').value;
-  const arizaKodu=document.getElementById('talepArizaKodu').value.trim();
-  const aciklama =document.getElementById('talepAciklama').value.trim();
-  const revNo    =document.getElementById('talepRevNo')?.value.trim()||'';
-  const mdNo     =document.getElementById('talepMdNo')?.value.trim()||'';
-  const tarihBas =document.getElementById('talepTarihBas').value;
-  const arizaSaat=document.getElementById('talepTarihBit').value;
-  const oncelik = document.getElementById('talepOncelik').value;
-  const durusEtkisi = document.getElementById('talepDurusEtkisi')?.value || '';
+async function talepGonder() {
+  const btn = document.getElementById('talepGonderBtn');
 
-  if(!tip)     {showToast('❗ İşlem türü seçiniz!','err');return;}
-  if(!bolum)   {showToast('❗ Bölüm seçiniz!','err');return;}
-  if(!makine)  {showToast('❗ Makine/ekipman giriniz!','err');return;}
-  if(!bildiren){showToast('❗ Bildiren kişi giriniz!','err');return;}
-  if(!aciklama){showToast('❗ Açıklama giriniz!','err');return;}
-  if(!oncelik) {showToast('❗ Risk seviyesi seçiniz!','err');return;}
-  if(!durusEtkisi){showToast('❗ Duruş etkisini seçiniz!','err');return;}
-  if(tip==='REVİZYON'&&!revNo){showToast('❗ Rev No giriniz!','err');return;}
-  if(tip==='REVİZYON'&&!mdNo) {showToast('❗ MD No giriniz!','err');return;}
+  try {
+    const tip = document.getElementById('talepTip')?.value || '';
+    const bolum = document.getElementById('talepBolum')?.value || '';
+    const modelNo = document.getElementById('talepModelNo')?.value || '';
+    const musteri = document.getElementById('talepMusteri')?.value || '';
+    const makine = document.getElementById('talepMakine')?.value?.trim() || '';
+    const bildiren = document.getElementById('talepBildiren')?.value?.trim() || '';
+    const arizaTuru = document.getElementById('talepArizaTuru')?.value || '';
+    const arizaKodu = document.getElementById('talepArizaKodu')?.value?.trim() || '';
+    const aciklama = document.getElementById('talepAciklama')?.value?.trim() || '';
+    const revNo = document.getElementById('talepRevNo')?.value?.trim() || '';
+    const mdNo = document.getElementById('talepMdNo')?.value?.trim() || '';
+    const tarihBas = document.getElementById('talepTarihBas')?.value || '';
+    const arizaSaat = document.getElementById('talepTarihBit')?.value || '';
+    const oncelik = document.getElementById('talepOncelik')?.value || '';
+    const durusEtkisi =
+      document.getElementById('talepDurusEtkisi')?.value || '';
 
-  const btn=document.getElementById('talepGonderBtn');
-  btn.disabled=true;btn.textContent='⏳ Gönderiliyor...';
-  const simdi = new Date();
-const formNo = talepFormNoUret(tip);
+    if (!tip) throw new Error('İşlem türü seçiniz.');
+    if (!bolum) throw new Error('Bölüm seçiniz.');
+    if (!makine) throw new Error('Makine/ekipman giriniz.');
+    if (!bildiren) throw new Error('Bildiren kişi giriniz.');
+    if (!aciklama) throw new Error('Açıklama giriniz.');
+    if (!oncelik) throw new Error('Risk seviyesi seçiniz.');
+    if (!durusEtkisi) throw new Error('Duruş etkisini seçiniz.');
+    if (tip === 'REVİZYON' && !revNo) throw new Error('Rev No giriniz.');
+    if (tip === 'REVİZYON' && !mdNo) throw new Error('MD No giriniz.');
 
-const kayit = {
-  id: simdi.getTime(),
-  formNo: formNo,
-  islem: tip,
-  bolum: bolum,
-  makine: makine,
-  bildiren: bildiren + ' (ÜRETİM)',
-  proje: modelNo + (musteri ? '/' + musteri : ''),
-  mdNo: mdNo,
-  revNo: revNo,
-  arizaTuru: arizaTuru,
-  arizaKodu: arizaKodu,
-  konu: aciklama,
-  tarihBas: tarihBas,
-  tarihBit: tarihBas,
-  arizaBas: arizaSaat,
-  riskSeviye: oncelik,
-  durusEtkisi: durusEtkisi,
-  durum: 'BEKLIYOR',
-  kayitYapan: bildiren,
-  kayitZaman: simdi.toISOString()
-};
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = '⏳ Gönderiliyor...';
+    }
 
-const row = BAKIM_COLS.map(c =>
-  kayit[c] !== undefined ? kayit[c] : ''
-);
-  function jsonpTalep(payload){
-  return new Promise(resolve=>{
-    const cb='talep_cb_'+Date.now();
-    const script=document.createElement('script');
-    const encoded=encodeURIComponent(JSON.stringify(payload));
-    window[cb]=(data)=>{delete window[cb];script.remove();resolve(data);};
-    script.onerror=()=>{delete window[cb];script.remove();resolve({ok:false});};
-    script.src=GS_URL+'?callback='+cb+'&payload='+encoded;   // ★ DEĞİŞTİ: BAKIM_GS_URL → GS_URL
-    setTimeout(()=>{delete window[cb];if(script.parentNode)script.remove();resolve({ok:true});},8000);
-    document.head.appendChild(script);
-  });
-}
+    const simdi = new Date();
+    const formNo = talepFormNoUret(tip);
 
-const sonuc = await jsonpTalep({
-  action: 'saveBakimTalebi',
-  kayit: kayit
-});
+    const kayit = {};
 
-if (!sonuc || sonuc.ok !== true) {
-  throw new Error(sonuc?.error || 'Sunucu kaydı başarısız.');
-}
+    if (Array.isArray(BAKIM_COLS)) {
+      BAKIM_COLS.forEach(function (kolon) {
+        kayit[kolon] = '';
+      });
+    }
 
-if (!sonuc || sonuc.ok !== true) {
-  throw new Error(
-    sonuc?.error || 'Bakım talebi sunucuya kaydedilemedi.'
-  );
-}
-    const talepler=taleplerYukle();
+    Object.assign(kayit, {
+      id: String(simdi.getTime()),
+      formNo: formNo,
+      islem: tip,
+      bolum: bolum,
+      makine: makine,
+      bildiren: bildiren + ' (ÜRETİM)',
+      proje: modelNo + (musteri ? '/' + musteri : ''),
+      mdNo: mdNo,
+      revNo: revNo,
+      arizaTuru: arizaTuru,
+      arizaKodu: arizaKodu,
+      konu: aciklama,
+      tarihBas: tarihBas,
+      tarihBit: '',
+      arizaBas: arizaSaat,
+      arizaBit: '',
+      riskSeviye: oncelik,
+      durusEtkisi: durusEtkisi,
+      durum: 'BEKLIYOR',
+      kayitYapan: bildiren,
+      kayitZaman: simdi.toISOString()
+    });
+
+    function jsonpTalep(payload) {
+      return new Promise(function (resolve, reject) {
+        const callbackAdi = 'talep_cb_' + Date.now();
+        const script = document.createElement('script');
+        let zamanAsimi;
+
+        function temizle() {
+          clearTimeout(zamanAsimi);
+          delete window[callbackAdi];
+
+          if (script.parentNode) {
+            script.parentNode.removeChild(script);
+          }
+        }
+
+        window[callbackAdi] = function (data) {
+          temizle();
+
+          if (!data || data.ok !== true) {
+            reject(new Error(data?.error || 'Sunucu kayıt işlemini reddetti.'));
+            return;
+          }
+
+          resolve(data);
+        };
+
+        script.onerror = function () {
+          temizle();
+          reject(new Error('Apps Script bağlantısı kurulamadı.'));
+        };
+
+        const encoded = encodeURIComponent(JSON.stringify(payload));
+
+        script.src =
+          BAKIM_GS_URL +
+          '?callback=' + callbackAdi +
+          '&payload=' + encoded +
+          '&_t=' + Date.now();
+
+        zamanAsimi = setTimeout(function () {
+          temizle();
+          reject(new Error('Sunucu zaman aşımına uğradı.'));
+        }, 15000);
+
+        document.head.appendChild(script);
+      });
+    }
+
+    const sonuc = await jsonpTalep({
+      action: 'saveBakimTalebi',
+      kayit: kayit
+    });
+
+    const talepler = taleplerYukle();
+
     talepler.unshift({
-  ...kayit,
-  oncelik: oncelik,
-  durum: 'BEKLIYOR',
-  gonderimZamani: simdi.toLocaleString('tr-TR')
-});
-    taleplerKaydet(talepler);
-    document.getElementById('talepFormNo').textContent=formNo;
-    document.getElementById('talepBasari').classList.add('goster');
-    ['talepTip','talepBolum','talepModelNo','talepArizaTuru','talepArizaKodu','talepAciklama','talepRevNo','talepMdNo','talepOncelik','talepDurusEtkisi'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-    document.querySelectorAll('.talep-tip-btn').forEach(b=>{b.classList.remove('active');b.style.removeProperty('--tt-color');b.style.removeProperty('--tt-bg');});
-    document.querySelectorAll('.oncelik-btn').forEach(b=>b.className='oncelik-btn');
-    if(currentUser) document.getElementById('talepBildiren').value=currentUser.name;
-    const td=new Date(),todayStr=td.toISOString().split('T')[0];
-    const saatStr=String(td.getHours()).padStart(2,'0')+':'+String(td.getMinutes()).padStart(2,'0');
-    const tbas=document.getElementById('talepTarihBas');if(tbas)tbas.value=todayStr;
-    const tbit=document.getElementById('talepTarihBit');if(tbit)tbit.value=saatStr;
-    bolumDegisti();
-    setTimeout(()=>document.getElementById('talepBasari').classList.remove('goster'),5000);
-    renderTalepGecmis();
-    showToast('✅ Talep gönderildi! ('+formNo+')','ok');
-  }catch(e){showToast('❌ Gönderilemedi: '+e.message,'err');}
-  btn.disabled=false;btn.textContent='📤 BAKIM EKİBİNE GÖNDER';
-}
+      ...kayit,
+      oncelik: oncelik,
+      durum: 'BEKLIYOR',
+      durusOlusturuldu: sonuc.durusOlusturuldu === true,
+      gonderimZamani: simdi.toLocaleString('tr-TR')
+    });
 
+    taleplerKaydet(talepler);
+
+    const formNoEl = document.getElementById('talepFormNo');
+    if (formNoEl) formNoEl.textContent = formNo;
+
+    const basariEl = document.getElementById('talepBasari');
+    if (basariEl) basariEl.classList.add('goster');
+
+    [
+      'talepTip',
+      'talepBolum',
+      'talepModelNo',
+      'talepArizaTuru',
+      'talepArizaKodu',
+      'talepAciklama',
+      'talepRevNo',
+      'talepMdNo',
+      'talepOncelik',
+      'talepDurusEtkisi'
+    ].forEach(function (id) {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+
+    document.querySelectorAll('.talep-tip-btn').forEach(function (b) {
+      b.classList.remove('active');
+      b.style.removeProperty('--tt-color');
+      b.style.removeProperty('--tt-bg');
+    });
+
+    document.querySelectorAll('.oncelik-btn').forEach(function (b) {
+      b.className = 'oncelik-btn';
+      b.style.background = '';
+    });
+
+    if (currentUser) {
+      const bildirenEl = document.getElementById('talepBildiren');
+      if (bildirenEl) bildirenEl.value = currentUser.name;
+    }
+
+    const bugun = new Date();
+    const bugunStr = bugun.toISOString().split('T')[0];
+    const saatStr =
+      String(bugun.getHours()).padStart(2, '0') + ':' +
+      String(bugun.getMinutes()).padStart(2, '0');
+
+    const tarihEl = document.getElementById('talepTarihBas');
+    if (tarihEl) tarihEl.value = bugunStr;
+
+    const saatEl = document.getElementById('talepTarihBit');
+    if (saatEl) saatEl.value = saatStr;
+
+    bolumDegisti();
+    renderTalepGecmis();
+
+    setTimeout(function () {
+      if (basariEl) basariEl.classList.remove('goster');
+    }, 5000);
+
+    showToast('✅ Talep gönderildi! (' + formNo + ')', 'ok');
+
+  } catch (e) {
+    console.error('talepGonder hatası:', e);
+    showToast('❌ Gönderilemedi: ' + e.message, 'err');
+
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = '📤 BAKIM EKİBİNE GÖNDER';
+    }
+  }
+}
 function renderTalepGecmis(){
   const liste=document.getElementById('talepGecmisListe');
   if(!liste) return;
