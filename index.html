@@ -4241,12 +4241,9 @@ function saveUretimKayitGS(kayit) {
 function saveDurusKayitGS(kayit) {
   const gercekSure = Number(kayit.gercekSureDk || 0);
   let hesaplanan = gercekSure;
-
-  // Kısmi Duruş mantığı
   if (kayit.etkisi === 'KISMİ DURUŞ') {
-    hesaplanan = Math.round(gercekSure * 0.7);   // %30 azalma
+    hesaplanan = Math.round(gercekSure * 0.7);
   }
-
   var payload = { 
     action: 'saveDurusKayit', 
     kayit: {
@@ -4258,8 +4255,8 @@ function saveDurusKayitGS(kayit) {
       bildiren:       String(kayit.bildiren || ''),
       neden:          String(kayit.neden || ''),
       etkisi:         String(kayit.etkisi || ''),
-      sureDk:         gercekSure,           // Gerçek geçen süre
-      hesaplanan:     hesaplanan,           // Hesaplanan (Kısmi ise %70)
+      sureDk:         gercekSure,
+      hesaplanan:     hesaplanan,
       projeNo:        String(kayit.projeNo || ''),
       sorumluBolum:   String(kayit.sorumluBolum || ''),
       sorumluKisi:    String(kayit.sorumluKisi || ''),
@@ -4267,10 +4264,10 @@ function saveDurusKayitGS(kayit) {
       aciklama:       String(kayit.aciklama || ''),
       yapilan:        String(kayit.yapilan || ''),
       kaynakFormNo:   String(kayit.kaynakFormNo || ''),
-      kayitZamani:    String(kayit.kayitZamani || new Date().toLocaleString('tr-TR'))
+      kayitZamani:    String(kayit.kayitZamani || new Date().toLocaleString('tr-TR')),
+      kayitKaynagi:   'URETIM'   // ★ YENİ: bu kaydın üretim modülünden geldiğini işaretliyor
     }
   };
-
   jsonpGonderGS(GS_URL, payload)
     .then(function(s) {
       if (s && s.ok) console.log('✅ GS Duruş OK | Gerçek:', gercekSure, 'Hesaplanan:', hesaplanan);
