@@ -1304,7 +1304,6 @@ tr:last-child td{border-bottom:none}
 // SABITLER & VERİ YAPILARI
 // ══════════════════════════════════════════════
 const GS_URL       = 'https://script.google.com/macros/s/AKfycbxMvsbGS0IrqJo4xScv7BoQRIXUt19gXVX-SqAwoczq0FkPc8gt6M-tqHCBn06N9ms/exec';
-const BAKIM_GS_URL = 'https://script.google.com/macros/s/AKfycbx-j91x4wISSs4ylVUkMAZ79ctuy3QfscywdopI9MxpdF5ecgpiHx8OAuk40NZSklaG/exec';
 
 const ATAMA_KEY        = 'burkab_atamalar_v1';
 const TAKIM_PERSONEL_KEY = 'burkab_takim_personel_v1';
@@ -3176,17 +3175,17 @@ async function talepGonder(){
   const row=BAKIM_COLS.map(c=>kayit[c]!==undefined?kayit[c]:'');
 
   function jsonpTalep(payload){
-    return new Promise(resolve=>{
-      const cb='talep_cb_'+Date.now();
-      const script=document.createElement('script');
-      const encoded=encodeURIComponent(JSON.stringify(payload));
-      window[cb]=(data)=>{delete window[cb];script.remove();resolve(data);};
-      script.onerror=()=>{delete window[cb];script.remove();resolve({ok:false});};
-      script.src=BAKIM_GS_URL+'?callback='+cb+'&payload='+encoded;
-      setTimeout(()=>{delete window[cb];if(script.parentNode)script.remove();resolve({ok:true});},8000);
-      document.head.appendChild(script);
-    });
-  }
+  return new Promise(resolve=>{
+    const cb='talep_cb_'+Date.now();
+    const script=document.createElement('script');
+    const encoded=encodeURIComponent(JSON.stringify(payload));
+    window[cb]=(data)=>{delete window[cb];script.remove();resolve(data);};
+    script.onerror=()=>{delete window[cb];script.remove();resolve({ok:false});};
+    script.src=GS_URL+'?callback='+cb+'&payload='+encoded;   // ★ DEĞİŞTİ: BAKIM_GS_URL → GS_URL
+    setTimeout(()=>{delete window[cb];if(script.parentNode)script.remove();resolve({ok:true});},8000);
+    document.head.appendChild(script);
+  });
+}
 
   try{
     await jsonpTalep({action:'saveKayit', kayit});
