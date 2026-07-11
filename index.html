@@ -3175,20 +3175,35 @@ async function talepGonder(){
 
   const btn=document.getElementById('talepGonderBtn');
   btn.disabled=true;btn.textContent='⏳ Gönderiliyor...';
-  const simdi=new Date();
-  const formNo=talepFormNoUret(tip);
-  const kayit={};
-  BAKIM_COLS.forEach(c=>kayit[c]='');
-  kayit.id=simdi.getTime();kayit.formNo=formNo;kayit.islem=tip;kayit.bolum=bolum;
-  kayit.makine=makine;kayit.bildiren=bildiren+' (ÜRETİM)';kayit.proje=modelNo+(musteri?'/'+musteri:'');
-  kayit.mdNo=mdNo;kayit.revNo=revNo;kayit.arizaTuru=arizaTuru;kayit.arizaKodu=arizaKodu;
-  kayit.konu=aciklama;kayit.tarihBas=tarihBas;kayit.tarihBit=tarihBas;
-  kayit.arizaBas=arizaSaat;kayit.kayit.arizaBas = arizaSaat;
-  kayit.riskSeviye = oncelik;
-  kayit.durusEtkisi = durusEtkisi;
-  kayit.durum = 'BEKLIYOR';riskSeviye=oncelik;
-  const row=BAKIM_COLS.map(c=>kayit[c]!==undefined?kayit[c]:'');
+  const simdi = new Date();
+const formNo = talepFormNoUret(tip);
 
+const kayit = {
+  id: simdi.getTime(),
+  formNo: formNo,
+  islem: tip,
+  bolum: bolum,
+  makine: makine,
+  bildiren: bildiren + ' (ÜRETİM)',
+  proje: modelNo + (musteri ? '/' + musteri : ''),
+  mdNo: mdNo,
+  revNo: revNo,
+  arizaTuru: arizaTuru,
+  arizaKodu: arizaKodu,
+  konu: aciklama,
+  tarihBas: tarihBas,
+  tarihBit: tarihBas,
+  arizaBas: arizaSaat,
+  riskSeviye: oncelik,
+  durusEtkisi: durusEtkisi,
+  durum: 'BEKLIYOR',
+  kayitYapan: bildiren,
+  kayitZaman: simdi.toISOString()
+};
+
+const row = BAKIM_COLS.map(c =>
+  kayit[c] !== undefined ? kayit[c] : ''
+);
   function jsonpTalep(payload){
   return new Promise(resolve=>{
     const cb='talep_cb_'+Date.now();
@@ -3202,11 +3217,14 @@ async function talepGonder(){
   });
 }
 
-  try{
-    const sonuc = await jsonpTalep({
+const sonuc = await jsonpTalep({
   action: 'saveBakimTalebi',
   kayit: kayit
 });
+
+if (!sonuc || sonuc.ok !== true) {
+  throw new Error(sonuc?.error || 'Sunucu kaydı başarısız.');
+}
 
 if (!sonuc || sonuc.ok !== true) {
   throw new Error(
