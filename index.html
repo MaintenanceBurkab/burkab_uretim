@@ -3251,11 +3251,11 @@ async function talepGonder() {
         const encoded = encodeURIComponent(JSON.stringify(payload));
 
         script.src =
-          BAKIM_GS_URL +
-          '?callback=' + callbackAdi +
-          '&payload=' + encoded +
-          '&_t=' + Date.now();
-
+       GS_URL +
+     '?callback=' + callbackAdi +
+     '&payload=' + encoded +
+     '&_t=' + Date.now();
+        
         zamanAsimi = setTimeout(function () {
           temizle();
           reject(new Error('Sunucu zaman aşımına uğradı.'));
