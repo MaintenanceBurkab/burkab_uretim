@@ -1074,7 +1074,38 @@ tr:last-child td{border-bottom:none}
           <option value="DURUŞ YOK">DURUŞ YOK (sadece kayıt)</option>
         </select>
       </div>
+   <!-- ★ YENİ: BAKIM TALEBİ TÜRÜ -->
+      <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;margin-bottom:10px;text-transform:uppercase">Bakım Ekibine Bildirim Gönder</div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px" id="durusIslemTuruGrid">
+        <div class="durus-islem-btn active" data-v="" data-c="#888" data-bg="rgba(136,136,136,.08)" onclick="durusIslemTuruSec(this)" style="border:2px solid #888;border-radius:9px;background:rgba(136,136,136,.08);padding:10px 6px;text-align:center;cursor:pointer">
+          <span style="font-size:18px;display:block;margin-bottom:3px">➖</span><span style="font-size:10px;font-weight:700;color:var(--muted)">HAYIR</span></div>
+        <div class="durus-islem-btn" data-v="ARIZA KAYDI" data-c="#d32f2f" data-bg="rgba(211,47,47,.08)" onclick="durusIslemTuruSec(this)" style="border:2px solid #d0d0c0;border-radius:9px;background:var(--bg);padding:10px 6px;text-align:center;cursor:pointer">
+          <span style="font-size:18px;display:block;margin-bottom:3px">⚡</span><span style="font-size:10px;font-weight:700;color:var(--muted)">ARIZA</span></div>
+        <div class="durus-islem-btn" data-v="BAKIM KAYDI" data-c="#0277bd" data-bg="rgba(2,119,189,.08)" onclick="durusIslemTuruSec(this)" style="border:2px solid #d0d0c0;border-radius:9px;background:var(--bg);padding:10px 6px;text-align:center;cursor:pointer">
+          <span style="font-size:18px;display:block;margin-bottom:3px">🔧</span><span style="font-size:10px;font-weight:700;color:var(--muted)">BAKIM</span></div>
+        <div class="durus-islem-btn" data-v="REVİZYON" data-c="#6a1b9a" data-bg="rgba(106,27,154,.08)" onclick="durusIslemTuruSec(this)" style="border:2px solid #d0d0c0;border-radius:9px;background:var(--bg);padding:10px 6px;text-align:center;cursor:pointer">
+          <span style="font-size:18px;display:block;margin-bottom:3px">🔄</span><span style="font-size:10px;font-weight:700;color:var(--muted)">REVİZYON</span></div>
+        <div class="durus-islem-btn" data-v="MONTAJ" data-c="#e65100" data-bg="rgba(230,81,0,.08)" onclick="durusIslemTuruSec(this)" style="border:2px solid #d0d0c0;border-radius:9px;background:var(--bg);padding:10px 6px;text-align:center;cursor:pointer">
+          <span style="font-size:18px;display:block;margin-bottom:3px">🏗️</span><span style="font-size:10px;font-weight:700;color:var(--muted)">MONTAJ</span></div>
+      </div>
+      <input type="hidden" id="durusIslemTuru" value="">
 
+      <div class="fg g3" id="durusBakimTalebiExtra" style="margin-bottom:14px;display:none">
+        <div class="field">
+          <label>Arıza Kodu</label>
+          <input type="text" id="durusArizaKodu" placeholder="Opsiyonel">
+        </div>
+        <div class="field">
+          <label>Risk Seviyesi</label>
+          <select id="durusRiskSeviye">
+            <option value="DÜŞÜK">DÜŞÜK</option>
+            <option value="ORTA" selected>ORTA</option>
+            <option value="YÜKSEK">YÜKSEK</option>
+            <option value="KRİTİK">KRİTİK</option>
+          </select>
+        </div>
+      </div>
+      <!-- ★ YENİ BLOK BİTTİ -->
       <div class="fg g3" style="margin-bottom:14px">
         <div class="field">
           <label>Proje No</label>
@@ -3578,7 +3609,22 @@ function durusSaatGuncelle(){
   const s=document.getElementById('durusSaat');
   if(s) s.value=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
 }
+function durusIslemTuruSec(el) {
+  document.querySelectorAll('.durus-islem-btn').forEach(b => {
+    b.classList.remove('active');
+    b.style.border = '2px solid #d0d0c0';
+    b.style.background = 'var(--bg)';
+  });
+  el.classList.add('active');
+  el.style.border = '2px solid ' + el.dataset.c;
+  el.style.background = el.dataset.bg;
 
+  const deger = el.dataset.v || '';
+  document.getElementById('durusIslemTuru').value = deger;
+
+  const extra = document.getElementById('durusBakimTalebiExtra');
+  if (extra) extra.style.display = deger ? 'grid' : 'none';
+}
 async function durusKaydet(){
   const bolum     = document.getElementById('durusBolum').value;
   const makine    = document.getElementById('durusMakine')?.value?.trim() || '';
@@ -3591,6 +3637,9 @@ async function durusKaydet(){
   const projeNo   = document.getElementById('durusProjeNo')?.value || '';
   const kokNeden  = document.getElementById('durusKokNeden')?.value.trim() || '';
   const yapilan   = document.getElementById('durusYapilan')?.value.trim() || '';
+  const islemTuru  = document.getElementById('durusIslemTuru')?.value || '';
+  const arizaKodu  = document.getElementById('durusArizaKodu')?.value.trim() || '';
+  const riskSeviye = document.getElementById('durusRiskSeviye')?.value || 'ORTA';
 
   if(!bolum || !makine || !bildiren || !neden || !aciklama || !sorumluB){
     showToast('❗ Tüm zorunlu alanları doldurun!', 'err');
@@ -3607,7 +3656,7 @@ async function durusKaydet(){
   const formNo = durusFormNoUret();
   const baslangicZamani = simdi.toISOString();
 
-  const kayit = {
+  cconst kayit = {
     id: simdi.getTime(),
     formNo,
     tarih,
@@ -3616,8 +3665,8 @@ async function durusKaydet(){
     makine,
     bildiren,
     neden,
-    etkisi,                    // ← EKLENDİ
-    sureDk: 0,                 // ← EKLENDİ (başlangıçta 0)
+    etkisi,
+    sureDk: 0,
     aciklama,
     sorumluBolum: sorumluB,
     sorumluKisi: sorumluK,
@@ -3628,6 +3677,9 @@ async function durusKaydet(){
     bitisZamani: null,
     gercekSureDk: 0,
     projeNo,
+    islemTuru,      // ★ YENİ
+    arizaKodu,      // ★ YENİ
+    riskSeviye,     // ★ YENİ
     kayitZamani: simdi.toLocaleString('tr-TR')
   };
 
@@ -4717,7 +4769,31 @@ function durusBitirOnayla() {
   });
   document.getElementById('durusSorumluKisi').innerHTML = '<option value="">— Önce bölüm seçiniz —</option>';
   document.getElementById('durusMakineWrapper').innerHTML = `<input type="text" id="durusMakine" placeholder="Önce bölüm seçiniz" readonly style="background:#f0f0ec;cursor:not-allowed;color:#aaa">`;
-}
-</script>
+
+  // ★ YENİ: Bakım Talebi Türü seçiciyi ve ek alanları sıfırla
+  const islemTuruInp = document.getElementById('durusIslemTuru');
+  if (islemTuruInp) islemTuruInp.value = '';
+
+  const arizaKoduInp = document.getElementById('durusArizaKodu');
+  if (arizaKoduInp) arizaKoduInp.value = '';
+
+  const riskSeviyeSel = document.getElementById('durusRiskSeviye');
+  if (riskSeviyeSel) riskSeviyeSel.value = 'ORTA';
+
+  const extra = document.getElementById('durusBakimTalebiExtra');
+  if (extra) extra.style.display = 'none';
+
+  document.querySelectorAll('.durus-islem-btn').forEach(b => {
+    b.classList.remove('active');
+    b.style.border = '2px solid #d0d0c0';
+    b.style.background = 'var(--bg)';
+  });
+  const hayirBtn = document.querySelector('.durus-islem-btn[data-v=""]');
+  if (hayirBtn) {
+    hayirBtn.classList.add('active');
+    hayirBtn.style.border = '2px solid #888';
+    hayirBtn.style.background = 'rgba(136,136,136,.08)';
+  }
+}</script>
 </body>
 </html>
