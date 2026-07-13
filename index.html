@@ -4457,6 +4457,9 @@ function saveDurusKayitGS(kayit) {
       kaynakFormNo:   String(kayit.kaynakFormNo || ''),
       kayitZamani:    String(kayit.kayitZamani || new Date().toLocaleString('tr-TR')),
       kayitKaynagi:   'URETIM'   // ★ YENİ: bu kaydın üretim modülünden geldiğini işaretliyor
+      islemTuru:      String(kayit.islemTuru || ''),      // ★ YENİ
+      arizaKodu:      String(kayit.arizaKodu || ''),      // ★ YENİ
+      riskSeviye:     String(kayit.riskSeviye || 'ORTA')  // ★ YENİ
     }
   };
   jsonpGonderGS(GS_URL, payload)
