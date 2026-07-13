@@ -1216,7 +1216,7 @@ tr:last-child td{border-bottom:none}
 </div>
 <div style="margin-top:20px; display:flex; gap:10px;">
 <button onclick="durusBitirOnayla()" style="flex:1; background:#d32f2f; color:white; border:none; padding:14px; border-radius:8px; font-weight:700; font-size:16px;">
-        ✅ DURUŞU BİTİR VE KAYDET
+        ✅ DURUŞU BİTİR KAYDET ve iŞE DEVAM ET
       </button>
 <button onclick="durusBitirModalKapat()" style="background:#f0f0ec; color:#444; border:none; padding:14px 20px; border-radius:8px;">
         İptal
@@ -4714,55 +4714,77 @@ function durusBitirModalKapat() {
   bitirilecekDurusId = null;
 }
 
-function durusBitirOnayla() {
+async function durusBitirOnayla() {
   if (!bitirilecekDurusId) return;
 
-  const kokNeden = document.getElementById('modalKokNeden').value.trim();
+  const kokNeden =
+    document.getElementById('modalKokNeden').value.trim();
+
   if (!kokNeden) {
     showToast('❗ Kök Neden alanını doldurunuz!', 'err');
     return;
   }
 
-  let liste = duruslariYukle();
-  const index = liste.findIndex(d => d.id === bitirilecekDurusId);
+  const liste = duruslariYukle();
+  const index = liste.findIndex(
+    d => String(d.id) === String(bitirilecekDurusId)
+  );
+
   if (index === -1) return;
 
   const kayit = liste[index];
   const simdi = new Date();
+  const baslangic = new Date(kayit.baslangicZamani);
 
-  kayit.durum = 'BITTI';
+  const gercekSureDk = Math.max(
+    0,
+    Math.round((simdi.getTime() - baslangic.getTime()) / 60000)
+  );
+
+  kayit.durum = 'KAPALI';
   kayit.bitisZamani = simdi.toISOString();
-  kayit.gercekSureDk = Math.round((simdi - new Date(kayit.baslangicZamani)) / 60000);
-  
-  // SÜRE ALANLARINI GÜNCELLE
-  kayit.sureDk = kayit.gercekSureDk;           // tahmini = gerçek
-  kayit.hesaplanan = kayit.gercekSureDk;       // HesaplananDk için
 
-  // Kısmi Duruş mantığı (isteğe bağlı)
-  if (kayit.etkisi === 'KISMİ DURUŞ') {
-    kayit.hesaplanan = Math.round(kayit.gercekSureDk * 0.7);
-  }
+  kayit.bitisTarihi = simdi.toLocaleDateString('sv-SE', {
+    timeZone: 'Europe/Istanbul'
+  });
+
+  kayit.bitisSaati = simdi.toLocaleTimeString('tr-TR', {
+    timeZone: 'Europe/Istanbul',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  });
+
+  kayit.kapanisZamani = simdi.toISOString();
+  kayit.gercekSureDk = gercekSureDk;
+  kayit.sureDk = gercekSureDk;
+  kayit.hesaplananDk = gercekSureDk;
+  kayit.hesaplanan = gercekSureDk;
 
   kayit.kokNeden = kokNeden;
-  kayit.yapilan = document.getElementById('modalYapilan').value.trim();
-  kayit.aciklama = document.getElementById('modalAciklama').value.trim();
+  kayit.yapilan =
+    document.getElementById('modalYapilan').value.trim();
+
+  kayit.aciklama =
+    document.getElementById('modalAciklama').value.trim();
+
+  kayit.iseDevam = true;
+  kayit.verimdenHaric = true;
 
   duruslariKaydet(liste);
+
+  await saveDurusKayitGS(kayit);
+
   durusBitirModalKapat();
- 
-  showToast(`✅ Duruş bitirildi • ${kayit.gercekSureDk} dakika`, 'ok');
-   saveDurusKayitGS(kayit);
   renderAktifDuruslar();
   renderDurusGecmis();
   durusKpiGuncelle();
+
+  showToast(
+    `✅ Duruş kapatıldı • ${gercekSureDk} dakika • Aynı işe devam`,
+    'ok'
+  );
 }
-  function formTemizleDurus() {
-  ['durusBolum','durusNeden','durusAciklama','durusSorumluBolum','durusKokNeden','durusYapilan','durusProjeNo'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = '';
-  });
-  document.getElementById('durusSorumluKisi').innerHTML = '<option value="">— Önce bölüm seçiniz —</option>';
-  document.getElementById('durusMakineWrapper').innerHTML = `<input type="text" id="durusMakine" placeholder="Önce bölüm seçiniz" readonly style="background:#f0f0ec;cursor:not-allowed;color:#aaa">`;
-}</script>
+</script>
 </body>
 </html>
