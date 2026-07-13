@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#1a1a1a">
-<title>BURKAB — Üretim Yönetim Modülü | Temiz Sürüm</title>
+<title>BURKAB — Takım Kaptanı Proses Merkezi v2.2</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -253,6 +253,38 @@ tr:last-child td{border-bottom:none}
 @media(max-width:900px){.birlesik-kayit-grid{grid-template-columns:1fr}}
 @media(max-width:640px){.birlesik-tip-secici{grid-template-columns:1fr}.birlesik-tip-btn{padding:12px}.birlesik-aciklama{font-size:11px}}
 
+
+
+/* ══════════════════════════════════════════════
+   TAKIM KAPTANI / PROSES MERKEZLİ ARAYÜZ v1
+   ══════════════════════════════════════════════ */
+.header-team-badge{display:none;min-width:210px;text-align:center;padding:8px 18px;border:1px solid rgba(245,196,0,.55);border-radius:9px;background:rgba(245,196,0,.09);color:#f5c400;font-size:20px;font-weight:900;letter-spacing:2px;text-transform:uppercase;box-shadow:0 0 18px rgba(245,196,0,.08)}
+.header-team-badge small{display:block;font-size:9px;letter-spacing:1.3px;color:#aaa;margin-top:2px;font-weight:700}
+.login-team-strip{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 14px;margin-bottom:15px;border:1.5px solid #f5c400;border-radius:9px;background:#fffbea}
+.login-team-strip .team-name{font-size:18px;font-weight:900;color:#1a1a1a;letter-spacing:1px}
+.login-team-strip .team-note{font-size:11px;color:#7a6a29;margin-top:2px}
+.proses-workspace{display:grid;grid-template-columns:minmax(300px,.9fr) minmax(420px,1.25fr);gap:16px;align-items:start}
+.proses-side-panel,.proses-form-panel{border:1px solid var(--border);border-radius:10px;background:#fafaf8;overflow:hidden}
+.proses-panel-title{padding:11px 14px;background:#222;color:#fff;font-size:12px;font-weight:800;letter-spacing:.7px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.proses-panel-body{padding:14px}
+.proses-personel-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-height:250px;overflow:auto;padding:3px}
+.proses-personel-item{display:flex;align-items:center;gap:9px;padding:10px 11px;border:1px solid #d9d6cf;border-radius:8px;background:#fff;cursor:pointer;font-size:12px;font-weight:700;transition:.15s}
+.proses-personel-item:hover{border-color:#f5c400;background:#fffbea}
+.proses-personel-item:has(input:checked){border-color:#f5c400;background:#fff7cc;box-shadow:0 0 0 2px rgba(245,196,0,.16)}
+.proses-personel-item input{width:17px;height:17px;accent-color:#f5c400}
+.proses-group-card{border:1.5px solid #dedbd3;border-left:5px solid #f5c400;border-radius:10px;background:#fff;padding:14px 15px;margin-bottom:10px}
+.proses-group-card.durusta{border-left-color:#d32f2f;background:#fffafa}
+.proses-group-card.tamamlandi{border-left-color:#2e7d32;background:#f6fbf7;opacity:.82}
+.proses-card-actions{display:flex;gap:7px;align-items:center;justify-content:flex-end;flex-wrap:wrap;margin-top:11px;padding-top:10px;border-top:1px dashed #ddd8cf}
+.proses-action-btn{border:none;border-radius:7px;padding:7px 11px;font-size:11px;font-weight:800;cursor:pointer}
+.proses-action-stop{background:#fff3e0;color:#c64800;border:1px solid #ffcc80}
+.proses-action-resume{background:#ffebee;color:#b71c1c;border:1px solid #ef9a9a}
+.proses-action-maint{background:#e3f2fd;color:#075f9b;border:1px solid #90caf9}
+.proses-action-finish{background:#e8f5e9;color:#236b2a;border:1px solid #a5d6a7}
+.proses-action-delete{background:#ffebee;color:#c62828;border:1px solid #ef9a9a}
+.team-admin-badge{display:inline-block;padding:2px 7px;border-radius:10px;background:#fff8e1;color:#9b7200;font-size:10px;font-weight:800;margin-left:5px}
+@media(max-width:900px){.header-team-badge{min-width:auto;font-size:15px;padding:7px 10px}.proses-workspace{grid-template-columns:1fr}.proses-personel-grid{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -292,9 +324,10 @@ tr:last-child td{border-bottom:none}
     <div class="brand">
       <div>
         <p class="brand-title">BURKAB A.Ş</p>
-        <p class="brand-slogan">Üretim Yönetim Modülü v2.1</p>
+        <p class="brand-slogan">Üretim Yönetim Modülü v2.2 · Takım Kaptanı</p>
       </div>
     </div>
+    <div class="header-team-badge" id="headerTakimKimligi">—<small>TAKIM KAPTANI PANELİ</small></div>
     <div style="display:flex;align-items:center;gap:16px;flex-shrink:0">
       <div>
         <div class="clock" id="clock">--:--:--</div>
@@ -452,23 +485,23 @@ tr:last-child td{border-bottom:none}
     <div class="section-head"><div class="dot"></div>📝 ÜRETİM GİRİŞİ</div>
     <div class="section-body">
 
-      <div class="fg g3" style="margin-bottom:14px">
-        <div class="field">
-          <label>Takım No <span class="req">*</span></label>
-          <select id="giTakimNo" onchange="girisAtamaYukle()">
-            <option value="">— Seçiniz —</option>
-            <option>KESİM</option><option>ALT MONTAJ</option><option>AKÜ KESİM</option>
-            <option>TEST</option><option>TAKIM-1</option><option>TAKIM-2</option>
-            <option>TAKIM-3</option><option>TAKIM-4</option><option>TESİSAT ÖNCESİ</option><option>TESİSAT SONRASI</option>
-          </select>
+      <div class="login-team-strip">
+        <div>
+          <div class="team-name" id="girisTakimBaslik">TAKIM TANIMLANMADI</div>
+          <div class="team-note">Takım bilgisi giriş yapan kaptanın hesabından otomatik alınır.</div>
         </div>
+        <span class="badge b-green">🔒 OTURUMDAN KİLİTLİ</span>
+      </div>
+      <input type="hidden" id="giTakimNo" value="">
+
+      <div class="fg" style="margin-bottom:14px">
         <div class="field">
           <label>Tarih <span class="req">*</span></label>
           <input type="date" id="giTarih" oninput="girisAtamaYukle()">
         </div>
         <div class="field">
           <label>Giren Kişi <span class="req">*</span></label>
-          <input type="text" id="giKisi" placeholder="Ad Soyad" oninput="this.value=this.value.toUpperCase()">
+          <input type="text" id="giKisi" placeholder="Ad Soyad" readonly style="background:#f0f0ec;font-weight:700">
         </div>
       </div>
 
@@ -768,95 +801,109 @@ tr:last-child td{border-bottom:none}
     <div class="section-body"><div id="ymTumTakimlar"></div></div>
   </div>
 </div>
-<!-- ══════════════ PROSES ATAMA ══════════════ -->
+<!-- ══════════════ PROSES ATAMA — TAKIM KAPTANI MERKEZİ ══════════════ -->
 <div class="tab-pane" id="tab-proses">
   <div class="section">
-    <div class="section-head"><div class="dot"></div>🛠️ PROSES ATAMA</div>
+    <div class="section-head">
+      <div class="dot"></div>🛠️ PROSES & TAKIM ÇALIŞMA MERKEZİ
+      <span id="prTakimBaslik" style="margin-left:auto;color:#f5c400;font-size:14px;font-weight:900;letter-spacing:1px">TAKIM TANIMLANMADI</span>
+    </div>
     <div class="section-body">
-      <div class="fg" style="margin-top:14px">
+      <input type="hidden" id="prTakim" value="">
+      <input type="hidden" id="prKaydeden" value="">
+
+      <div id="prTakimYoneticiBlok" style="display:none;margin-bottom:14px">
         <div class="field">
-          <label>Takım <span class="req">*</span></label>
-          <select id="prTakim" onchange="prPersonelDoldur()">
-            <option value="">— Seçiniz —</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Personel <span class="req">*</span></label>
-          <select id="prPersonel">
-            <option value="">— Önce takım seçin —</option>
-          </select>
+          <label>Takım Seçimi — yalnızca takım tanımı olmayan yönetici hesabı için</label>
+          <select id="prTakimYonetici" onchange="prYoneticiTakimSecildi()"><option value="">— Seçiniz —</option></select>
         </div>
       </div>
 
-      <div class="fg" style="margin-top:14px">
-        <div class="field">
-          <label>Başlama Tarihi <span class="req">*</span></label>
-          <input type="date" id="prTarih">
-        </div>
-        <div class="field">
-          <label>Başlama Saati <span class="req">*</span></label>
-          <input type="time" id="prSaat">
-        </div>
-        <div class="field">
-          <label>Proses Atama <span class="req">*</span></label>
-          <select id="prProses">
-            <option value="">— Seçiniz —</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- YENİ: Takıma atanan işler listesi -->
-      <div id="prAtananIslerBlok" style="display:none;margin-top:14px">
-        <label style="font-size:11px;font-weight:700;letter-spacing:.8px;color:#888;text-transform:uppercase;margin-bottom:8px;display:block">
-          🗂️ ATANAN İŞLER. BİRİNİ SEÇİN
-        </label>
-        <div id="prAtananIslerListe" style="display:flex;flex-direction:column;gap:8px"></div>
-      </div>
-
-      <!-- YENİ: Seçili iş özeti + adet girişi -->
-      <div id="prSeciliIsBlok" style="display:none;margin-top:14px">
-        <div style="padding:10px 14px;background:#fff8e1;border:1px solid #f5c400;border-radius:8px;margin-bottom:10px">
-          <div id="prSeciliIsOzetMetin" style="font-size:13px"></div>
-        </div>
-        <div class="fg">
-          <div class="field">
-            <label>ATANAN ADET <span class="req">*</span></label>
-            <input type="number" id="prAdet" min="1" oninput="prBakiyeGuncelle()">
+      <div class="proses-workspace">
+        <aside class="proses-side-panel">
+          <div class="proses-panel-title">
+            <span>📁 TAKIMA ATANMIŞ PROJELER</span>
+            <span id="prProjeSayisi" class="badge b-blue">0</span>
           </div>
-          <div class="field">
-            <label>Kalan Bakiye</label>
-            <input type="text" id="prBakiye" readonly style="background:#f0f0f0;font-weight:700;color:#b8900a">
+          <div class="proses-panel-body">
+            <div id="prAtananIslerBlok">
+              <div id="prAtananIslerListe" style="display:flex;flex-direction:column;gap:8px">
+                <div class="empty">Takıma atanmış aktif proje bulunamadı.</div>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        </aside>
 
-      <div class="fg" style="margin-top:14px">
-        <div class="field">
-          <label>Kaydeden</label>
-          <input type="text" id="prKaydeden" readonly style="background:#f0f0f0">
-        </div>
-      </div>
+        <section class="proses-form-panel">
+          <div class="proses-panel-title">
+            <span>👥 PERSONELİ PROSESE BAĞLA</span>
+            <span id="prSeciliPersonelSayisi" class="badge b-green">0 kişi</span>
+          </div>
+          <div class="proses-panel-body">
+            <div class="fg g3" style="margin-bottom:14px">
+              <div class="field">
+                <label>Başlama Tarihi <span class="req">*</span></label>
+                <input type="date" id="prTarih">
+              </div>
+              <div class="field">
+                <label>Başlama Saati <span class="req">*</span></label>
+                <input type="time" id="prSaat">
+              </div>
+              <div class="field">
+                <label>Proses <span class="req">*</span></label>
+                <select id="prProses"><option value="">— Seçiniz —</option></select>
+              </div>
+            </div>
 
-      <div style="display:flex;gap:10px;margin-top:16px">
-        <button class="btn-sm" onclick="prKaydet()" style="flex:1;padding:10px;background:#f5c400;font-weight:700">💾 KAYDET</button>
-        <button class="btn-sm" onclick="prFormTemizle()" style="flex:1;padding:10px">🧹 Temizle</button>
+            <div class="field" style="margin-bottom:14px">
+              <label>Personeller <span class="req">*</span> — aynı prosese birden fazla kişi seçilebilir</label>
+              <div id="prPersonelListe" class="proses-personel-grid">
+                <div class="empty">Takım personeli yükleniyor...</div>
+              </div>
+            </div>
+
+            <div id="prSeciliIsBlok" style="display:none;margin-top:14px">
+              <div style="padding:10px 14px;background:#fff8e1;border:1px solid #f5c400;border-radius:8px;margin-bottom:10px">
+                <div style="font-size:10px;font-weight:800;color:#9b7200;margin-bottom:4px">SEÇİLEN PROJE / İŞ EMRİ</div>
+                <div id="prSeciliIsOzetMetin" style="font-size:13px"></div>
+              </div>
+              <div class="fg">
+                <div class="field">
+                  <label>Toplam Proses Adedi <span class="req">*</span></label>
+                  <input type="number" id="prAdet" min="1" oninput="prBakiyeGuncelle()">
+                </div>
+                <div class="field">
+                  <label>Kalan Proje Bakiyesi</label>
+                  <input type="text" id="prBakiye" readonly style="background:#f0f0f0;font-weight:700;color:#b8900a">
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:10px;margin-top:16px">
+              <button class="btn-sm" id="prKaydetBtn" onclick="prKaydet()" style="flex:1;padding:11px;background:#f5c400;font-weight:800">💾 PERSONELLERİ PROSESE ATA</button>
+              <button class="btn-sm" onclick="prFormTemizle()" style="padding:11px 20px">🧹 Temizle</button>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   </div>
 
   <div class="section">
-    <div class="section-head"><div class="dot"></div>📋 AKTİF PROSES ATAMALARI</div>
+    <div class="section-head">
+      <div class="dot"></div>📋 AKTİF PROSES GRUPLARI
+      <span style="margin-left:auto;font-size:10px;color:#aaa">Prosese bağlı duruş ve bakım işlemleri bu kartlardan yapılır.</span>
+    </div>
     <div class="section-body">
-      <div id="prListe" style="display:flex;flex-direction:column;gap:8px"></div>
+      <div id="prListe"></div>
     </div>
   </div>
 
-  <!-- YENİ: Proses Bitirme — Adet Giriş Modalı -->
   <div id="prBitirModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center">
-    <div style="background:#fff;border-radius:12px;padding:24px;width:90%;max-width:380px;box-shadow:0 10px 40px rgba(0,0,0,.2)">
-      <div style="font-size:15px;font-weight:800;margin-bottom:4px">✅ Prosesi Bitir</div>
+    <div style="background:#fff;border-radius:12px;padding:24px;width:90%;max-width:400px;box-shadow:0 10px 40px rgba(0,0,0,.2)">
+      <div style="font-size:15px;font-weight:800;margin-bottom:4px">✅ Proses Grubunu Bitir</div>
       <div id="prBitirPersonelMetin" style="font-size:12px;color:var(--muted);margin-bottom:16px"></div>
-      <label style="font-size:11px;font-weight:700;letter-spacing:.8px;color:#888;text-transform:uppercase;margin-bottom:6px;display:block">Adet Giriniz</label>
+      <label style="font-size:11px;font-weight:700;letter-spacing:.8px;color:#888;text-transform:uppercase;margin-bottom:6px;display:block">Toplam Gerçekleşen Adet</label>
       <input type="number" id="prBitirAdet" min="1" onkeydown="if(event.key==='Enter'){event.preventDefault();prBitirOnayla();}" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:16px;font-weight:700;text-align:center;margin-bottom:18px">
       <div style="display:flex;gap:10px">
         <button class="btn-sm" onclick="prBitirIptal()" style="flex:1;padding:10px">İptal</button>
@@ -1252,7 +1299,7 @@ tr:last-child td{border-bottom:none}
       </div>
       <div class="section-body">
         <input type="hidden" id="editKullaniciIdx">
-        <div class="fg g4" style="margin-bottom:14px">
+        <div class="fg" style="margin-bottom:14px">
           <div class="field">
             <label>Ad Soyad <span class="req">*</span></label>
             <input type="text" id="ykAd" placeholder="AD SOYAD" oninput="this.value=this.value.toUpperCase()">
@@ -1267,11 +1314,15 @@ tr:last-child td{border-bottom:none}
           </div>
           <div class="field">
             <label>Rol <span class="req">*</span></label>
-            <select id="ykRol">
+            <select id="ykRol" onchange="kullaniciRolDegisti()">
               <option value="admin">Admin (Tüm Yetkiler)</option>
               <option value="yonetici">Yönetici (Atama+Rapor)</option>
-              <option value="uretim">Üretim (Giriş+Talep)</option>
+              <option value="uretim">Takım Kaptanı / Üretim</option>
             </select>
+          </div>
+          <div class="field" id="ykTakimBlok">
+            <label>Bağlı Takım</label>
+            <input type="text" id="ykTakim" placeholder="ÖR: TAKIM-3" oninput="this.value=this.value.toUpperCase()">
           </div>
         </div>
         <div style="display:flex;gap:10px">
@@ -1364,6 +1415,37 @@ const BOLUM_MAKINELER = {
 let currentUser = null;
 let kayitlar = [], atamalar = [], tanimlar = [], takimPersoneller = {};
 let seciliAtamaId = null; // Üretim girişi için seçili iş
+let aktifProsesDurusBaglami = null;
+
+function kullaniciTakimi() {
+  return String(currentUser?.takim || '').trim().toUpperCase();
+}
+function takimGorunumAdi(takim) {
+  const t = String(takim || '').trim().toUpperCase();
+  const m = t.match(/^TAKIM[-\s]?(\d+)$/);
+  return m ? m[1] + '. TAKIM' : (t || 'TAKIM TANIMLANMADI');
+}
+function takimKilitleriniUygula() {
+  const takim = kullaniciTakimi();
+  const gorunum = takimGorunumAdi(takim);
+  const header = document.getElementById('headerTakimKimligi');
+  if (header) {
+    header.style.display = takim ? 'block' : 'none';
+    header.innerHTML = gorunum + '<small>TAKIM KAPTANI PANELİ</small>';
+  }
+  const gi = document.getElementById('giTakimNo');
+  if (gi && takim) gi.value = takim;
+  const pr = document.getElementById('prTakim');
+  if (pr && takim) pr.value = takim;
+  const girisBaslik = document.getElementById('girisTakimBaslik');
+  if (girisBaslik) girisBaslik.textContent = gorunum;
+  const prBaslik = document.getElementById('prTakimBaslik');
+  if (prBaslik) prBaslik.textContent = gorunum;
+  if (currentUser) {
+    const g = document.getElementById('giKisi');
+    if (g) g.value = currentUser.name || '';
+  }
+}
 
 // ══════════════════════════════════════════════
 // LOGIN
@@ -1419,6 +1501,7 @@ function doLogin() {
   try { logEkle('GİRİŞ', '🔑 Sisteme giriş yapıldı', found); } catch(e) {}
   applyRoleUI(found.role);
   initPage();
+  takimKilitleriniUygula();
 }
 
 function applyRoleUI(role) {
@@ -1447,6 +1530,7 @@ function applyRoleUI(role) {
     document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
     document.getElementById('tab-giris').classList.add('active');
     if (currentUser) document.getElementById('giKisi').value = currentUser.name;
+    takimKilitleriniUygula();
     vardiyaSonuBannerKontrol();
   } else {
     // admin — tüm sekmeler + admin paneli görünür
@@ -1515,6 +1599,7 @@ window.addEventListener('DOMContentLoaded', () => {
       document.getElementById('userNm').textContent = currentUser.name;
       applyRoleUI(currentUser.role);
       initPage();
+      takimKilitleriniUygula();
     } catch(e) { sessionStorage.removeItem('burkab_uretim_user'); }
   }
 });
@@ -1552,11 +1637,18 @@ function goTab(id, btn) {
     ymTakimDropdownDoldur();
     ymTumTakimlariGoster();
   });
-    if (id==='proses') {
-    gsTakimlariYukle().then(function() { prTakimDropdownDoldur(); });
+  if (id==='proses') {
+    takimKilitleriniUygula();
+    gsTakimlariYukle().then(function() {
+      prTakimDropdownDoldur();
+      prPersonelDoldur();
+      prAtananIslerYukle();
+    });
     gsProseslerYukle();
     gsProsesAtamalariYukle();
-    document.getElementById('prKaydeden').value = (currentUser && currentUser.name) || '';
+    prVarsayilanZamanlariAyarla();
+    const pk = document.getElementById('prKaydeden');
+    if (pk) pk.value = (currentUser && currentUser.name) || '';
   }
   if (id==='talep')  {
     renderTalepGecmis();
@@ -1572,7 +1664,7 @@ function goTab(id, btn) {
     if (durusKisayolu) birlesikFormModuSec('durus');
   }
   if (id==='admin')  { renderAdminPanel(); }
-  if (id==='giris')  { vardiyaSonuBannerKontrol(); }
+  if (id==='giris')  { takimKilitleriniUygula(); girisAtamaYukle(); vardiyaSonuBannerKontrol(); }
 }
 
 // ══════════════════════════════════════════════
@@ -2012,391 +2104,331 @@ function ymTumTakimlariGoster() {
   }).join('');
 }
   // ══════════════════════════════════════════════
-// PROSES ATAMA
+// PROSES ATAMA — TAKIM KAPTANI / ÇOKLU PERSONEL
 // ══════════════════════════════════════════════
 var prosesAtamalari = [];
 var prosesListesi = [];
-var prSecilenId = null;
+var prSeciliAtamaId = null;
+var prBitirGrupId = null;
 
-function prTakimDropdownDoldur() {
-  const select = document.getElementById('prTakim');
-  if (!select) return;
-  const takimlar = Object.keys(takimPersoneller);
-  select.innerHTML = '<option value="">— Seçiniz —</option>' +
-    takimlar.map(t => `<option>${t}</option>`).join('');
+function prGrupId(kayit) {
+  if (!kayit) return '';
+  if (kayit.grupAtamaId) return String(kayit.grupAtamaId);
+  const id = String(kayit.id || '');
+  const m = id.match(/^(PGR-\d+)-\d+$/);
+  return m ? m[1] : id;
 }
+function prTakimDropdownDoldur() {
+  const kilitliTakim = kullaniciTakimi();
+  const gizli = document.getElementById('prTakim');
+  const yoneticiBlok = document.getElementById('prTakimYoneticiBlok');
+  const yoneticiSel = document.getElementById('prTakimYonetici');
+  const takimlar = Object.keys(takimPersoneller || {}).sort();
 
-function prPersonelDoldur() {
-  const takim = document.getElementById('prTakim')?.value;
-  const select = document.getElementById('prPersonel');
-  if (select) {
-    if (!takim) {
-      select.innerHTML = '<option value="">— Önce takım seçin —</option>';
-    } else {
-      const personel = takimPersoneller[takim] || [];
-      select.innerHTML = '<option value="">— Seçiniz —</option>' +
-        personel.map(p => `<option>${p}</option>`).join('');
+  if (kilitliTakim) {
+    if (gizli) gizli.value = kilitliTakim;
+    if (yoneticiBlok) yoneticiBlok.style.display = 'none';
+  } else {
+    if (yoneticiBlok) yoneticiBlok.style.display = 'block';
+    if (yoneticiSel) {
+      yoneticiSel.innerHTML = '<option value="">— Seçiniz —</option>' + takimlar.map(t => `<option value="${t}">${t}</option>`).join('');
+      if (gizli && gizli.value) yoneticiSel.value = gizli.value;
     }
   }
-  prAtananIslerYukle();
+  takimKilitleriniUygula();
 }
-
-// YENİ: ÜRETİM modülündeki atamalar'dan, bu takıma ait ve HENÜZ KAPANMAMIŞ işleri listele
-var prSeciliAtamaId = null;
-
+function prYoneticiTakimSecildi() {
+  const t = document.getElementById('prTakimYonetici')?.value || '';
+  const gizli = document.getElementById('prTakim');
+  if (gizli) gizli.value = t;
+  const baslik = document.getElementById('prTakimBaslik');
+  if (baslik) baslik.textContent = takimGorunumAdi(t);
+  prPersonelDoldur();
+  prAtananIslerYukle();
+  prListeGoster();
+}
+function prPersonelDoldur() {
+  const takim = document.getElementById('prTakim')?.value || kullaniciTakimi();
+  const liste = document.getElementById('prPersonelListe');
+  if (!liste) return;
+  const personeller = takimPersoneller[takim] || [];
+  if (!takim) {
+    liste.innerHTML = '<div class="empty">Kullanıcı hesabına takım tanımlanmalıdır.</div>';
+    return;
+  }
+  if (!personeller.length) {
+    liste.innerHTML = '<div class="empty">Bu takıma personel tanımlanmamış.</div>';
+    return;
+  }
+  liste.innerHTML = personeller.map((p, i) => `
+    <label class="proses-personel-item">
+      <input type="checkbox" name="prPersonelCb" value="${String(p).replace(/"/g,'&quot;')}" onchange="prSeciliPersonelSayisiGuncelle()">
+      <span>${p}</span>
+    </label>`).join('');
+  prSeciliPersonelSayisiGuncelle();
+}
+function prSeciliPersoneller() {
+  return Array.from(document.querySelectorAll('input[name="prPersonelCb"]:checked')).map(x => x.value);
+}
+function prSeciliPersonelSayisiGuncelle() {
+  const el = document.getElementById('prSeciliPersonelSayisi');
+  if (el) el.textContent = prSeciliPersoneller().length + ' kişi';
+}
 function prAtananIslerYukle() {
-  const takim = document.getElementById('prTakim')?.value;
-  const blok  = document.getElementById('prAtananIslerBlok');
-  const seciliBlok = document.getElementById('prSeciliIsBlok');
-
+  const takim = document.getElementById('prTakim')?.value || kullaniciTakimi();
+  const liste = document.getElementById('prAtananIslerListe');
+  if (!liste) return;
   prSeciliAtamaId = null;
+  const seciliBlok = document.getElementById('prSeciliIsBlok');
   if (seciliBlok) seciliBlok.style.display = 'none';
 
-  if (!takim) {
-    if (blok) blok.style.display = 'none';
-    return;
-  }
-
-  loadAtamalar(); // güncel veriyi localStorage'dan çek
-
-  const isler = atamalar.filter(a => a.takim === takim && a.durum !== 'tamamlandi');
-
+  loadAtamalar();
+  const isler = atamalar.filter(a => String(a.takim) === String(takim) && String(a.durum || '').toLowerCase() !== 'tamamlandi');
+  const sayi = document.getElementById('prProjeSayisi');
+  if (sayi) sayi.textContent = isler.length;
   if (!isler.length) {
-    if (blok) blok.style.display = 'none';
-    showToast('Bu takıma atanmış aktif iş bulunamadı', '');
+    liste.innerHTML = '<div class="empty">Bu takıma atanmış aktif proje bulunamadı.</div>';
     return;
   }
-
-  blok.style.display = 'block';
-  const liste = document.getElementById('prAtananIslerListe');
   liste.innerHTML = isler.map(a => {
     const bakiye = prBakiyeHesaplaAtama(a.id, a.hedef);
-    const bakiyeBitmis = bakiye <= 0;
-    return `<div class="is-secim-kart ${bakiyeBitmis ? 'tamamlandi' : ''}"
-        id="prIsKart_${a.id}"
-        onclick="${bakiyeBitmis ? '' : 'prIsSecimYap(' + a.id + ')'}"
-        style="${bakiyeBitmis ? 'cursor:not-allowed' : ''}">
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <div>
-          ${a.isEmriNo ? `<div style="font-size:10px;font-family:'IBM Plex Mono',monospace;font-weight:700;color:#b8860b">${a.isEmriNo}</div>` : ''}
-          <div style="font-size:14px;font-weight:800;color:#1a1a1a">${a.projeKodu}</div>
-          <div style="font-size:12px;color:#666;margin-top:2px">${a.musteri} ${a.projeTanim ? '· ' + a.projeTanim : ''}</div>
-        </div>
-        <div style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <span class="badge b-green">🎯 ${a.hedef} adet</span>
-          <span class="badge b-blue">Bakiye: ${bakiye}</span>
-          ${bakiyeBitmis ? '<span class="badge b-green">✅ Tamamı Dağıtıldı</span>' : ''}
-        </div>
-      </div>
+    const pasif = bakiye <= 0;
+    return `<div class="is-secim-kart ${pasif ? 'tamamlandi' : ''}" id="prIsKart_${a.id}"
+      onclick="${pasif ? '' : `prIsSecimYap(${JSON.stringify(a.id)})`}" style="${pasif ? 'cursor:not-allowed' : ''}">
+      ${a.isEmriNo ? `<div style="font-size:10px;font-family:monospace;font-weight:800;color:#9b7200">${a.isEmriNo}</div>` : ''}
+      <div style="font-size:14px;font-weight:900">${a.projeKodu}</div>
+      <div style="font-size:11px;color:#666;margin:3px 0 8px">${a.musteri || ''}${a.projeTanim ? ' · ' + a.projeTanim : ''}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="badge b-green">🎯 ${a.hedef || 0}</span><span class="badge b-blue">Bakiye: ${bakiye}</span></div>
     </div>`;
   }).join('');
 }
-
-// Bir işe (atamaId) bağlı, TÜM proses atama kayıtlarındaki (durum farketmeksizin) dağıtılan adetleri düşerek bakiye hesapla
-function prBakiyeHesaplaAtama(atamaId, hedef, haricId) {
-  const dagitilan = prosesAtamalari
-    .filter(k => k.atamaId === atamaId && k.id !== haricId)
-    .reduce((sum, k) => sum + (Number(k.adet) || 0), 0);
+function prBakiyeHesaplaAtama(atamaId, hedef, haricGrupId) {
+  const gruplar = {};
+  prosesAtamalari.forEach(k => {
+    if (String(k.atamaId) !== String(atamaId)) return;
+    const gid = prGrupId(k);
+    if (haricGrupId && String(gid) === String(haricGrupId)) return;
+    gruplar[gid] = (gruplar[gid] || 0) + (Number(k.adet) || 0);
+  });
+  const dagitilan = Object.values(gruplar).reduce((s, v) => s + v, 0);
   return Math.max(0, (Number(hedef) || 0) - dagitilan);
 }
-
 function prIsSecimYap(atamaId) {
   loadAtamalar();
-  const a = atamalar.find(x => x.id === atamaId);
+  const a = atamalar.find(x => String(x.id) === String(atamaId));
   if (!a) return;
-
-  prSeciliAtamaId = atamaId;
-
+  prSeciliAtamaId = a.id;
   document.querySelectorAll('#prAtananIslerListe .is-secim-kart').forEach(k => k.classList.remove('secili'));
-  const kart = document.getElementById('prIsKart_' + atamaId);
-  if (kart) kart.classList.add('secili');
-
-  const haricId = prSecilenId; // düzenleme modundaysa kendi kaydını hariç tut
-  const bakiye = prBakiyeHesaplaAtama(atamaId, a.hedef, haricId);
-
-  const seciliBlok = document.getElementById('prSeciliIsBlok');
-  seciliBlok.style.display = 'block';
-  document.getElementById('prSeciliIsOzetMetin').innerHTML =
-    `<strong>${a.musteri}</strong> — ${a.projeKodu} ${a.projeTanim ? '(' + a.projeTanim + ')' : ''}
-     &nbsp;|&nbsp; Hedef: <strong>${a.hedef} adet</strong>`;
-
-  const adetInput = document.getElementById('prAdet');
-  adetInput.value = '';
-  adetInput.max = bakiye;
-  document.getElementById('prBakiye').value = bakiye;
+  document.getElementById('prIsKart_' + a.id)?.classList.add('secili');
+  const bakiye = prBakiyeHesaplaAtama(a.id, a.hedef);
+  const blok = document.getElementById('prSeciliIsBlok');
+  if (blok) blok.style.display = 'block';
+  document.getElementById('prSeciliIsOzetMetin').innerHTML = `<strong>${a.musteri || ''}</strong> — ${a.projeKodu}${a.projeTanim ? ' (' + a.projeTanim + ')' : ''}<br>Hedef: <strong>${a.hedef || 0}</strong> · Kalan: <strong>${bakiye}</strong>`;
+  const adet = document.getElementById('prAdet');
+  if (adet) { adet.value = ''; adet.max = bakiye; }
+  const b = document.getElementById('prBakiye');
+  if (b) b.value = bakiye;
 }
-
-// Adet girilirken bakiyeyi anlık güncelle, aşımı engelle
 function prBakiyeGuncelle() {
   if (!prSeciliAtamaId) return;
-  const a = atamalar.find(x => x.id === prSeciliAtamaId);
+  const a = atamalar.find(x => String(x.id) === String(prSeciliAtamaId));
   if (!a) return;
-
-  const haricId = prSecilenId;
-  const toplamBakiye = prBakiyeHesaplaAtama(prSeciliAtamaId, a.hedef, haricId);
-  const adetInput = document.getElementById('prAdet');
-  let girilen = Number(adetInput.value) || 0;
-
-  if (girilen > toplamBakiye) {
-    girilen = toplamBakiye;
-    adetInput.value = girilen;
-    showToast('❗ Atanan adedi geçemezsiniz. Maksimum: ' + toplamBakiye, 'err');
-  }
-
-  document.getElementById('prBakiye').value = toplamBakiye - girilen;
+  const bakiye = prBakiyeHesaplaAtama(a.id, a.hedef);
+  const input = document.getElementById('prAdet');
+  let n = Number(input?.value) || 0;
+  if (n > bakiye) { n = bakiye; if (input) input.value = n; showToast('❗ Maksimum bakiye: ' + bakiye, 'err'); }
+  const b = document.getElementById('prBakiye');
+  if (b) b.value = Math.max(0, bakiye - n);
 }
-
 function gsProseslerYukle() {
-  return jsonpGonderGS(GS_URL, { action: 'getProsesler' })
-    .then(function(s) {
-      if (s && s.ok) {
-        prosesListesi = s.data || [];
-        const select = document.getElementById('prProses');
-        if (select) {
-          select.innerHTML = '<option value="">— Seçiniz —</option>' +
-            prosesListesi.map(p => `<option>${p}</option>`).join('');
-        }
-      }
-    })
-    .catch(function(e) { console.warn('Prosesler yüklenemedi:', e.message); });
+  return jsonpGonderGS(GS_URL, { action: 'getProsesler' }).then(s => {
+    if (s && s.ok) {
+      prosesListesi = s.data || [];
+      const select = document.getElementById('prProses');
+      if (select) select.innerHTML = '<option value="">— Seçiniz —</option>' + prosesListesi.map(p => `<option>${p}</option>`).join('');
+    }
+  }).catch(e => console.warn('Prosesler yüklenemedi:', e.message));
 }
-
 function gsProsesAtamalariYukle() {
-  return jsonpGonderGS(GS_URL, { action: 'getProsesAtamalari' })
-    .then(function(s) {
-      if (s && s.ok) {
-        prosesAtamalari = s.data || [];
-        prListeGoster();
-      }
-    })
-    .catch(function(e) { console.warn('Proses atamaları yüklenemedi:', e.message); });
+  return jsonpGonderGS(GS_URL, { action: 'getProsesAtamalari' }).then(s => {
+    if (s && s.ok) {
+      prosesAtamalari = s.data || [];
+      prAtananIslerYukle();
+      prListeGoster();
+    }
+  }).catch(e => console.warn('Proses atamaları yüklenemedi:', e.message));
 }
-
+function prVarsayilanZamanlariAyarla() {
+  const n = new Date();
+  const tarih = document.getElementById('prTarih');
+  const saat = document.getElementById('prSaat');
+  if (tarih && !tarih.value) tarih.value = n.toISOString().split('T')[0];
+  if (saat && !saat.value) saat.value = String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0');
+}
 function prFormTemizle() {
-  document.getElementById('prTakim').value = '';
-  document.getElementById('prPersonel').innerHTML = '<option value="">— Önce takım seçin —</option>';
-  document.getElementById('prTarih').value = '';
-  document.getElementById('prSaat').value = '';
-  document.getElementById('prProses').value = '';
-  document.getElementById('prAtananIslerBlok').style.display = 'none';
+  document.querySelectorAll('input[name="prPersonelCb"]').forEach(x => x.checked = false);
+  ['prProses','prAdet','prBakiye'].forEach(id => { const e=document.getElementById(id); if(e) e.value=''; });
+  document.querySelectorAll('#prAtananIslerListe .is-secim-kart').forEach(k => k.classList.remove('secili'));
   document.getElementById('prSeciliIsBlok').style.display = 'none';
   prSeciliAtamaId = null;
-  prSecilenId = null;
+  prSeciliPersonelSayisiGuncelle();
+  prVarsayilanZamanlariAyarla();
 }
+function prAdetPaylastir(toplam, kisiSayisi) {
+  const taban = Math.floor(toplam / kisiSayisi);
+  let kalan = toplam % kisiSayisi;
+  return Array.from({length:kisiSayisi}, () => taban + (kalan-- > 0 ? 1 : 0));
+}
+async function prKaydet() {
+  const takim = document.getElementById('prTakim')?.value || kullaniciTakimi();
+  const personeller = prSeciliPersoneller();
+  const tarih = document.getElementById('prTarih')?.value;
+  const saat = document.getElementById('prSaat')?.value;
+  const proses = document.getElementById('prProses')?.value;
+  const toplamAdet = Number(document.getElementById('prAdet')?.value) || 0;
+  if (!takim) { showToast('❗ Kullanıcı hesabına takım tanımlanmamış!', 'err'); return; }
+  if (!personeller.length) { showToast('❗ En az bir personel seçiniz!', 'err'); return; }
+  if (!tarih || !saat) { showToast('❗ Başlama tarih ve saatini giriniz!', 'err'); return; }
+  if (!prSeciliAtamaId) { showToast('❗ Soldan bir proje seçiniz!', 'err'); return; }
+  if (!proses) { showToast('❗ Proses seçiniz!', 'err'); return; }
+  if (toplamAdet <= 0) { showToast('❗ Toplam proses adedini giriniz!', 'err'); return; }
+  const secilenIs = atamalar.find(x => String(x.id) === String(prSeciliAtamaId));
+  if (!secilenIs) { showToast('❗ Proje bulunamadı!', 'err'); return; }
+  const bakiye = prBakiyeHesaplaAtama(secilenIs.id, secilenIs.hedef);
+  if (toplamAdet > bakiye) { showToast('❗ Adet kalan bakiyeyi aşamaz: ' + bakiye, 'err'); return; }
 
-function prKaydet() {
-  const takim    = document.getElementById('prTakim')?.value;
-  const personel = document.getElementById('prPersonel')?.value;
-  const tarih    = document.getElementById('prTarih')?.value;
-  const saat     = document.getElementById('prSaat')?.value;
-  const proses   = document.getElementById('prProses')?.value;
-  const adet     = Number(document.getElementById('prAdet')?.value) || 0;
-
-  if (!takim)    { showToast('❗ Takım seçiniz!', 'err'); return; }
-  if (!personel) { showToast('❗ Personel seçiniz!', 'err'); return; }
-  if (!tarih)    { showToast('❗ Başlama tarihi giriniz!', 'err'); return; }
-  if (!saat)     { showToast('❗ Başlama saati giriniz!', 'err'); return; }
-  if (!prSeciliAtamaId) { showToast('❗ Atanan iş seçiniz!', 'err'); return; }
-  if (!proses)   { showToast('❗ Proses seçiniz!', 'err'); return; }
-  if (adet <= 0) { showToast('❗ Adet giriniz!', 'err'); return; }
-
-  const secilenIs = atamalar.find(x => x.id === prSeciliAtamaId);
-  if (!secilenIs) { showToast('❗ Seçili iş bulunamadı, tekrar seçiniz!', 'err'); return; }
-
-  const bakiye = prBakiyeHesaplaAtama(prSeciliAtamaId, secilenIs.hedef, prSecilenId);
-  if (adet > bakiye) { showToast('❗ Adet, kalan bakiyeyi aşamaz! Maksimum: ' + bakiye, 'err'); return; }
-
-  const kayit = {
-    id: prSecilenId || String(Date.now()),
-    takim: takim,
-    personel: personel,
-    baslamaTarihi: tarih,
-    baslamaSaati: saat,
-    proses: proses,
-    atamaId: prSeciliAtamaId,
-    adet: adet,
-    kaydeden: (currentUser && currentUser.name) || '',
-    kayitZamani: new Date().toISOString(),
-    durum: 'AKTİF',
-    musteri: secilenIs.musteri || '',
-    projeKodu: secilenIs.projeKodu || '',
-    projeTanim: secilenIs.projeTanim || '',
-    isEmriNo: secilenIs.isEmriNo || ''
+  const grupId = 'PGR-' + Date.now();
+  const paylar = prAdetPaylastir(toplamAdet, personeller.length);
+  const temel = {
+    takim, baslamaTarihi:tarih, baslamaSaati:saat, proses,
+    atamaId:secilenIs.id, kaydeden:currentUser?.name || '', kayitZamani:new Date().toISOString(), durum:'AKTİF',
+    musteri:secilenIs.musteri || '', projeKodu:secilenIs.projeKodu || '', projeTanim:secilenIs.projeTanim || '', isEmriNo:secilenIs.isEmriNo || ''
   };
-
-  jsonpGonderGS(GS_URL, { action: 'saveProsesAtama', kayit: kayit })
-    .then(function(s) {
-      if (s && s.ok) {
-        showToast(prSecilenId ? '✅ Güncellendi!' : '✅ Proses ataması kaydedildi!', 'ok');
-        prFormTemizle();
-        gsProsesAtamalariYukle();
-      } else {
-        showToast('❌ ' + (s?.error || 'Kaydedilemedi'), 'err');
-      }
-    })
-    .catch(function(e) { showToast('❌ GS bağlantı hatası', 'err'); });
-}
-
-function prDuzenle(id) {
-  const kayit = prosesAtamalari.find(k => k.id === id);
-  if (!kayit) return;
-  document.getElementById('prTakim').value = kayit.takim;
-  prPersonelDoldur(); // bu zaten prAtananIslerYukle()'yi de tetikliyor
-  document.getElementById('prPersonel').value = kayit.personel;
-  document.getElementById('prTarih').value = kayit.baslamaTarihi;
-  document.getElementById('prSaat').value = kayit.baslamaSaati;
-  document.getElementById('prProses').value = kayit.proses;
-
-  prSecilenId = id; // bakiye hesabında kendi kaydını hariç tutabilmek için önce set ediyoruz
-
-  // YENİ: seçili işi ve adedi geri yükle
-  if (kayit.atamaId) {
-    prIsSecimYap(kayit.atamaId);
-    document.getElementById('prAdet').value = kayit.adet || '';
-    const bakiyeSonrasi = Number(document.getElementById('prBakiye').value || 0) - (kayit.adet || 0);
-    document.getElementById('prBakiye').value = bakiyeSonrasi;
+  const btn = document.getElementById('prKaydetBtn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ KAYDEDİLİYOR...'; }
+  let hata = '';
+  for (let i=0; i<personeller.length; i++) {
+    const kayit = Object.assign({}, temel, { id:grupId + '-' + i, personel:personeller[i], adet:paylar[i] });
+    try {
+      const s = await jsonpGonderGS(GS_URL, { action:'saveProsesAtama', kayit });
+      if (!s?.ok) { hata = s?.error || 'Kayıt hatası'; break; }
+    } catch(e) { hata = e.message; break; }
   }
-
-  showToast('✏️ Düzenleme modu — değiştirip KAYDET\'e basın', '');
+  if (btn) { btn.disabled = false; btn.textContent = '💾 PERSONELLERİ PROSESE ATA'; }
+  if (hata) { showToast('❌ ' + hata, 'err'); return; }
+  showToast(`✅ ${personeller.length} personel ${proses} prosesine bağlandı.`, 'ok');
+  prFormTemizle();
+  await gsProsesAtamalariYukle();
 }
-
-function prSil(id) {
-  if (!confirm('Bu proses atamasını silmek istiyor musunuz?')) return;
-  jsonpGonderGS(GS_URL, { action: 'deleteProsesAtama', id: id })
-    .then(function(s) {
-      if (s && s.ok) {
-        showToast('🗑️ Silindi', 'ok');
-        gsProsesAtamalariYukle();
-      } else {
-        showToast('❌ ' + (s?.error || 'Silinemedi'), 'err');
-      }
-    });
-}
-function prTarihGoster(iso) {
-  if (!iso || !iso.includes('-')) return iso || '';
-  const [y, m, d] = iso.split('-');
-  return `${d}/${m}/${y}`;
-}
-function prGecenSureHesapla(tarih, saat) {
-  const baslangic = new Date(tarih + 'T' + saat + ':00');
-  const simdi = new Date();
-  let farkSaniye = Math.floor((simdi - baslangic) / 1000);
-  if (farkSaniye < 0) farkSaniye = 0;
-  const saatKisim = Math.floor(farkSaniye / 3600);
-  const dkKisim   = Math.floor((farkSaniye % 3600) / 60);
-  const snKisim   = farkSaniye % 60;
-  return String(saatKisim).padStart(2,'0') + ':' + String(dkKisim).padStart(2,'0') + ':' + String(snKisim).padStart(2,'0');
-}
-function prSureFarkiHesapla(baslamaTarih, baslamaSaat, bitisTarih, bitisSaat) {
-  const baslangic = new Date(baslamaTarih + 'T' + baslamaSaat + ':00');
-  const bitis     = new Date(bitisTarih + 'T' + bitisSaat + ':00');
-  let farkSaniye = Math.floor((bitis - baslangic) / 1000);
-  if (farkSaniye < 0) farkSaniye = 0;
-  const saatKisim = Math.floor(farkSaniye / 3600);
-  const dkKisim   = Math.floor((farkSaniye % 3600) / 60);
-  const snKisim   = farkSaniye % 60;
-  return String(saatKisim).padStart(2,'0') + ':' + String(dkKisim).padStart(2,'0') + ':' + String(snKisim).padStart(2,'0');
-}
-
-var prBitirId = null;
-
-function prBitir(id) {
-  const kayit = prosesAtamalari.find(k => k.id === id);
-  if (!kayit) return;
-  prBitirId = id;
-
-  document.getElementById('prBitirPersonelMetin').textContent = kayit.personel + ' — ' + kayit.proses;
-  const input = document.getElementById('prBitirAdet');
-  input.value = kayit.adet || '';
-  document.getElementById('prBitirModal').style.display = 'flex';
-  setTimeout(() => input.focus(), 50);
-}
-
-function prBitirIptal() {
-  prBitirId = null;
-  document.getElementById('prBitirModal').style.display = 'none';
-}
-
-function prBitirOnayla() {
-  if (!prBitirId) return;
-  const kayit = prosesAtamalari.find(k => k.id === prBitirId);
-  if (!kayit) { prBitirIptal(); return; }
-
-  const adet = Number(document.getElementById('prBitirAdet')?.value) || 0;
-  if (adet <= 0) { showToast('❗ Adet giriniz!', 'err'); return; }
-
-  const simdi = new Date();
-  const bitisTarihi = simdi.toISOString().split('T')[0];
-  const bitisSaati  = String(simdi.getHours()).padStart(2,'0') + ':' + String(simdi.getMinutes()).padStart(2,'0');
-
-  const guncelKayit = Object.assign({}, kayit, {
-    adet: adet,
-    durum: 'TAMAMLANDI',
-    bitisTarihi: bitisTarihi,
-    bitisSaati: bitisSaati
+function prTarihGoster(iso) { if (!iso || !iso.includes('-')) return iso || ''; const [y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; }
+function prGecenSureHesapla(tarih,saat) { const b=new Date(tarih+'T'+saat+':00'); let s=Math.max(0,Math.floor((Date.now()-b.getTime())/1000)); return [Math.floor(s/3600),Math.floor((s%3600)/60),s%60].map(x=>String(x).padStart(2,'0')).join(':'); }
+function prSureFarkiHesapla(bt,bs,et,es) { const b=new Date(bt+'T'+bs+':00'), e=new Date(et+'T'+es+':00'); let s=Math.max(0,Math.floor((e-b)/1000)); return [Math.floor(s/3600),Math.floor((s%3600)/60),s%60].map(x=>String(x).padStart(2,'0')).join(':'); }
+function prGruplariOlustur() {
+  const takim = document.getElementById('prTakim')?.value || kullaniciTakimi();
+  const map = {};
+  prosesAtamalari.filter(k => !takim || String(k.takim) === String(takim)).forEach(k => {
+    const gid = prGrupId(k);
+    if (!map[gid]) map[gid] = { id:gid, kayitlar:[] };
+    map[gid].kayitlar.push(k);
   });
-
-  jsonpGonderGS(GS_URL, { action: 'saveProsesAtama', kayit: guncelKayit })
-    .then(function(s) {
-      if (s && s.ok) {
-        showToast('✅ Proses tamamlandı!', 'ok');
-        prBitirIptal();
-        gsProsesAtamalariYukle();
-      } else {
-        showToast('❌ ' + (s?.error || 'Bitirilemedi'), 'err');
-      }
-    })
-    .catch(function(e) { showToast('❌ GS bağlantı hatası', 'err'); });
+  return Object.values(map).sort((a,b) => String(b.kayitlar[0]?.kayitZamani || '').localeCompare(String(a.kayitlar[0]?.kayitZamani || '')));
+}
+function prAktifDurusBul(grupId) {
+  return duruslariYukle().find(d => String(d.kaynakKayitId || '') === String(grupId) && ['DEVAM','ACIK'].includes(String(d.durum || '').toUpperCase()));
 }
 function prListeGoster() {
   const div = document.getElementById('prListe');
   if (!div) return;
-  if (!prosesAtamalari.length) {
-    div.innerHTML = '<div style="color:var(--muted);font-size:13px">Henüz proses ataması yok.</div>';
-    return;
-  }
-  div.innerHTML = prosesAtamalari.map(k => {
-    const tamamlandi = k.durum === 'TAMAMLANDI';
-    const gecenSure = tamamlandi
-      ? prSureFarkiHesapla(k.baslamaTarihi, k.baslamaSaati, k.bitisTarihi, k.bitisSaati)
-      : prGecenSureHesapla(k.baslamaTarihi, k.baslamaSaati);
-
-    const timerAttr = tamamlandi ? '' : `data-pr-timer="${k.id}" data-pr-tarih="${k.baslamaTarihi}" data-pr-saat="${k.baslamaSaati}"`;
-    const renk = tamamlandi ? '#888' : '#f5c400';
-    const rozet = tamamlandi ? '<span style="background:#e8f5e9;color:#2e7d32;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:8px">TAMAMLANDI</span>' : '';
-    const bitirBtn = tamamlandi ? '' : `<button onclick="prBitir('${k.id}')" style="background:none;border:none;color:#2e7d32;cursor:pointer" title="Prosesi Bitir">✅</button>`;
-    const adetGoster = k.adet ? ` · <strong style="color:#b8900a">${k.adet} adet</strong>` : '';
-    const projeGoster = k.projeKodu
-      ? ` · <strong>${k.musteri || ''} — ${k.projeKodu}${k.projeTanim ? ' (' + k.projeTanim + ')' : ''}</strong>`
-      : '';
-    const isEmriGoster = k.isEmriNo
-      ? `<span style="font-size:10px;font-family:'IBM Plex Mono',monospace;font-weight:700;color:#b8860b;background:#fff8e1;border:1px solid #f0e0a0;border-radius:5px;padding:1px 6px;margin-right:6px">${k.isEmriNo}</span>`
-      : '';
-
-    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border:1px solid var(--border);border-radius:8px;background:${tamamlandi ? '#f5f5f5' : '#fafaf8'}">
-      <div>
-        ${isEmriGoster}<strong style="font-size:13px">${k.personel}</strong>
-        <span style="font-size:11px;color:var(--muted)"> · ${k.takim}${projeGoster} · ${k.proses}${adetGoster}</span>${rozet}
-        <div style="font-size:11px;color:var(--muted)">Başlama: ${prTarihGoster(k.baslamaTarihi)} ${k.baslamaSaati}${tamamlandi ? ' · Bitiş: ' + prTarihGoster(k.bitisTarihi) + ' ' + k.bitisSaati : ''}</div>
+  const gruplar = prGruplariOlustur();
+  if (!gruplar.length) { div.innerHTML='<div class="empty">Bu takıma ait proses ataması yok.</div>'; return; }
+  div.innerHTML = gruplar.map(g => {
+    const ilk = g.kayitlar[0];
+    const tamamlandi = g.kayitlar.every(k => String(k.durum).toUpperCase() === 'TAMAMLANDI');
+    const durus = prAktifDurusBul(g.id);
+    const kisiler = g.kayitlar.map(k => k.personel).filter(Boolean);
+    const toplamAdet = g.kayitlar.reduce((s,k)=>s+(Number(k.adet)||0),0);
+    const gecen = tamamlandi ? prSureFarkiHesapla(ilk.baslamaTarihi,ilk.baslamaSaati,ilk.bitisTarihi,ilk.bitisSaati) : prGecenSureHesapla(ilk.baslamaTarihi,ilk.baslamaSaati);
+    return `<div class="proses-group-card ${durus?'durusta':''} ${tamamlandi?'tamamlandi':''}">
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap">
+        <div>
+          <div style="font-size:10px;font-family:monospace;font-weight:800;color:#9b7200">${ilk.isEmriNo || g.id}</div>
+          <div style="font-size:15px;font-weight:900;margin:3px 0">${ilk.proses}</div>
+          <div style="font-size:12px;color:#555"><strong>${ilk.projeKodu || '-'}</strong>${ilk.projeTanim?' · '+ilk.projeTanim:''}</div>
+          <div style="font-size:12px;color:#555;margin-top:6px">👥 ${kisiler.join(', ')}</div>
+        </div>
+        <div style="text-align:right"><span class="badge b-blue">${toplamAdet} adet</span><div style="font-family:monospace;font-size:16px;font-weight:900;margin-top:7px;color:${durus?'#d32f2f':'#b8900a'}" data-pr-grup-timer="${g.id}">${gecen}</div>${durus?'<span class="badge b-red">⏱ DURUŞTA</span>':tamamlandi?'<span class="badge b-green">TAMAMLANDI</span>':'<span class="badge b-green">AKTİF</span>'}</div>
       </div>
-      <div style="display:flex;align-items:center;gap:10px">
-        <span style="font-family:monospace;font-weight:700;color:${renk};font-size:15px" ${timerAttr}>${gecenSure}</span>
-        ${bitirBtn}
-        <button onclick="prDuzenle('${k.id}')" style="background:none;border:none;color:#1976d2;cursor:pointer">✏️</button>
-        <button onclick="prSil('${k.id}')" style="background:none;border:none;color:#d32f2f;cursor:pointer">🗑️</button>
+      <div class="proses-card-actions">
+        ${!tamamlandi && !durus ? `<button class="proses-action-btn proses-action-stop" onclick='prosesDurusBaslat(${JSON.stringify(g.id)})'>⏱️ Duruş Başlat</button>` : ''}
+        ${!tamamlandi && durus ? `<button class="proses-action-btn proses-action-resume" onclick='durusBitir(${JSON.stringify(String(durus.id))})'>▶️ Duruşu Bitir / İşe Devam</button>` : ''}
+        ${!tamamlandi ? `<button class="proses-action-btn proses-action-maint" onclick='prosesBakimBildir(${JSON.stringify(g.id)})'>🛠️ Bakım Bildir</button><button class="proses-action-btn proses-action-finish" onclick='prBitir(${JSON.stringify(g.id)})'>✅ Prosesi Bitir</button>` : ''}
+        <button class="proses-action-btn proses-action-delete" onclick='prGrupSil(${JSON.stringify(g.id)})'>🗑️</button>
       </div>
     </div>`;
   }).join('');
 }
-// Her saniye listedeki tüm sayaçları güncelle
-setInterval(function() {
-  document.querySelectorAll('[data-pr-timer]').forEach(function(el) {
-    const tarih = el.getAttribute('data-pr-tarih');
-    const saat  = el.getAttribute('data-pr-saat');
-    el.textContent = prGecenSureHesapla(tarih, saat);
+function prGrupKayitlari(grupId) { return prosesAtamalari.filter(k => String(prGrupId(k)) === String(grupId)); }
+function prBitir(grupId) {
+  const kayitlar = prGrupKayitlari(grupId);
+  if (!kayitlar.length) return;
+  prBitirGrupId = grupId;
+  document.getElementById('prBitirPersonelMetin').textContent = kayitlar.map(k=>k.personel).join(', ') + ' — ' + kayitlar[0].proses;
+  document.getElementById('prBitirAdet').value = kayitlar.reduce((s,k)=>s+(Number(k.adet)||0),0);
+  document.getElementById('prBitirModal').style.display='flex';
+}
+function prBitirIptal(){prBitirGrupId=null;document.getElementById('prBitirModal').style.display='none';}
+async function prBitirOnayla(){
+  if(!prBitirGrupId)return;
+  const kayitlar=prGrupKayitlari(prBitirGrupId); if(!kayitlar.length){prBitirIptal();return;}
+  const toplam=Number(document.getElementById('prBitirAdet')?.value)||0; if(toplam<=0){showToast('❗ Adet giriniz!','err');return;}
+  const paylar=prAdetPaylastir(toplam,kayitlar.length), n=new Date(), tarih=n.toISOString().split('T')[0], saat=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
+  for(let i=0;i<kayitlar.length;i++){
+    const k=Object.assign({},kayitlar[i],{adet:paylar[i],durum:'TAMAMLANDI',bitisTarihi:tarih,bitisSaati:saat});
+    const s=await jsonpGonderGS(GS_URL,{action:'saveProsesAtama',kayit:k}); if(!s?.ok){showToast('❌ '+(s?.error||'Bitirilemedi'),'err');return;}
+  }
+  showToast('✅ Proses grubu tamamlandı!','ok'); prBitirIptal(); gsProsesAtamalariYukle();
+}
+async function prGrupSil(grupId){
+  const kayitlar=prGrupKayitlari(grupId); if(!kayitlar.length)return;
+  if(!confirm(kayitlar.length+' personelin proses ataması silinsin mi?'))return;
+  for(const k of kayitlar){const s=await jsonpGonderGS(GS_URL,{action:'deleteProsesAtama',id:k.id});if(!s?.ok){showToast('❌ Silme hatası','err');return;}}
+  showToast('🗑️ Proses grubu silindi','ok'); gsProsesAtamalariYukle();
+}
+function prosesDurusBaslat(grupId){
+  const kayitlar=prGrupKayitlari(grupId); if(!kayitlar.length)return;
+  const ilk=kayitlar[0];
+  aktifProsesDurusBaglami={grupId, takim:ilk.takim, proses:ilk.proses, personeller:kayitlar.map(k=>k.personel), projeKodu:ilk.projeKodu, isEmriNo:ilk.isEmriNo};
+  goTab('talep',null); birlesikFormModuSec('durus');
+  setTimeout(()=>{
+    const bolum=document.getElementById('durusBolum');
+    if(bolum && !Array.from(bolum.options).some(o=>o.value===ilk.takim)) bolum.add(new Option(ilk.takim,ilk.takim));
+    if(bolum){bolum.value=ilk.takim;durusBolumDegisti();}
+    const makine=document.getElementById('durusMakine');if(makine)makine.value=ilk.proses;
+    const bildiren=document.getElementById('durusBildiren');if(bildiren)bildiren.value=currentUser?.name||'';
+    const proje=document.getElementById('durusProjeNo');if(proje){if(!Array.from(proje.options).some(o=>o.value===ilk.projeKodu))proje.add(new Option(ilk.projeKodu,ilk.projeKodu));proje.value=ilk.projeKodu||'';}
+    const acik=document.getElementById('durusAciklama');if(acik)acik.value=`PROSES DURUŞU: ${ilk.proses} | PERSONEL: ${kayitlar.map(k=>k.personel).join(', ')}`;
+    showToast('⏱️ Proses bilgileri duruş formuna aktarıldı. Nedeni seçip kaydedin.','ok');
+  },120);
+}
+function prosesBakimBildir(grupId){
+  const kayitlar=prGrupKayitlari(grupId); if(!kayitlar.length)return;
+  const ilk=kayitlar[0];
+  goTab('talep',null); birlesikFormModuSec('bakim');
+  setTimeout(()=>{
+    const bolum=document.getElementById('talepBolum');if(bolum&&!Array.from(bolum.options).some(o=>o.value===ilk.takim))bolum.add(new Option(ilk.takim,ilk.takim));if(bolum){bolum.value=ilk.takim;bolumDegisti();}
+    const makine=document.getElementById('talepMakine');if(makine)makine.value=ilk.proses;
+    const bildiren=document.getElementById('talepBildiren');if(bildiren)bildiren.value=currentUser?.name||'';
+    const takim=document.getElementById('talepTakimNo');if(takim)takim.value=ilk.takim;
+    const acik=document.getElementById('talepAciklama');if(acik)acik.value=`PROSES: ${ilk.proses} | PROJE: ${ilk.projeKodu||'-'} | PERSONEL: ${kayitlar.map(k=>k.personel).join(', ')}`;
+    showToast('🛠️ Proses bilgileri bakım formuna aktarıldı. İşlem türünü seçip gönderin.','ok');
+  },120);
+}
+setInterval(function(){
+  document.querySelectorAll('[data-pr-grup-timer]').forEach(el=>{
+    const g=prGruplariOlustur().find(x=>String(x.id)===String(el.getAttribute('data-pr-grup-timer'))); if(!g)return;
+    const ilk=g.kayitlar[0]; if(String(ilk.durum).toUpperCase()!=='TAMAMLANDI')el.textContent=prGecenSureHesapla(ilk.baslamaTarihi,ilk.baslamaSaati);
   });
-}, 1000);
-// ══════════════════════════════════════════════
+},1000);
 // İŞ ATAMA
 // ══════════════════════════════════════════════
 
@@ -3211,6 +3243,8 @@ async function talepGonder() {
     const oncelik = document.getElementById('talepOncelik')?.value || '';
     const durusEtkisi =
       document.getElementById('talepDurusEtkisi')?.value || '';
+    const arizaKodu =
+      document.getElementById('talepArizaKodu')?.value?.trim() || '';
 
     if (!tip) throw new Error('İşlem türü seçiniz.');
     if (!bolum) throw new Error('Bölüm seçiniz.');
@@ -3639,7 +3673,12 @@ async function durusKaydet(){
     bitisZamani: null,
     gercekSureDk: 0,
     projeNo,
-    kayitZamani: simdi.toLocaleString('tr-TR')
+    kayitZamani: simdi.toLocaleString('tr-TR'),
+    kaynakKayitId: aktifProsesDurusBaglami?.grupId || '',
+    kaynakFormNo: aktifProsesDurusBaglami?.grupId ? ('PROSES-' + aktifProsesDurusBaglami.grupId) : '',
+    proses: aktifProsesDurusBaglami?.proses || '',
+    takim: aktifProsesDurusBaglami?.takim || '',
+    personeller: aktifProsesDurusBaglami?.personeller || []
   };
 
   // LocalStorage
@@ -3658,6 +3697,7 @@ async function durusKaydet(){
 
   // Form temizle
   formTemizleDurus();
+  aktifProsesDurusBaglami = null;
 
   renderDurusGecmis();
   durusKpiGuncelle();
@@ -3990,7 +4030,7 @@ const KULLANICI_KEY = 'burkab_kullanicilar_v1';
 const VARSAYILAN_KULLANICILAR = [
   { username:'admin',    password:'10061980', name:'MEHMET ERTÜRK',    role:'admin', aktif:true },
   { username:'TUGCE',    password:'1616',     name:'TUGCE FIRAT',      role:'yonetici', aktif:true },
-  { username:'NEZAKET',  password:'2222',     name:'NEZAKET ERDAL',    role:'uretim',  aktif:true },
+  { username:'NEZAKET',  password:'2222',     name:'NEZAKET ERDAL',    role:'uretim', takim:'TAKIM-3', aktif:true },
   { username:'ZEYNEP',   password:'8888',     name:'ZEYNEP ACAR',     role:'uretim',  aktif:true },
   { username:'RECEP',    password:'3333',     name:'RECEP AKTAŞ',      role:'uretim', aktif:true },
   { username:'PLANLAMA', password:'9999',     name:'PLANLAMA',         role:'yonetici', aktif:true },
@@ -4023,6 +4063,9 @@ function kullanicilariBaslat() {
       if (!var_mi) {
         mevcut.push(v);
         degisti = true;
+      } else if (v.takim && !var_mi.takim) {
+        var_mi.takim = v.takim;
+        degisti = true;
       }
     });
     if (degisti) localStorage.setItem(KULLANICI_KEY, JSON.stringify(mevcut));
@@ -4046,6 +4089,8 @@ function yeniKullaniciForms() {
   document.getElementById('ykUsername').value = '';
   document.getElementById('ykPassword').value = '';
   document.getElementById('ykRol').value = 'admin';
+  document.getElementById('ykTakim').value = '';
+  kullaniciRolDegisti();
   document.getElementById('kullaniciFormBaslik').textContent = '➕ Yeni Kullanıcı';
   document.getElementById('kullaniciForms').style.display = 'block';
   document.getElementById('ykAd').focus();
@@ -4060,11 +4105,18 @@ function kullaniciDuzenle(idx) {
   document.getElementById('ykUsername').value = k.username;
   document.getElementById('ykPassword').value = k.password;
   document.getElementById('ykRol').value = k.role;
+  document.getElementById('ykTakim').value = k.takim || '';
+  kullaniciRolDegisti();
   document.getElementById('kullaniciFormBaslik').textContent = '✏️ Kullanıcı Düzenle: ' + k.name;
   document.getElementById('kullaniciForms').style.display = 'block';
   document.getElementById('ykAd').focus();
 }
 
+function kullaniciRolDegisti() {
+  const rol = document.getElementById('ykRol')?.value;
+  const blok = document.getElementById('ykTakimBlok');
+  if (blok) blok.style.opacity = rol === 'uretim' ? '1' : '.55';
+}
 function kullaniciFormsKapat() {
   document.getElementById('kullaniciForms').style.display = 'none';
 }
@@ -4074,18 +4126,20 @@ function kullaniciKaydet() {
   const username = document.getElementById('ykUsername').value.trim();
   const password = document.getElementById('ykPassword').value.trim();
   const rol      = document.getElementById('ykRol').value;
+  const takim    = document.getElementById('ykTakim').value.trim().toUpperCase();
   const editIdx  = document.getElementById('editKullaniciIdx').value;
 
   if (!ad)       { showToast('❗ Ad Soyad giriniz!','err'); return; }
   if (!username) { showToast('❗ Kullanıcı adı giriniz!','err'); return; }
   if (!password) { showToast('❗ Şifre giriniz!','err'); return; }
+  if (rol === 'uretim' && !takim) { showToast('❗ Takım kaptanı için bağlı takım giriniz!','err'); return; }
 
   const liste = kullanicilariYukle();
 
   if (editIdx !== '') {
     // Güncelle
     const idx = parseInt(editIdx);
-    liste[idx] = { ...liste[idx], name:ad, username, password, role:rol };
+    liste[idx] = { ...liste[idx], name:ad, username, password, role:rol, takim:takim };
     logEkle('TANİM', `✏️ Kullanıcı güncellendi: ${ad} (${username})`, currentUser);
     showToast('✅ Kullanıcı güncellendi!','ok');
   } else {
@@ -4093,7 +4147,7 @@ function kullaniciKaydet() {
     if (liste.find(k=>k.username.toLowerCase()===username.toLowerCase())) {
       showToast('❗ Bu kullanıcı adı zaten mevcut!','err'); return;
     }
-    liste.push({ username, password, name:ad, role:rol, aktif:true, eklenme: new Date().toLocaleString('tr-TR') });
+    liste.push({ username, password, name:ad, role:rol, takim:takim, aktif:true, eklenme: new Date().toLocaleString('tr-TR') });
     logEkle('TANİM', `➕ Yeni kullanıcı eklendi: ${ad} (${username}) - ${rol}`, currentUser);
     showToast('✅ Kullanıcı eklendi!','ok');
   }
@@ -4138,7 +4192,7 @@ function renderKullaniciListesi() {
     <div class="admin-user-row">
       <div class="admin-user-av" style="--au-bg:${avRenk[i%avRenk.length]}">${k.name[0]}</div>
       <div class="admin-user-info">
-        <div class="admin-user-name">${k.name} ${!k.aktif?'<span style="color:#d32f2f;font-size:11px">(Pasif)</span>':''}</div>
+        <div class="admin-user-name">${k.name} ${k.takim?`<span class="team-admin-badge">${takimGorunumAdi(k.takim)}</span>`:''} ${!k.aktif?'<span style="color:#d32f2f;font-size:11px">(Pasif)</span>':''}</div>
         <div class="admin-user-meta">@${k.username} · Şifre: ${'•'.repeat(Math.min(k.password.length,6))} · ${k.eklenme||'Kurucu'}</div>
       </div>
       <span class="badge" style="background:${rolBg[k.role]||'#f0f0ec'};color:${rolRenk[k.role]||'#666'}">${k.role.toUpperCase()}</span>
