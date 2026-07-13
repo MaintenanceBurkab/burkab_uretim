@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#1a1a1a">
-<title>BURKAB — Üretim Yönetim Modülü</title>
+<title>BURKAB — Üretim Yönetim Modülü | Temiz Sürüm</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1194,7 +1194,7 @@ tr:last-child td{border-bottom:none}
   <div class="modal-overlay" id="durusBitirModal">
 <div class="modal-box" style="max-width:480px;">
 <div class="modal-head">
-<div class="modal-title">⏱️ Duruşu Bitir</div>
+<div class="modal-title">⏱️ Duruşu Bitir ve İşe Devam Et</div>
 <button class="modal-close" onclick="durusBitirModalKapat()">✕</button>
 </div>
 <div id="modalDurusBilgi" style="background:#fff3e0; padding:12px; border-radius:8px; margin-bottom:16px; font-size:14px;"></div>
@@ -1216,7 +1216,7 @@ tr:last-child td{border-bottom:none}
 </div>
 <div style="margin-top:20px; display:flex; gap:10px;">
 <button onclick="durusBitirOnayla()" style="flex:1; background:#d32f2f; color:white; border:none; padding:14px; border-radius:8px; font-weight:700; font-size:16px;">
-        ✅ DURUŞU BİTİR KAYDET ve iŞE DEVAM ET
+        ✅ DURUŞU BİTİR VE İŞE DEVAM ET
       </button>
 <button onclick="durusBitirModalKapat()" style="background:#f0f0ec; color:#444; border:none; padding:14px 20px; border-radius:8px;">
         İptal
@@ -3397,187 +3397,147 @@ async function talepGonder() {
     }
   }
 }
-function renderTalepGecmis(){
-  const liste=document.getElementById('talepGecmisListe');
-  if(!liste) return;
-  const talepler=taleplerYukle();
-  if(!talepler.length){liste.innerHTML='<div class="empty">Henüz gönderilen talep yok.</div>';return;}
-  const renkMap={'ARIZA KAYDI':'#d32f2f','BAKIM KAYDI':'#00875a','REVİZYON':'#6a1b9a','MONTAJ':'#e65100'};
-  liste.innerHTML=talepler.slice(0,30).map(t=>{
-    const renk=renkMap[t.islem]||'#f5c400';
-    const durum=t.durum||'beklemede';
-    const kapatildi=durum==='kapatildi';
-    return `<div class="talep-gecmis-kart" style="--tgk-renk:${renk};${kapatildi?'opacity:.75':''}">
-      <div class="tgk-ust">
-        <span class="tgk-tip">${t.islem} — ${t.makine}</span>
-        <div style="display:flex;gap:6px;flex-wrap:wrap">
-          <span class="badge ${t.oncelik==='KRİTİK'||t.oncelik==='YÜKSEK'?'b-red':t.oncelik==='ORTA'?'b-orange':'b-blue'}">${t.oncelik||'-'}</span>
-          <span class="badge ${kapatildi?'b-green':durum==='islemde'?'b-blue':'b-orange'}">${kapatildi?'✅ KAPATILDI':durum==='islemde'?'🔧 İŞLEMDE':'⏳ BEKLEMEDE'}</span>
-        </div>
-      </div>
-      <div class="tgk-bilgi">
-        <span>📍 ${t.bolum}</span><span>⚙️ ${t.makine}</span><span>👤 ${t.bildiren}</span>
-        <span>📋 ${t.formNo}</span>
-        ${t.revNo?`<span>🔄 Rev: ${t.revNo}</span>`:''}
-        ${t.mdNo?`<span>📌 MD: ${t.mdNo}</span>`:''}
-      </div>
-      ${t.konu?`<div style="font-size:12px;color:#666;margin-top:6px;font-style:italic">"${t.konu}"</div>`:''}
-      ${kapatildi&&t.kapatmaZamani?`<div style="font-size:11px;color:#00875a;margin-top:4px">✅ Kapatıldı: ${t.kapatmaZamani}${t.kapatanKisi?' · '+t.kapatanKisi:''}${t.kapatmaSuresi?' · '+t.kapatmaSuresi+' dk':''}</div>`:''}
-      <div class="tgk-zaman">🕐 ${t.gonderimZamani}</div>
-     <div style="display:flex;gap:8px;margin-top:10px">
-  <button onclick='talepDetayGoster(${JSON.stringify(String(t.id))})'
-          class="btn-sm blue">📋 Detay Gör</button>
-
-  <button onclick='talepSil(${JSON.stringify(String(t.id))})'
-          class="btn-sm red">🗑️</button>
-</div>
-  }).join('');
+function metniGuvenliYap(deger) {
+  return String(deger ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
-function talepDurumGuncelle(id,yeniDurum){
-  const talepler=taleplerYukle();
-  const idx=talepler.findIndex(t=>t.id===id);
-  if(idx<0) return;
-  talepler[idx].durum=yeniDurum;
-  taleplerKaydet(talepler);
-  renderTalepGecmis();
-  showToast(yeniDurum==='islemde'?'🔧 Talep işleme alındı!':'Güncellendi','ok');
-}
-
-function talepSil(id) {
-  if (!confirm('Bu talebi listeden silmek istiyor musunuz?')) return;
-
-  taleplerKaydet(
-    taleplerYukle().filter(t => String(t.id) !== String(id))
-  );
-
-  renderTalepGecmis();
-  showToast('🗑️ Talep listeden silindi', 'ok');
-}
-function arizaKapatModal(talepId) {
-  console.log(">>> arizaKapatModal çağrıldı, id:", talepId);
+function renderTalepGecmis() {
+  const liste = document.getElementById('talepGecmisListe');
+  if (!liste) return;
 
   const talepler = taleplerYukle();
-  const talep = talepler.find(t => t.id === talepId);
-  if (!talep) {
-    console.error("Talep bulunamadı!");
+  if (!talepler.length) {
+    liste.innerHTML = '<div class="empty">Henüz gönderilen talep yok.</div>';
     return;
   }
 
-  // Eski modalı temizle
-  const eski = document.getElementById('arizaKapatModal');
+  const renkMap = {
+    'ARIZA KAYDI': '#d32f2f',
+    'BAKIM KAYDI': '#00875a',
+    'REVİZYON': '#6a1b9a',
+    'MONTAJ': '#e65100'
+  };
+
+  liste.innerHTML = talepler.slice(0, 30).map(t => {
+    const renk = renkMap[t.islem] || '#f5c400';
+    const durum = String(t.durum || 'beklemede').toLocaleLowerCase('tr-TR');
+    const kapatildi = ['kapatildi', 'tamamlandi', 'tamamlandı'].includes(durum);
+
+    const idArg = JSON.stringify(String(t.id));
+
+    return `<div class="talep-gecmis-kart" style="--tgk-renk:${renk};${kapatildi ? 'opacity:.75' : ''}">
+      <div class="tgk-ust">
+        <span class="tgk-tip">${metniGuvenliYap(t.islem || '—')} — ${metniGuvenliYap(t.makine || '—')}</span>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <span class="badge ${t.oncelik === 'KRİTİK' || t.oncelik === 'YÜKSEK' ? 'b-red' : t.oncelik === 'ORTA' ? 'b-orange' : 'b-blue'}">
+            ${metniGuvenliYap(t.oncelik || '—')}
+          </span>
+          <span class="badge ${kapatildi ? 'b-green' : durum === 'islemde' ? 'b-blue' : 'b-orange'}">
+            ${kapatildi ? '✅ TAMAMLANDI' : durum === 'islemde' ? '🔧 İŞLEMDE' : '⏳ BEKLEMEDE'}
+          </span>
+        </div>
+      </div>
+
+      <div class="tgk-bilgi">
+        <span>📍 ${metniGuvenliYap(t.bolum || '—')}</span>
+        <span>⚙️ ${metniGuvenliYap(t.makine || '—')}</span>
+        <span>👤 ${metniGuvenliYap(t.bildiren || '—')}</span>
+        <span>📋 ${metniGuvenliYap(t.formNo || '—')}</span>
+        ${t.revNo ? `<span>🔄 Rev: ${metniGuvenliYap(t.revNo)}</span>` : ''}
+        ${t.mdNo ? `<span>📌 MD: ${metniGuvenliYap(t.mdNo)}</span>` : ''}
+      </div>
+
+      ${t.konu ? `<div style="font-size:12px;color:#666;margin-top:6px;font-style:italic">“${metniGuvenliYap(t.konu)}”</div>` : ''}
+      <div class="tgk-zaman">🕐 ${metniGuvenliYap(t.gonderimZamani || t.kayitZaman || '—')}</div>
+
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button onclick='talepDetayGoster(${idArg})'
+                class="btn-sm blue">📋 Detay Gör</button>
+
+        <button onclick='talepSil(${idArg})'
+                class="btn-sm red">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function talepDetayGoster(id) {
+  const talep = taleplerYukle().find(t => String(t.id) === String(id));
+  if (!talep) {
+    showToast('❌ Talep bulunamadı.', 'err');
+    return;
+  }
+
+  const eski = document.getElementById('talepDetayModal');
   if (eski) eski.remove();
 
   const modal = document.createElement('div');
-  modal.id = 'arizaKapatModal';
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';
+  modal.id = 'talepDetayModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:99999;display:flex;align-items:center;justify-content:center;padding:18px';
+
+  const alan = (baslik, deger) => `
+    <div style="background:#f8f6f0;border:1px solid #e5e1d8;border-radius:7px;padding:9px 11px">
+      <div style="font-size:10px;font-weight:800;color:#888;letter-spacing:.7px;text-transform:uppercase">${baslik}</div>
+      <div style="font-size:13px;font-weight:600;color:#222;margin-top:3px;white-space:pre-wrap;word-break:break-word">${metniGuvenliYap(deger || '—')}</div>
+    </div>`;
 
   modal.innerHTML = `
-    <div style="background:#fff;border-radius:12px;padding:22px 20px;width:100%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,.35)">
-      
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <div style="font-size:17px;font-weight:800">✅ Bakım Talebini Kapat</div>
-        <button onclick="document.getElementById('arizaKapatModal').remove()" 
-                style="font-size:24px;background:none;border:none;color:#888;cursor:pointer">×</button>
+    <div style="background:#fff;border-radius:12px;width:100%;max-width:620px;max-height:88vh;overflow:auto;box-shadow:0 22px 70px rgba(0,0,0,.4)">
+      <div style="position:sticky;top:0;background:#1a1a1a;color:#fff;padding:14px 17px;display:flex;justify-content:space-between;align-items:center;z-index:1">
+        <div style="font-size:16px;font-weight:800;color:#ffd700">📋 Bakım Talebi Detayı</div>
+        <button type="button" onclick="talepDetayKapat()" style="font-size:23px;line-height:1;background:none;border:none;color:#fff;cursor:pointer">×</button>
       </div>
 
-      <div style="background:#f8f6f0;border:1px solid #e6e2d8;border-radius:8px;padding:11px 13px;margin-bottom:16px">
-        <div style="font-weight:700">${talep.islem || ''}</div>
-        <div style="font-size:13px;color:#555;margin-top:2px">${talep.bolum || ''} / ${talep.makine || ''}</div>
+      <div style="padding:16px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
+        ${alan('Form No', talep.formNo)}
+        ${alan('İşlem Türü', talep.islem)}
+        ${alan('Bölüm', talep.bolum)}
+        ${alan('Makine', talep.makine)}
+        ${alan('Bildiren', talep.bildiren)}
+        ${alan('Öncelik', talep.oncelik)}
+        ${alan('Duruş Etkisi', talep.durusEtkisi)}
+        ${alan('Durum', talep.durum || 'BEKLEMEDE')}
+        ${alan('Arıza Türü', talep.arizaTuru)}
+        ${alan('Arıza Kodu', talep.arizaKodu)}
+        ${alan('Proje', talep.proje || talep.projeNo)}
+        ${alan('Gönderim Zamanı', talep.gonderimZamani || talep.kayitZaman)}
+        <div style="grid-column:1/-1">${alan('Konu / Açıklama', talep.konu)}</div>
       </div>
 
-      <!-- CHECKBOX -->
-      <div style="margin:14px 0 18px 0">
-        <label style="display:flex;align-items:center;gap:9px;cursor:pointer">
-          <input type="checkbox" id="durusOlusturCheckbox" checked 
-                 style="width:19px;height:19px;accent-color:#f5c400">
-          <span style="font-size:14.5px;font-weight:600">
-            Bu talep kapatılırken <strong style="color:#d97706">Duruş kaydı</strong> da oluşturulsun
-          </span>
-        </label>
-        <div style="font-size:12px;color:#777;margin-left:28px;margin-top:2px">Opsiyonel</div>
+      <div style="padding:0 16px 16px">
+        <button type="button" onclick="talepDetayKapat()" class="btn-secondary" style="margin:0">Kapat</button>
       </div>
+    </div>`;
 
-      <div style="display:flex;gap:9px">
-        <button onclick="arizaKapatOnayla(${talepId})" 
-                style="flex:1;background:#0a7d4f;color:#fff;border:none;border-radius:8px;padding:13px;font-size:15px;font-weight:700;cursor:pointer">
-          ✅ Talebi Kapat
-        </button>
-        <button onclick="document.getElementById('arizaKapatModal').remove()" 
-                style="background:#f0efea;color:#444;border:none;border-radius:8px;padding:13px 16px;font-size:14px;font-weight:600;cursor:pointer">
-          İptal
-        </button>
-      </div>
-    </div>
-  `;
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) talepDetayKapat();
+  });
 
   document.body.appendChild(modal);
-  console.log(">>> Modal eklendi. Checkbox var mı?", !!document.getElementById('durusOlusturCheckbox'));
 }
-function arizaKapatOnayla(talepId) {
-  // 1. Checkbox durumunu ÖNCE oku (modal silinmeden önce!)
-  const durusOlustur = document.getElementById('durusOlusturCheckbox')?.checked ?? false;
-  console.log(">>> Checkbox durumu:", durusOlustur);
 
-  // 2. Modalı kapat
-  const modal = document.getElementById('arizaKapatModal');
+function talepDetayKapat() {
+  const modal = document.getElementById('talepDetayModal');
   if (modal) modal.remove();
+}
 
-  // 3. Talebi kapat
-  const talepler = taleplerYukle();
-  const idx = talepler.findIndex(t => t.id === talepId);
-  if (idx < 0) return;
+function talepSil(id) {
+  if (!confirm('Bu talep yalnızca üretim ekranındaki listeden silinsin mi?')) return;
 
-  const talep = talepler[idx];
-  talepler[idx].durum = 'kapatildi';
-  talepler[idx].kapatmaZamani = new Date().toLocaleString('tr-TR');
-  talepler[idx].kapatanKisi = currentUser?.name || 'Sistem';
-  taleplerKaydet(talepler);
+  const yeniListe = taleplerYukle().filter(
+    t => String(t.id) !== String(id)
+  );
 
+  taleplerKaydet(yeniListe);
   renderTalepGecmis();
-
-  // 4. Eğer checkbox işaretliyse → Duruşlar sekmesine geç + formu doldur
-  if (durusOlustur) {
-    goTab('talep', null);
-
-    setTimeout(() => {
-      talepVerisindenDurusFormuDoldur(talep);
-      showToast('✅ Talep kapatıldı. Duruş formu hazır. Lütfen kalan bilgileri girip "Kaydet"e basın.', 'ok');
-    }, 380);
-  } else {
-    showToast('✅ Talep kapatıldı (Duruş kaydı oluşturulmadı).', 'ok');
-  }
+  showToast('🗑️ Talep listeden kaldırıldı', 'ok');
 }
-function talepVerisindenDurusFormuDoldur(talep) {
-  // Bölüm
-  const bolumEl = document.getElementById('durusBolum');
-  if (bolumEl) bolumEl.value = talep.bolum || '';
 
-  // Makine
-  setTimeout(() => {
-    const makineEl = document.getElementById('durusMakine');
-    if (makineEl) makineEl.value = talep.makine || '';
-  }, 80);
-
-  // Bildiren
-  const bildirenEl = document.getElementById('durusBildiren');
-  if (bildirenEl) bildirenEl.value = (talep.bildiren || '').replace(' (ÜRETİM)', '');
-
-  // Açıklama
-  const aciklamaEl = document.getElementById('durusAciklama');
-  if (aciklamaEl) aciklamaEl.value = talep.konu || '';
-
-  // Sorumlu kişi
-  setTimeout(() => {
-    const sorumluEl = document.getElementById('durusSorumluKisi');
-    if (sorumluEl && currentUser?.name) {
-      sorumluEl.innerHTML = `<option value="${currentUser.name}">${currentUser.name}</option>`;
-      sorumluEl.value = currentUser.name;
-    }
-  }, 150);
-
-  console.log("Duruş formu talep verisiyle dolduruldu.");
-}
   // ══════════════════════════════════════════════
 // DURUŞLAR
 // ══════════════════════════════════════════════
@@ -3714,12 +3674,12 @@ function renderDurusGecmis(){
   const filtreBolum=document.getElementById('durusFiltreBolum')?.value||'';
   const filtreNeden=document.getElementById('durusFiltreNeden')?.value||'';
   let kayitlar = duruslariYukle().filter(k => {
-  const durum = String(k.durum || 'DEVAM')
-    .trim()
-    .toLocaleUpperCase('tr-TR');
+    const durum = String(k.durum || 'DEVAM')
+      .trim()
+      .toLocaleUpperCase('tr-TR');
 
-  return !['BITTI', 'KAPALI', 'TAMAMLANDI'].includes(durum);
-});
+    return !['BITTI', 'KAPALI', 'TAMAMLANDI'].includes(durum);
+  });
   if(filtreBolum) kayitlar=kayitlar.filter(k=>k.bolum===filtreBolum);
   if(filtreNeden) kayitlar=kayitlar.filter(k=>k.neden===filtreNeden);
   if(!kayitlar.length){liste.innerHTML='<div class="empty">Kayıt bulunamadı.</div>';return;}
@@ -3736,7 +3696,7 @@ function renderDurusGecmis(){
         </div>
         <div style="display:flex;gap:6px;align-items:center">
           <span class="badge ${badge}">${k.etkisi}</span>
-          <span class="badge b-purple">${k.hesaplanan} dk</span>
+          <span class="badge b-purple">${Number(k.hesaplananDk ?? k.hesaplanan ?? k.gercekSureDk ?? 0)} dk</span>
           <button onclick="durusSil(${k.id})" class="btn-sm red" style="padding:3px 8px;font-size:11px">Sil</button>
         </div>
       </div>
@@ -4435,13 +4395,22 @@ function saveUretimKayitGS(kayit) {
 }
 
 function saveDurusKayitGS(kayit) {
-  const gercekSure = Number(kayit.gercekSureDk || 0);
-  let hesaplanan = gercekSure;
-  if (kayit.etkisi === 'KISMİ DURUŞ') {
-    hesaplanan = Math.round(gercekSure * 0.7);
-  }
-  var payload = { 
-    action: 'saveDurusKayit', 
+  const gercekSure = Number(
+    kayit.gercekSureDk ?? kayit.sureDk ?? 0
+  ) || 0;
+
+  const hesaplananDk = Number(
+    kayit.hesaplananDk ?? kayit.hesaplanan ?? gercekSure
+  ) || 0;
+
+  const yerelDurum = String(kayit.durum || 'DEVAM')
+    .trim()
+    .toLocaleUpperCase('tr-TR');
+
+  const gsDurum = yerelDurum === 'DEVAM' ? 'ACIK' : yerelDurum;
+
+  const payload = {
+    action: 'saveDurusKayit',
     kayit: {
       formNo:         String(kayit.formNo || ''),
       tarih:          String(kayit.tarih || ''),
@@ -4452,7 +4421,8 @@ function saveDurusKayitGS(kayit) {
       neden:          String(kayit.neden || ''),
       etkisi:         String(kayit.etkisi || ''),
       sureDk:         gercekSure,
-      hesaplanan:     hesaplanan,
+      hesaplananDk:   hesaplananDk,
+      hesaplanan:     hesaplananDk,
       projeNo:        String(kayit.projeNo || ''),
       sorumluBolum:   String(kayit.sorumluBolum || ''),
       sorumluKisi:    String(kayit.sorumluKisi || ''),
@@ -4460,18 +4430,38 @@ function saveDurusKayitGS(kayit) {
       aciklama:       String(kayit.aciklama || ''),
       yapilan:        String(kayit.yapilan || ''),
       kaynakFormNo:   String(kayit.kaynakFormNo || ''),
+      kaynakKayitId:  String(kayit.kaynakKayitId || ''),
       kayitZamani:    String(kayit.kayitZamani || new Date().toLocaleString('tr-TR')),
+      durum:          gsDurum || 'ACIK',
+      bitisTarihi:    String(kayit.bitisTarihi || ''),
+      bitisSaati:     String(kayit.bitisSaati || ''),
+      kapanisZamani: String(kayit.kapanisZamani || ''),
       kayitKaynagi:   'URETIM'
     }
   };
-  jsonpGonderGS(GS_URL, payload)
-    .then(function(s) {
-      if (s && s.ok) console.log('✅ GS Duruş OK | Gerçek:', gercekSure, 'Hesaplanan:', hesaplanan);
+
+  return jsonpGonderGS(GS_URL, payload)
+    .then(function(sonuc) {
+      if (sonuc && sonuc.ok) {
+        console.log(
+          '✅ GS Duruş OK:',
+          sonuc.mode || 'saved',
+          '| Durum:', gsDurum,
+          '| Süre:', gercekSure
+        );
+        return sonuc;
+      }
+
+      const hata = sonuc?.error || 'Bilinmeyen GS hatası';
+      console.warn('⚠️ GS Duruş HATA:', hata);
+      return { ok: false, error: hata };
     })
     .catch(function(e) {
-      console.warn('GS Duruş Hatası:', e.message);
+      console.warn('⚠️ GS Duruş bağlantı hatası:', e.message);
+      return { ok: false, error: e.message };
     });
 }
+
 function saveLogGS(log) {
   jsonpGonderGS(GS_URL, { action: 'saveLog', log: log })
     .then(function() {}).catch(function() {});
@@ -4612,7 +4602,12 @@ function saveUretimKayitGS(kayit) {
   });
 }
   function renderAktifDuruslar() {
-  const liste = duruslariYukle().filter(d => d.durum === 'DEVAM' || !d.durum);
+  const liste = duruslariYukle().filter(d => {
+    const durum = String(d.durum || 'DEVAM')
+      .trim()
+      .toLocaleUpperCase('tr-TR');
+    return durum === 'DEVAM' || durum === 'ACIK';
+  });
 
   // Aynı bandı hem "Duruşlar" hem "Takım Durumu" sekmesinde güncelle
   const hedefler = [
@@ -4632,9 +4627,9 @@ function saveUretimKayitGS(kayit) {
             <span style="color:#c62828;">${d.neden}</span><br>
             <small style="color:#666;">${d.bildiren} • ${gecenSure} dakika geçti</small>
           </div>
-          <button onclick="durusBitir(${d.id})" 
+          <button onclick='durusBitir(${JSON.stringify(String(d.id))})' 
                   style="background:#d32f2f; color:white; border:none; padding:8px 14px; border-radius:6px; font-weight:700; font-size:13px; cursor:pointer; white-space:nowrap;">
-            Bitir
+            Duruşu Bitir
           </button>
         </div>
       </div>`;
@@ -4692,7 +4687,7 @@ let bitirilecekDurusId = null;
 
 function durusBitir(id) {
   const liste = duruslariYukle();
-  const kayit = liste.find(d => d.id === id);
+  const kayit = liste.find(d => String(d.id) === String(id));
   if (!kayit) {
     showToast('Kayıt bulunamadı!', 'err');
     return;
@@ -4728,8 +4723,8 @@ function durusBitirModalKapat() {
 async function durusBitirOnayla() {
   if (!bitirilecekDurusId) return;
 
-  const kokNeden =
-    document.getElementById('modalKokNeden').value.trim();
+  const kokNedenEl = document.getElementById('modalKokNeden');
+  const kokNeden = kokNedenEl ? kokNedenEl.value.trim() : '';
 
   if (!kokNeden) {
     showToast('❗ Kök Neden alanını doldurunuz!', 'err');
@@ -4741,50 +4736,55 @@ async function durusBitirOnayla() {
     d => String(d.id) === String(bitirilecekDurusId)
   );
 
-  if (index === -1) return;
+  if (index === -1) {
+    showToast('❌ Duruş kaydı bulunamadı.', 'err');
+    return;
+  }
 
   const kayit = liste[index];
   const simdi = new Date();
-  const baslangic = new Date(kayit.baslangicZamani);
+  const baslangic = new Date(kayit.baslangicZamani || kayit.kayitZamani);
 
-  const gercekSureDk = Math.max(
-    0,
-    Math.round((simdi.getTime() - baslangic.getTime()) / 60000)
-  );
+  const gercekSureDk = !isNaN(baslangic.getTime())
+    ? Math.max(0, Math.round((simdi.getTime() - baslangic.getTime()) / 60000))
+    : 0;
 
   kayit.durum = 'KAPALI';
   kayit.bitisZamani = simdi.toISOString();
-
   kayit.bitisTarihi = simdi.toLocaleDateString('sv-SE', {
     timeZone: 'Europe/Istanbul'
   });
-
   kayit.bitisSaati = simdi.toLocaleTimeString('tr-TR', {
     timeZone: 'Europe/Istanbul',
     hour: '2-digit',
     minute: '2-digit',
     hour12: false
   });
-
   kayit.kapanisZamani = simdi.toISOString();
+
+  // Duruşta geçen sürenin tamamı duruş olarak kaydedilir.
   kayit.gercekSureDk = gercekSureDk;
   kayit.sureDk = gercekSureDk;
   kayit.hesaplananDk = gercekSureDk;
   kayit.hesaplanan = gercekSureDk;
 
   kayit.kokNeden = kokNeden;
-  kayit.yapilan =
-    document.getElementById('modalYapilan').value.trim();
+  kayit.yapilan = document.getElementById('modalYapilan')?.value.trim() || '';
+  kayit.aciklama = document.getElementById('modalAciklama')?.value.trim() || '';
 
-  kayit.aciklama =
-    document.getElementById('modalAciklama').value.trim();
-
+  // Aktif proses/iş emri kapatılmaz. Aynı işe devam edilir.
   kayit.iseDevam = true;
   kayit.verimdenHaric = true;
 
   duruslariKaydet(liste);
 
-  await saveDurusKayitGS(kayit);
+  const sonuc = await saveDurusKayitGS(kayit);
+  if (!sonuc || !sonuc.ok) {
+    showToast(
+      '⚠️ Duruş cihazda kapatıldı fakat Google Sheets güncellenemedi.',
+      'err'
+    );
+  }
 
   durusBitirModalKapat();
   renderAktifDuruslar();
@@ -4796,6 +4796,14 @@ async function durusBitirOnayla() {
     'ok'
   );
 }
-</script>
+
+  function formTemizleDurus() {
+  ['durusBolum','durusNeden','durusAciklama','durusSorumluBolum','durusKokNeden','durusYapilan','durusProjeNo'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('durusSorumluKisi').innerHTML = '<option value="">— Önce bölüm seçiniz —</option>';
+  document.getElementById('durusMakineWrapper').innerHTML = `<input type="text" id="durusMakine" placeholder="Önce bölüm seçiniz" readonly style="background:#f0f0ec;cursor:not-allowed;color:#aaa">`;
+}</script>
 </body>
 </html>
