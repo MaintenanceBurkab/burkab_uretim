@@ -227,6 +227,32 @@ tr:last-child td{border-bottom:none}
 .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
 .modal-title{font-size:16px;font-weight:800;color:#1a1a1a}
 .modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:#888;padding:0 4px;line-height:1}
+
+/* ── BAKIM & DURUŞ TEK FORM ── */
+.birlesik-bildirim-karti{overflow:hidden}
+.birlesik-aciklama{background:#fffbea;border:1px solid #ead86b;border-radius:8px;padding:10px 13px;margin-bottom:14px;font-size:12px;line-height:1.55;color:#5f571d}
+.birlesik-tip-secici{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.birlesik-tip-btn{display:flex;align-items:center;gap:12px;text-align:left;background:#f7f5f0;border:2px solid #d0d0c0;border-radius:10px;padding:13px 14px;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;color:#666;transition:all .18s}
+.birlesik-tip-btn:hover{border-color:#b8a31a;background:#fffdf2}
+.birlesik-tip-btn.active{border-color:#f5c400;background:#fffbea;box-shadow:0 0 0 3px rgba(245,196,0,.16);color:#1a1a1a}
+.birlesik-tip-btn:nth-child(2).active{border-color:#e65100;background:#fff3e0;box-shadow:0 0 0 3px rgba(230,81,0,.12)}
+.birlesik-tip-ikon{font-size:26px;line-height:1;flex-shrink:0}
+.birlesik-tip-btn strong{display:block;font-size:12px;letter-spacing:.4px}
+.birlesik-tip-btn small{display:block;font-size:10px;color:#888;margin-top:3px;font-weight:500}
+.birlesik-form-panel{display:none;border-top:1px solid #ece8dd;padding-top:16px}
+.birlesik-form-panel.active{display:block;animation:birlesikPanelAc .2s ease}
+@keyframes birlesikPanelAc{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.birlesik-panel-baslik{display:flex;align-items:center;gap:10px;border-radius:8px;padding:10px 12px;margin-bottom:14px}
+.birlesik-panel-baslik>span{font-size:22px}
+.birlesik-panel-baslik strong{display:block;font-size:13px}
+.birlesik-panel-baslik small{display:block;font-size:10px;margin-top:2px;color:#777}
+.birlesik-panel-baslik.bakim{background:#fffbea;border-left:4px solid #f5c400}
+.birlesik-panel-baslik.durus{background:#fff3e0;border-left:4px solid #e65100}
+.birlesik-kayit-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.birlesik-kayit-grid>.section{min-width:0}
+@media(max-width:900px){.birlesik-kayit-grid{grid-template-columns:1fr}}
+@media(max-width:640px){.birlesik-tip-secici{grid-template-columns:1fr}.birlesik-tip-btn{padding:12px}.birlesik-aciklama{font-size:11px}}
+
 </style>
 </head>
 <body>
@@ -291,8 +317,7 @@ tr:last-child td{border-bottom:none}
   <button class="nav-tab" onclick="goTab('gecmis',this)">📋 GEÇMİŞ</button>
   <button class="nav-tab" onclick="goTab('takim',this)">👥 TAKIM YÖNETİMİ</button>
   <button class="nav-tab" onclick="goTab('proses',this)">🛠️ PROSES</button>
-  <button class="nav-tab" onclick="goTab('talep',this)" style="color:#f5c400;font-weight:700">🔧 BAKIM TALEBİ</button>
-  <button class="nav-tab" onclick="goTab('durus',this)" style="color:#ff7043;font-weight:700">⏱️ DURUŞLAR</button>
+  <button class="nav-tab" onclick="goTab('talep',this)" style="color:#f5c400;font-weight:700">🛠️ BAKIM & DURUŞ</button>
   <button class="nav-tab" id="adminNavBtn" onclick="goTab('admin',this)" style="color:#a78bfa;font-weight:700;display:none">🛡️ ADMİN</button>
 </div>
 
@@ -840,406 +865,396 @@ tr:last-child td{border-bottom:none}
     </div>
   </div>
 </div>
-<!-- ══════════════ BAKIM TALEBİ ══════════════ -->
+<!-- ══════════════ BAKIM & DURUŞ — TEK FORM ══════════════ -->
 <div class="tab-pane" id="tab-talep">
-  <div class="section">
-    <div class="section-head"><div class="dot" style="background:#f5c400"></div>🔧 YENİ BAKIM TALEBİ</div>
+  <div class="section birlesik-bildirim-karti">
+    <div class="section-head"><div class="dot" style="background:#ffd700"></div>🛠️ YENİ BAKIM / DURUŞ BİLDİRİMİ</div>
     <div class="section-body">
-      <div class="field" style="margin-bottom:16px">
-        <label>İşlem Türü <span class="req">*</span></label>
-        <div class="talep-tip-grid" id="talepTipGrid">
-          <div class="talep-tip-btn" data-v="ARIZA KAYDI" data-c="#d32f2f" data-bg="rgba(211,47,47,.07)" onclick="talepTipSec(this)">
-            <span class="tip-ikon">⚡</span><span class="tip-label">ARIZA</span>
-          </div>
-          <div class="talep-tip-btn" data-v="BAKIM KAYDI" data-c="#00875a" data-bg="rgba(0,135,90,.07)" onclick="talepTipSec(this)">
-            <span class="tip-ikon">🔧</span><span class="tip-label">BAKIM</span>
-          </div>
-          <div class="talep-tip-btn" data-v="REVİZYON" data-c="#6a1b9a" data-bg="rgba(106,27,154,.07)" onclick="talepTipSec(this)">
-            <span class="tip-ikon">🔄</span><span class="tip-label">REVİZYON</span>
-          </div>
-          <div class="talep-tip-btn" data-v="MONTAJ" data-c="#e65100" data-bg="rgba(230,81,0,.07)" onclick="talepTipSec(this)">
-            <span class="tip-ikon">🏗️</span><span class="tip-label">MONTAJ / DEMONTAJ</span>
-          </div>
-        </div>
-        <input type="hidden" id="talepTip">
+      <div class="birlesik-aciklama">
+        Önce bildirimin türünü seçin. Bakım ekibine gidecek arıza, bakım, revizyon ve montaj talepleri soldan;
+        montaj, terminal, kablo, malzeme, kalite, personel, kalıp değişimi ve diğer üretim duruşları sağdan kaydedilir.
       </div>
 
-      <div class="fg g3" style="margin-bottom:14px">
-        <div class="field">
-          <label>Form No</label>
-          <input type="text" id="talepFormNoInput" placeholder="Otomatik" readonly style="background:#f0f0ec;color:#aaa">
-        </div>
-        <div class="field">
-          <label>Bölüm / Hat <span class="req">*</span></label>
-          <select id="talepBolum" onchange="bolumDegisti()">
-            <option value="">— Seçiniz —</option>
-            <option>TEST</option><option>KESİM</option><option>ÜRETİM HATLARI</option>
-            <option>TESİS</option><option>ALT MONTAJ</option><option>KALIPLAR</option>
-            <option>T.S. PRES</option><option>T.Ö. PRES</option><option>DEPO & SEVKİYAT</option><option>ÜRETİM BORDLARI</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Makine / Ekipman <span class="req">*</span></label>
-          <div id="talepMakineWrapper">
-            <input type="text" id="talepMakine" placeholder="Önce bölüm seçiniz" readonly style="background:#f0f0ec;cursor:not-allowed;color:#aaa">
-          </div>
-        </div>
+      <div class="birlesik-tip-secici" role="tablist" aria-label="Bildirim türü">
+        <button type="button" id="birlesikModBakim" class="birlesik-tip-btn active" onclick="birlesikFormModuSec('bakim')">
+          <span class="birlesik-tip-ikon">🛠️</span>
+          <span><strong>BAKIM EKİBİ BİLDİRİMİ</strong><small>Arıza · bakım · revizyon · montaj</small></span>
+        </button>
+        <button type="button" id="birlesikModDurus" class="birlesik-tip-btn" onclick="birlesikFormModuSec('durus')">
+          <span class="birlesik-tip-ikon">⏱️</span>
+          <span><strong>DİĞER ÜRETİM DURUŞU</strong><small>Montaj · terminal · kablo · malzeme · kalite · diğer</small></span>
+        </button>
       </div>
 
-      <div class="fg g2" style="margin-bottom:14px">
-        <div class="field">
-          <label>Proje No</label>
-          <select id="talepModelNo" onchange="talepModelSecildi()">
-            <option value="">— Seçiniz —</option>
-          </select>
-        </div>
-        <select id="talepMusteri" style="display:none"></select>
-        <input type="hidden" id="talepTakimNo">
-      </div>
-
-      <div class="fg g2" id="revMdBlok" style="margin-bottom:14px;display:none">
-        <div class="field">
-          <label>Rev No <span class="req">*</span></label>
-          <input type="text" id="talepRevNo" placeholder="REV NO" oninput="this.value=this.value.toUpperCase()">
-        </div>
-        <div class="field">
-          <label>MD No <span class="req">*</span></label>
-          <input type="text" id="talepMdNo" placeholder="MD NO" oninput="this.value=this.value.toUpperCase()">
-        </div>
-      </div>
-
-      <div class="fg g3" style="margin-bottom:14px">
-        <div class="field">
-          <label>Bildiren Kişi <span class="req">*</span></label>
-          <input type="text" id="talepBildiren" placeholder="Ad Soyad" oninput="this.value=this.value.toUpperCase()">
-        </div>
-        <div class="field">
-          <label>Arıza / İşlem Türü <span class="req">*</span></label>
-          <select id="talepArizaTuru">
-            <option value="">— Seçiniz —</option>
-            <option>ELEKTRİK</option><option>ELEKTRONİK</option><option>MEKANİK</option>
-            <option>HİDROLİK</option><option>PNÖMATİK</option><option>DİĞER</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Arıza Kodu</label>
-          <input type="text" id="talepArizaKodu" placeholder="Arıza kodu" oninput="this.value=this.value.toUpperCase()">
-        </div>
-      </div>
-
-      <div class="field" style="margin-bottom:14px">
-        <label>Açıklama <span class="req">*</span></label>
-        <textarea id="talepAciklama" placeholder="Arıza / talep detayı..." rows="3" oninput="this.value=this.value.toUpperCase()"></textarea>
-      </div>
-
-      <div class="fg g2" style="margin-bottom:14px">
-        <div class="field">
-          <label>Arıza Başlangıç Tarihi <span class="req">*</span></label>
-          <input type="date" id="talepTarihBas" readonly style="background:#f0f0ec;color:#333;font-weight:600">
-        </div>
-        <div class="field">
-          <label>Arıza Başlangıç Saati</label>
-          <input type="text" id="talepTarihBit" readonly style="background:#f0f0ec;color:#333;font-weight:700;font-family:'IBM Plex Mono',monospace">
-        </div>
-      </div>
+      <div id="birlesikBakimPanel" class="birlesik-form-panel active" role="tabpanel">
+        <div class="birlesik-panel-baslik bakim"><span>🛠️</span><div><strong>Bakım ekibine bildirim</strong><small>Duruş etkisi seçilirse bağlantılı duruş kaydı otomatik oluşturulur.</small></div></div>
+        
+<div class="field" style="margin-bottom:16px">
+<label>İşlem Türü <span class="req">*</span></label>
+<div class="talep-tip-grid" id="talepTipGrid">
+<div class="talep-tip-btn" data-bg="rgba(211,47,47,.07)" data-c="#d32f2f" data-v="ARIZA KAYDI" onclick="talepTipSec(this)">
+<span class="tip-ikon">⚡</span><span class="tip-label">ARIZA</span>
+</div>
+<div class="talep-tip-btn" data-bg="rgba(0,135,90,.07)" data-c="#00875a" data-v="BAKIM KAYDI" onclick="talepTipSec(this)">
+<span class="tip-ikon">🔧</span><span class="tip-label">BAKIM</span>
+</div>
+<div class="talep-tip-btn" data-bg="rgba(106,27,154,.07)" data-c="#6a1b9a" data-v="REVİZYON" onclick="talepTipSec(this)">
+<span class="tip-ikon">🔄</span><span class="tip-label">REVİZYON</span>
+</div>
+<div class="talep-tip-btn" data-bg="rgba(230,81,0,.07)" data-c="#e65100" data-v="MONTAJ" onclick="talepTipSec(this)">
+<span class="tip-ikon">🏗️</span><span class="tip-label">MONTAJ / DEMONTAJ</span>
+</div>
+</div>
+<input id="talepTip" type="hidden"/>
+</div>
+<div class="fg g3" style="margin-bottom:14px">
+<div class="field">
+<label>Form No</label>
+<input id="talepFormNoInput" placeholder="Otomatik" readonly="" style="background:#f0f0ec;color:#aaa" type="text"/>
+</div>
+<div class="field">
+<label>Bölüm / Hat <span class="req">*</span></label>
+<select id="talepBolum" onchange="bolumDegisti()">
+<option value="">— Seçiniz —</option>
+<option>TEST</option><option>KESİM</option><option>ÜRETİM HATLARI</option>
+<option>TESİS</option><option>ALT MONTAJ</option><option>KALIPLAR</option>
+<option>T.S. PRES</option><option>T.Ö. PRES</option><option>DEPO &amp; SEVKİYAT</option><option>ÜRETİM BORDLARI</option>
+</select>
+</div>
+<div class="field">
+<label>Makine / Ekipman <span class="req">*</span></label>
+<div id="talepMakineWrapper">
+<input id="talepMakine" placeholder="Önce bölüm seçiniz" readonly="" style="background:#f0f0ec;cursor:not-allowed;color:#aaa" type="text"/>
+</div>
+</div>
+</div>
+<div class="fg g2" style="margin-bottom:14px">
+<div class="field">
+<label>Proje No</label>
+<select id="talepModelNo" onchange="talepModelSecildi()">
+<option value="">— Seçiniz —</option>
+</select>
+</div>
+<select id="talepMusteri" style="display:none"></select>
+<input id="talepTakimNo" type="hidden"/>
+</div>
+<div class="fg g2" id="revMdBlok" style="margin-bottom:14px;display:none">
+<div class="field">
+<label>Rev No <span class="req">*</span></label>
+<input id="talepRevNo" oninput="this.value=this.value.toUpperCase()" placeholder="REV NO" type="text"/>
+</div>
+<div class="field">
+<label>MD No <span class="req">*</span></label>
+<input id="talepMdNo" oninput="this.value=this.value.toUpperCase()" placeholder="MD NO" type="text"/>
+</div>
+</div>
+<div class="fg g3" style="margin-bottom:14px">
+<div class="field">
+<label>Bildiren Kişi <span class="req">*</span></label>
+<input id="talepBildiren" oninput="this.value=this.value.toUpperCase()" placeholder="Ad Soyad" type="text"/>
+</div>
+<div class="field">
+<label>Arıza / İşlem Türü <span class="req">*</span></label>
+<select id="talepArizaTuru">
+<option value="">— Seçiniz —</option>
+<option>ELEKTRİK</option><option>ELEKTRONİK</option><option>MEKANİK</option>
+<option>HİDROLİK</option><option>PNÖMATİK</option><option>DİĞER</option>
+</select>
+</div>
+<div class="field">
+<label>Arıza Kodu</label>
+<input id="talepArizaKodu" oninput="this.value=this.value.toUpperCase()" placeholder="Arıza kodu" type="text"/>
+</div>
+</div>
 <div class="field" style="margin-bottom:14px">
-  <label>Duruş Etkisi <span class="req">*</span></label>
-
-  <select id="talepDurusEtkisi">
-    <option value="">— Seçiniz —</option>
-    <option value="TAM DURUŞ">🔴 TAM DURUŞ</option>
-    <option value="KISMİ DURUŞ">🟠 KISMİ DURUŞ</option>
-    <option value="PLANLI DURUŞ">🔵 PLANLI DURUŞ</option>
-    <option value="DURUŞ YOK">🟢 DURUŞ YOK</option>
-  </select>
+<label>Açıklama <span class="req">*</span></label>
+<textarea id="talepAciklama" oninput="this.value=this.value.toUpperCase()" placeholder="Arıza / talep detayı..." rows="3"></textarea>
 </div>
-      <div class="field" style="margin-bottom:14px">
-        <label>Risk Seviyesi <span class="req">*</span></label>
-        <div class="oncelik-satir">
-          <button class="oncelik-btn" data-v="DÜŞÜK" onclick="oncelikSec(this)" style="border-color:#43a047;color:#43a047">🟢 DÜŞÜK</button>
-          <button class="oncelik-btn" data-v="ORTA"  onclick="oncelikSec(this)" style="border-color:#fb8c00;color:#fb8c00">🟡 ORTA</button>
-          <button class="oncelik-btn" data-v="YÜKSEK" onclick="oncelikSec(this)" style="border-color:#e53935;color:#e53935">🔴 YÜKSEK</button>
-          <button class="oncelik-btn" data-v="KRİTİK" onclick="oncelikSec(this)" style="border-color:#b71c1c;color:#b71c1c">🚨 KRİTİK</button>
-        </div>
-        <input type="hidden" id="talepOncelik">
-      </div>
-
-      <button class="talep-gonder-btn" id="talepGonderBtn" onclick="talepGonder()">📤 BAKIM EKİBİNE GÖNDER</button>
-
-      <div class="talep-basari" id="talepBasari">
-        <div style="font-size:32px;margin-bottom:8px">✅</div>
-        <div style="font-size:16px;font-weight:700;color:#00875a;margin-bottom:4px">Talep Gönderildi!</div>
-        <div style="font-size:13px;color:#555">Form No: <strong id="talepFormNo">—</strong></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-head"><div class="dot"></div>📋 GÖNDERİLEN TALEPLER</div>
-    <div class="section-body"><div id="talepGecmisListe"><div class="empty">Henüz gönderilen talep yok.</div></div></div>
-  </div>
+<div class="fg g2" style="margin-bottom:14px">
+<div class="field">
+<label>Arıza Başlangıç Tarihi <span class="req">*</span></label>
+<input id="talepTarihBas" readonly="" style="background:#f0f0ec;color:#333;font-weight:600" type="date"/>
+</div>
+<div class="field">
+<label>Arıza Başlangıç Saati</label>
+<input id="talepTarihBit" readonly="" style="background:#f0f0ec;color:#333;font-weight:700;font-family:'IBM Plex Mono',monospace" type="text"/>
+</div>
+</div>
+<div class="field" style="margin-bottom:14px">
+<label>Duruş Etkisi <span class="req">*</span></label>
+<select id="talepDurusEtkisi">
+<option value="">— Seçiniz —</option>
+<option value="TAM DURUŞ">🔴 TAM DURUŞ</option>
+<option value="KISMİ DURUŞ">🟠 KISMİ DURUŞ</option>
+<option value="PLANLI DURUŞ">🔵 PLANLI DURUŞ</option>
+<option value="DURUŞ YOK">🟢 DURUŞ YOK</option>
+</select>
+</div>
+<div class="field" style="margin-bottom:14px">
+<label>Risk Seviyesi <span class="req">*</span></label>
+<div class="oncelik-satir">
+<button class="oncelik-btn" data-v="DÜŞÜK" onclick="oncelikSec(this)" style="border-color:#43a047;color:#43a047">🟢 DÜŞÜK</button>
+<button class="oncelik-btn" data-v="ORTA" onclick="oncelikSec(this)" style="border-color:#fb8c00;color:#fb8c00">🟡 ORTA</button>
+<button class="oncelik-btn" data-v="YÜKSEK" onclick="oncelikSec(this)" style="border-color:#e53935;color:#e53935">🔴 YÜKSEK</button>
+<button class="oncelik-btn" data-v="KRİTİK" onclick="oncelikSec(this)" style="border-color:#b71c1c;color:#b71c1c">🚨 KRİTİK</button>
+</div>
+<input id="talepOncelik" type="hidden"/>
+</div>
+<button class="talep-gonder-btn" id="talepGonderBtn" onclick="talepGonder()">📤 BAKIM EKİBİNE GÖNDER</button>
+<div class="talep-basari" id="talepBasari">
+<div style="font-size:32px;margin-bottom:8px">✅</div>
+<div style="font-size:16px;font-weight:700;color:#00875a;margin-bottom:4px">Talep Gönderildi!</div>
+<div style="font-size:13px;color:#555">Form No: <strong id="talepFormNo">—</strong></div>
 </div>
 
-<!-- ══════════════ DURUŞLAR ══════════════ -->
-<div class="tab-pane" id="tab-durus">
-  <div class="durus-ozet-grid" id="durusOzetKpi" style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px">
-    <div class="durus-kart" style="--dk-renk:#e65100;background:#fff;border-radius:10px;padding:16px 14px;text-align:center;border:1px solid #e0ddd5;border-top:4px solid #e65100;box-shadow:0 2px 8px rgba(0,0,0,.06)">
-      <div style="font-size:28px;font-weight:800;font-family:'IBM Plex Mono',monospace;color:#e65100;line-height:1.1" id="dkToplam">0</div>
-      <div style="font-size:10px;font-weight:700;color:#888;letter-spacing:.8px;text-transform:uppercase;margin-top:5px">Toplam Duruş</div>
-    </div>
-    <div class="durus-kart" style="background:#fff;border-radius:10px;padding:16px 14px;text-align:center;border:1px solid #e0ddd5;border-top:4px solid #d32f2f;box-shadow:0 2px 8px rgba(0,0,0,.06)">
-      <div style="font-size:28px;font-weight:800;font-family:'IBM Plex Mono',monospace;color:#d32f2f;line-height:1.1" id="dkBugün">0</div>
-      <div style="font-size:10px;font-weight:700;color:#888;letter-spacing:.8px;text-transform:uppercase;margin-top:5px">Bugünkü Duruş</div>
-    </div>
-    <div class="durus-kart" style="background:#fff;border-radius:10px;padding:16px 14px;text-align:center;border:1px solid #e0ddd5;border-top:4px solid #6a1b9a;box-shadow:0 2px 8px rgba(0,0,0,.06)">
-      <div style="font-size:28px;font-weight:800;font-family:'IBM Plex Mono',monospace;color:#6a1b9a;line-height:1.1" id="dkToplSure">0 dk</div>
-      <div style="font-size:10px;font-weight:700;color:#888;letter-spacing:.8px;text-transform:uppercase;margin-top:5px">Toplam Süre</div>
-    </div>
-    <div class="durus-kart" style="background:#fff;border-radius:10px;padding:16px 14px;text-align:center;border:1px solid #e0ddd5;border-top:4px solid #0277bd;box-shadow:0 2px 8px rgba(0,0,0,.06)">
-      <div style="font-size:28px;font-weight:800;font-family:'IBM Plex Mono',monospace;color:#0277bd;line-height:1.1" id="dkOrtSure">0 dk</div>
-      <div style="font-size:10px;font-weight:700;color:#888;letter-spacing:.8px;text-transform:uppercase;margin-top:5px">Ort. Süre</div>
-    </div>
-    <div class="durus-kart" style="background:#fff;border-radius:10px;padding:16px 14px;text-align:center;border:1px solid #e0ddd5;border-top:4px solid #00875a;box-shadow:0 2px 8px rgba(0,0,0,.06)">
-      <div style="font-size:28px;font-weight:800;font-family:'IBM Plex Mono',monospace;color:#00875a;line-height:1.1" id="dkBakimKaynakli">0</div>
-      <div style="font-size:10px;font-weight:700;color:#888;letter-spacing:.8px;text-transform:uppercase;margin-top:5px">🔗 Bakım Kaynaklı</div>
-    </div>
-  </div>
-
-  <div id="bekleyenTalepBandi" style="display:none;background:#fff8e1;border:1.5px solid #f5c400;border-radius:10px;padding:12px 16px;margin-bottom:16px">
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
-      <div>
-        <span style="font-size:13px;font-weight:700;color:#b8860b">⚠️ Kapatılmayı Bekleyen Bakım Talepleri:</span>
-        <span id="bekleyenTalepListesi" style="font-size:12px;color:#555;margin-left:8px"></span>
-      </div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-head"><div class="dot" style="background:#ff7043"></div>⏱️ YENİ DURUŞ KAYDI</div>
-    <div class="section-body">
-      <div class="fg g3" style="margin-bottom:14px">
-        <div class="field">
-          <label>Bölüm / Hat <span class="req">*</span></label>
-          <select id="durusBolum" onchange="durusBolumDegisti()">
-            <option value="">— Seçiniz —</option>
-            <option>TEST</option><option>KESİM</option><option>ÜRETİM HATLARI</option>
-            <option>TESİS</option><option>TESİSAT SONRASI</option><option>KALIPLAR</option>
-            <option>TESİSAT ÖNCESİ</option><option>DEPO & SEVKİYAT</option>
-            <option>ÜRETİM BORDLARI</option><option>TAKIM-1</option><option>TAKIM-2</option><option>TAKIM-3</option><option>TAKIM-4</option>
-            <option>AKÜ KESİM</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Makine / Ekipman <span class="req">*</span></label>
-          <div id="durusMakineWrapper">
-            <input type="text" id="durusMakine" placeholder="Önce bölüm seçiniz" readonly style="background:#f0f0ec;cursor:not-allowed;color:#aaa">
-          </div>
-        </div>
-        <div class="field">
-          <label>Bildiren Kişi <span class="req">*</span></label>
-          <input type="text" id="durusBildiren" placeholder="Ad Soyad" oninput="this.value=this.value.toUpperCase()">
-        </div>
       </div>
 
-      <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;margin-bottom:10px;text-transform:uppercase">Duruş Nedeni <span class="req">*</span></div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px" id="durusNedenGrid">
-        <div class="durus-neden-btn" data-v="MEKANİK ARIZA" data-c="#d32f2f" data-bg="rgba(211,47,47,.07)" onclick="durusNedenSec(this)" style="border:2px solid #d0d0c0;border-radius:9px;background:var(--bg);padding:12px 8px;text-align:center;cursor:pointer">
-          <span style="font-size:22px;display:block;margin-bottom:4px">⚙️</span><span style="font-size:11px;font-weight:700;color:var(--muted)">MEKANİK ARIZA</span></div>
-        <div class="durus-neden-btn" data-v="ELEKTRİK ARIZA" data-c="#e65100" data-bg="rgba(230,81,0,.07)" onclick="durusNedenSec(this)" style="border:2px solid #d0d0c0;border-radius:9px;background:var(--bg);padding:12px 8px;text-align:center;cursor:pointer">
-          <span style="font-size:22px;display:block;margin-bottom:4px">⚡</span><span style="font-size:11px;font-weight:700;color:var(--muted)">ELEKTRİK ARIZA</span></div>
-        <div class="durus-neden-btn" data-v="ELEKTRONİK ARIZA" data-c="#6a1b9a" data-bg="rgba(106,27,154,.07)" onclick="durusNedenSec(this)" style="border:2px solid #d0d0c0;border-radius:9px;background:var(--bg);padding:12px 8px;text-align:center;cursor:pointer">
-          <span style="font-size:22px;display:block;margin-bottom:4px">🖥️</span><span style="font-size:11px;font-weight:700;color:var(--muted)">ELEKTRONİK ARIZA</span></div>
-        <div class="durus-neden-btn" data-v="MALZEME EKSİKLİĞİ" data-c="#0277bd" data-bg="rgba(2,119,189,.07)" onclick="durusNedenSec(this)" style="border:2px solid #d0d0c0;border-radius:9px;background:var(--bg);padding:12px 8px;text-align:center;cursor:pointer">
-          <span style="font-size:22px;display:block;margin-bottom:4px">📦</span><span style="font-size:11px;font-weight:700;color:var(--muted)">MALZEME EKSİKLİĞİ</span></div>
-        <div class="durus-neden-btn" data-v="KALIP DEĞİŞİMİ" data-c="#00875a" data-bg="rgba(0,135,90,.07)" onclick="durusNedenSec(this)" style="border:2px solid #d0d0c0;border-radius:9px;background:var(--bg);padding:12px 8px;text-align:center;cursor:pointer">
-          <span style="font-size:22px;display:block;margin-bottom:4px">🔧</span><span style="font-size:11px;font-weight:700;color:var(--muted)">KALIP DEĞİŞİMİ</span></div>
-        <div class="durus-neden-btn" data-v="PLANLI BAKIM" data-c="#558b2f" data-bg="rgba(85,139,47,.07)" onclick="durusNedenSec(this)" style="border:2px solid #d0d0c0;border-radius:9px;background:var(--bg);padding:12px 8px;text-align:center;cursor:pointer">
-          <span style="font-size:22px;display:block;margin-bottom:4px">📋</span><span style="font-size:11px;font-weight:700;color:var(--muted)">PLANLI BAKIM</span></div>
-        <div class="durus-neden-btn" data-v="KALİTE SORUNU" data-c="#f57f17" data-bg="rgba(245,127,23,.07)" onclick="durusNedenSec(this)" style="border:2px solid #d0d0c0;border-radius:9px;background:var(--bg);padding:12px 8px;text-align:center;cursor:pointer">
-          <span style="font-size:22px;display:block;margin-bottom:4px">🔍</span><span style="font-size:11px;font-weight:700;color:var(--muted)">KALİTE SORUNU</span></div>
-        <div class="durus-neden-btn" data-v="PERSONEL EKSİKLİĞİ" data-c="#4527a0" data-bg="rgba(69,39,160,.07)" onclick="durusNedenSec(this)" style="border:2px solid #d0d0c0;border-radius:9px;background:var(--bg);padding:12px 8px;text-align:center;cursor:pointer">
-          <span style="font-size:22px;display:block;margin-bottom:4px">👤</span><span style="font-size:11px;font-weight:700;color:var(--muted)">PERSONEL EKSİKLİĞİ</span></div>
-        <div class="durus-neden-btn" data-v="DİĞER" data-c="#546e7a" data-bg="rgba(84,110,122,.07)" onclick="durusNedenSec(this)" style="border:2px solid #d0d0c0;border-radius:9px;background:var(--bg);padding:12px 8px;text-align:center;cursor:pointer">
-          <span style="font-size:22px;display:block;margin-bottom:4px">❓</span><span style="font-size:11px;font-weight:700;color:var(--muted)">DİĞER</span></div>
-      </div>
-      <input type="hidden" id="durusNeden">
-
-            <div class="field" style="margin-bottom:14px">
-        <label>Duruş Etkisi <span class="req">*</span></label>
-        <select id="durusEtkisi">
-          <option value="">— Seçiniz —</option>
-          <option value="TAM DURUŞ">TAM DURUŞ</option>
-          <option value="KISMİ DURUŞ">KISMİ DURUŞ</option>
-          <option value="PLANLI DURUŞ">PLANLI DURUŞ</option>
-          <option value="DURUŞ YOK">DURUŞ YOK (sadece kayıt)</option>
-        </select>
-      </div>
-   <!-- ★ YENİ: BAKIM TALEBİ TÜRÜ -->
-      <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;margin-bottom:10px;text-transform:uppercase">Bakım Ekibine Bildirim Gönder</div>
-      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px" id="durusIslemTuruGrid">
-        <div class="durus-islem-btn active" data-v="" data-c="#888" data-bg="rgba(136,136,136,.08)" onclick="durusIslemTuruSec(this)" style="border:2px solid #888;border-radius:9px;background:rgba(136,136,136,.08);padding:10px 6px;text-align:center;cursor:pointer">
-          <span style="font-size:18px;display:block;margin-bottom:3px">➖</span><span style="font-size:10px;font-weight:700;color:var(--muted)">HAYIR</span></div>
-        <div class="durus-islem-btn" data-v="ARIZA KAYDI" data-c="#d32f2f" data-bg="rgba(211,47,47,.08)" onclick="durusIslemTuruSec(this)" style="border:2px solid #d0d0c0;border-radius:9px;background:var(--bg);padding:10px 6px;text-align:center;cursor:pointer">
-          <span style="font-size:18px;display:block;margin-bottom:3px">⚡</span><span style="font-size:10px;font-weight:700;color:var(--muted)">ARIZA</span></div>
-        <div class="durus-islem-btn" data-v="BAKIM KAYDI" data-c="#0277bd" data-bg="rgba(2,119,189,.08)" onclick="durusIslemTuruSec(this)" style="border:2px solid #d0d0c0;border-radius:9px;background:var(--bg);padding:10px 6px;text-align:center;cursor:pointer">
-          <span style="font-size:18px;display:block;margin-bottom:3px">🔧</span><span style="font-size:10px;font-weight:700;color:var(--muted)">BAKIM</span></div>
-        <div class="durus-islem-btn" data-v="REVİZYON" data-c="#6a1b9a" data-bg="rgba(106,27,154,.08)" onclick="durusIslemTuruSec(this)" style="border:2px solid #d0d0c0;border-radius:9px;background:var(--bg);padding:10px 6px;text-align:center;cursor:pointer">
-          <span style="font-size:18px;display:block;margin-bottom:3px">🔄</span><span style="font-size:10px;font-weight:700;color:var(--muted)">REVİZYON</span></div>
-        <div class="durus-islem-btn" data-v="MONTAJ" data-c="#e65100" data-bg="rgba(230,81,0,.08)" onclick="durusIslemTuruSec(this)" style="border:2px solid #d0d0c0;border-radius:9px;background:var(--bg);padding:10px 6px;text-align:center;cursor:pointer">
-          <span style="font-size:18px;display:block;margin-bottom:3px">🏗️</span><span style="font-size:10px;font-weight:700;color:var(--muted)">MONTAJ</span></div>
-      </div>
-      <input type="hidden" id="durusIslemTuru" value="">
-
-      <div class="fg g3" id="durusBakimTalebiExtra" style="margin-bottom:14px;display:none">
-        <div class="field">
-          <label>Arıza Kodu</label>
-          <input type="text" id="durusArizaKodu" placeholder="Opsiyonel">
-        </div>
-        <div class="field">
-          <label>Risk Seviyesi</label>
-          <select id="durusRiskSeviye">
-            <option value="DÜŞÜK">DÜŞÜK</option>
-            <option value="ORTA" selected>ORTA</option>
-            <option value="YÜKSEK">YÜKSEK</option>
-            <option value="KRİTİK">KRİTİK</option>
-          </select>
-        </div>
-      </div>
-      <!-- ★ YENİ BLOK BİTTİ -->
-      <div class="fg g3" style="margin-bottom:14px">
-        <div class="field">
-          <label>Proje No</label>
-          <select id="durusProjeNo"><option value="">— Seçiniz —</option></select>
-        </div>
-        <div class="field">
-          <label>Sorumlu Bölüm <span class="req">*</span></label>
-          <select id="durusSorumluBolum" onchange="durusSorumluBolumDegisti()">
-            <option value="">— Seçiniz —</option>
-            <option>BAKIM</option><option>ÜRETİM</option><option>KALİTE</option>
-            <option>PLANLAMA</option><option>SATIN ALMA</option><option>LOJİSTİK</option>
-            <option>PROJE / MÜHENDİSLİK</option><option>YÖNETİM</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Sorumlu Kişi</label>
-          <select id="durusSorumluKisi"><option value="">— Önce bölüm seçiniz —</option></select>
-        </div>
-      </div>
-
-      <div class="fg g3" style="margin-bottom:14px">
-        <div class="field">
-          <label>Arıza Başlangıç Tarihi</label>
-          <input type="date" id="durusTarih" readonly style="background:#f0f0ec;color:#333;font-weight:600">
-        </div>
-        <div class="field">
-          <label>Arıza Başlangıç Saati</label>
-          <input type="text" id="durusSaat" readonly style="background:#f0f0ec;color:#333;font-weight:700;font-family:'IBM Plex Mono',monospace">
-        </div>
-        <div class="field">
-          <label>Kök Neden</label>
-          <input type="text" id="durusKokNeden" placeholder="Kısa kök neden..." oninput="this.value=this.value.toUpperCase()">
-        </div>
-      </div>
-
-      <div class="fg" style="margin-bottom:14px">
-        <div class="field">
-          <label>Açıklama <span class="req">*</span></label>
-          <textarea id="durusAciklama" placeholder="Duruşun detayı..." rows="2" oninput="this.value=this.value.toUpperCase()"></textarea>
-        </div>
-        <div class="field">
-          <label>Yapılan İşlemler</label>
-          <textarea id="durusYapilan" placeholder="Yapılan müdahale..." rows="2" oninput="this.value=this.value.toUpperCase()"></textarea>
-        </div>
-      </div>
-
-      <button class="talep-gonder-btn" id="durusKaydetBtn" onclick="durusKaydet()" style="background:#e65100;box-shadow:0 4px 16px rgba(230,81,0,.35)">
+      <div id="birlesikDurusPanel" class="birlesik-form-panel" role="tabpanel">
+        <div class="birlesik-panel-baslik durus"><span>⏱️</span><div><strong>Diğer üretim duruşu</strong><small>Montaj, terminal, kablo ve diğer üretim kayıplarını buradan girin.</small></div></div>
+        
+<div class="fg g3" style="margin-bottom:14px">
+<div class="field">
+<label>Bölüm / Hat <span class="req">*</span></label>
+<select id="durusBolum" onchange="durusBolumDegisti()">
+<option value="">— Seçiniz —</option>
+<option>TEST</option><option>KESİM</option><option>ÜRETİM HATLARI</option>
+<option>TESİS</option><option>TESİSAT SONRASI</option><option>KALIPLAR</option>
+<option>TESİSAT ÖNCESİ</option><option>DEPO &amp; SEVKİYAT</option>
+<option>ÜRETİM BORDLARI</option><option>TAKIM-1</option><option>TAKIM-2</option><option>TAKIM-3</option><option>TAKIM-4</option>
+<option>AKÜ KESİM</option>
+</select>
+</div>
+<div class="field">
+<label>Makine / Ekipman <span class="req">*</span></label>
+<div id="durusMakineWrapper">
+<input id="durusMakine" placeholder="Önce bölüm seçiniz" readonly="" style="background:#f0f0ec;cursor:not-allowed;color:#aaa" type="text"/>
+</div>
+</div>
+<div class="field">
+<label>Bildiren Kişi <span class="req">*</span></label>
+<input id="durusBildiren" oninput="this.value=this.value.toUpperCase()" placeholder="Ad Soyad" type="text"/>
+</div>
+</div>
+<div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;margin-bottom:10px;text-transform:uppercase">Duruş Nedeni <span class="req">*</span></div>
+<div id="durusNedenGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+<div class="durus-neden-btn" data-bg="rgba(211,47,47,.07)" data-c="#d32f2f" data-v="MONTAJ HATASI" onclick="durusNedenSec(this)" style="border:2px solid #d0d0c0;border-radius:9px;background:var(--bg);padding:12px 8px;text-align:center;cursor:pointer">
+<span style="font-size:22px;display:block;margin-bottom:4px">🧩</span><span style="font-size:11px;font-weight:700;color:var(--muted)">MONTAJ HATASI</span></div>
+<div class="durus-neden-btn" data-bg="rgba(230,81,0,.07)" data-c="#e65100" data-v="TERMİNAL HATASI" onclick="durusNedenSec(this)" style="border:2px solid #d0d0c0;border-radius:9px;background:var(--bg);padding:12px 8px;text-align:center;cursor:pointer">
+<span style="font-size:22px;display:block;margin-bottom:4px">🔌</span><span style="font-size:11px;font-weight:700;color:var(--muted)">TERMİNAL HATASI</span></div>
+<div class="durus-neden-btn" data-bg="rgba(106,27,154,.07)" data-c="#6a1b9a" data-v="KABLO HATASI" onclick="durusNedenSec(this)" style="border:2px solid #d0d0c0;border-radius:9px;background:var(--bg);padding:12px 8px;text-align:center;cursor:pointer">
+<span style="font-size:22px;display:block;margin-bottom:4px">🔗</span><span style="font-size:11px;font-weight:700;color:var(--muted)">KABLO HATASI</span></div>
+<div class="durus-neden-btn" data-bg="rgba(2,119,189,.07)" data-c="#0277bd" data-v="MALZEME EKSİKLİĞİ" onclick="durusNedenSec(this)" style="border:2px solid #d0d0c0;border-radius:9px;background:var(--bg);padding:12px 8px;text-align:center;cursor:pointer">
+<span style="font-size:22px;display:block;margin-bottom:4px">📦</span><span style="font-size:11px;font-weight:700;color:var(--muted)">MALZEME EKSİKLİĞİ</span></div>
+<div class="durus-neden-btn" data-bg="rgba(0,135,90,.07)" data-c="#00875a" data-v="KALIP DEĞİŞİMİ" onclick="durusNedenSec(this)" style="border:2px solid #d0d0c0;border-radius:9px;background:var(--bg);padding:12px 8px;text-align:center;cursor:pointer">
+<span style="font-size:22px;display:block;margin-bottom:4px">🔧</span><span style="font-size:11px;font-weight:700;color:var(--muted)">KALIP DEĞİŞİMİ</span></div>
+<div class="durus-neden-btn" data-bg="rgba(85,139,47,.07)" data-c="#558b2f" data-v="PLANLI BAKIM" onclick="durusNedenSec(this)" style="border:2px solid #d0d0c0;border-radius:9px;background:var(--bg);padding:12px 8px;text-align:center;cursor:pointer">
+<span style="font-size:22px;display:block;margin-bottom:4px">📋</span><span style="font-size:11px;font-weight:700;color:var(--muted)">PLANLI BAKIM</span></div>
+<div class="durus-neden-btn" data-bg="rgba(245,127,23,.07)" data-c="#f57f17" data-v="KALİTE SORUNU" onclick="durusNedenSec(this)" style="border:2px solid #d0d0c0;border-radius:9px;background:var(--bg);padding:12px 8px;text-align:center;cursor:pointer">
+<span style="font-size:22px;display:block;margin-bottom:4px">🔍</span><span style="font-size:11px;font-weight:700;color:var(--muted)">KALİTE SORUNU</span></div>
+<div class="durus-neden-btn" data-bg="rgba(69,39,160,.07)" data-c="#4527a0" data-v="PERSONEL EKSİKLİĞİ" onclick="durusNedenSec(this)" style="border:2px solid #d0d0c0;border-radius:9px;background:var(--bg);padding:12px 8px;text-align:center;cursor:pointer">
+<span style="font-size:22px;display:block;margin-bottom:4px">👤</span><span style="font-size:11px;font-weight:700;color:var(--muted)">PERSONEL EKSİKLİĞİ</span></div>
+<div class="durus-neden-btn" data-bg="rgba(84,110,122,.07)" data-c="#546e7a" data-v="DİĞER" onclick="durusNedenSec(this)" style="border:2px solid #d0d0c0;border-radius:9px;background:var(--bg);padding:12px 8px;text-align:center;cursor:pointer">
+<span style="font-size:22px;display:block;margin-bottom:4px">❓</span><span style="font-size:11px;font-weight:700;color:var(--muted)">DİĞER</span></div>
+</div>
+<input id="durusNeden" type="hidden"/>
+<div class="field" style="margin-bottom:14px">
+<label>Duruş Etkisi <span class="req">*</span></label>
+<select id="durusEtkisi">
+<option value="">— Seçiniz —</option>
+<option value="TAM DURUŞ">TAM DURUŞ</option>
+<option value="KISMİ DURUŞ">KISMİ DURUŞ</option>
+<option value="PLANLI DURUŞ">PLANLI DURUŞ</option>
+<option value="DURUŞ YOK">DURUŞ YOK (sadece kayıt)</option>
+</select>
+</div>
+<!-- ★ YENİ: BAKIM TALEBİ TÜRÜ -->
+<div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;margin-bottom:10px;text-transform:uppercase">Bakım Ekibine Bildirim Gönder</div>
+<div id="durusIslemTuruGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px">
+<div class="durus-islem-btn active" data-bg="rgba(136,136,136,.08)" data-c="#888" data-v="" onclick="durusIslemTuruSec(this)" style="border:2px solid #888;border-radius:9px;background:rgba(136,136,136,.08);padding:10px 6px;text-align:center;cursor:pointer">
+<span style="font-size:18px;display:block;margin-bottom:3px">➖</span><span style="font-size:10px;font-weight:700;color:var(--muted)">HAYIR</span></div>
+<div class="durus-islem-btn" data-bg="rgba(211,47,47,.08)" data-c="#d32f2f" data-v="ARIZA KAYDI" onclick="durusIslemTuruSec(this)" style="border:2px solid #d0d0c0;border-radius:9px;background:var(--bg);padding:10px 6px;text-align:center;cursor:pointer">
+<span style="font-size:18px;display:block;margin-bottom:3px">⚡</span><span style="font-size:10px;font-weight:700;color:var(--muted)">ARIZA</span></div>
+<div class="durus-islem-btn" data-bg="rgba(2,119,189,.08)" data-c="#0277bd" data-v="BAKIM KAYDI" onclick="durusIslemTuruSec(this)" style="border:2px solid #d0d0c0;border-radius:9px;background:var(--bg);padding:10px 6px;text-align:center;cursor:pointer">
+<span style="font-size:18px;display:block;margin-bottom:3px">🔧</span><span style="font-size:10px;font-weight:700;color:var(--muted)">BAKIM</span></div>
+<div class="durus-islem-btn" data-bg="rgba(106,27,154,.08)" data-c="#6a1b9a" data-v="REVİZYON" onclick="durusIslemTuruSec(this)" style="border:2px solid #d0d0c0;border-radius:9px;background:var(--bg);padding:10px 6px;text-align:center;cursor:pointer">
+<span style="font-size:18px;display:block;margin-bottom:3px">🔄</span><span style="font-size:10px;font-weight:700;color:var(--muted)">REVİZYON</span></div>
+<div class="durus-islem-btn" data-bg="rgba(230,81,0,.08)" data-c="#e65100" data-v="MONTAJ" onclick="durusIslemTuruSec(this)" style="border:2px solid #d0d0c0;border-radius:9px;background:var(--bg);padding:10px 6px;text-align:center;cursor:pointer">
+<span style="font-size:18px;display:block;margin-bottom:3px">🏗️</span><span style="font-size:10px;font-weight:700;color:var(--muted)">MONTAJ</span></div>
+</div>
+<input id="durusIslemTuru" type="hidden" value=""/>
+<div class="fg g3" id="durusBakimTalebiExtra" style="margin-bottom:14px;display:none">
+<div class="field">
+<label>Arıza Kodu</label>
+<input id="durusArizaKodu" placeholder="Opsiyonel" type="text"/>
+</div>
+<div class="field">
+<label>Risk Seviyesi</label>
+<select id="durusRiskSeviye">
+<option value="DÜŞÜK">DÜŞÜK</option>
+<option selected="" value="ORTA">ORTA</option>
+<option value="YÜKSEK">YÜKSEK</option>
+<option value="KRİTİK">KRİTİK</option>
+</select>
+</div>
+</div>
+<!-- ★ YENİ BLOK BİTTİ -->
+<div class="fg g3" style="margin-bottom:14px">
+<div class="field">
+<label>Proje No</label>
+<select id="durusProjeNo"><option value="">— Seçiniz —</option></select>
+</div>
+<div class="field">
+<label>Sorumlu Bölüm <span class="req">*</span></label>
+<select id="durusSorumluBolum" onchange="durusSorumluBolumDegisti()">
+<option value="">— Seçiniz —</option>
+<option>BAKIM</option><option>ÜRETİM</option><option>KALİTE</option>
+<option>PLANLAMA</option><option>SATIN ALMA</option><option>LOJİSTİK</option>
+<option>PROJE / MÜHENDİSLİK</option><option>YÖNETİM</option>
+</select>
+</div>
+<div class="field">
+<label>Sorumlu Kişi</label>
+<select id="durusSorumluKisi"><option value="">— Önce bölüm seçiniz —</option></select>
+</div>
+</div>
+<div class="fg g3" style="margin-bottom:14px">
+<div class="field">
+<label>Arıza Başlangıç Tarihi</label>
+<input id="durusTarih" readonly="" style="background:#f0f0ec;color:#333;font-weight:600" type="date"/>
+</div>
+<div class="field">
+<label>Arıza Başlangıç Saati</label>
+<input id="durusSaat" readonly="" style="background:#f0f0ec;color:#333;font-weight:700;font-family:'IBM Plex Mono',monospace" type="text"/>
+</div>
+<div class="field">
+<label>Kök Neden</label>
+<input id="durusKokNeden" oninput="this.value=this.value.toUpperCase()" placeholder="Kısa kök neden..." type="text"/>
+</div>
+</div>
+<div class="fg" style="margin-bottom:14px">
+<div class="field">
+<label>Açıklama <span class="req">*</span></label>
+<textarea id="durusAciklama" oninput="this.value=this.value.toUpperCase()" placeholder="Duruşun detayı..." rows="2"></textarea>
+</div>
+<div class="field">
+<label>Yapılan İşlemler</label>
+<textarea id="durusYapilan" oninput="this.value=this.value.toUpperCase()" placeholder="Yapılan müdahale..." rows="2"></textarea>
+</div>
+</div>
+<button class="talep-gonder-btn" id="durusKaydetBtn" onclick="durusKaydet()" style="background:#e65100;box-shadow:0 4px 16px rgba(230,81,0,.35)">
         ⏱️ DURUŞ KAYDET
       </button>
+<div id="durusBasari" style="display:none;background:#fff3e0;border:2px solid #e65100;border-radius:10px;padding:18px;text-align:center;margin-top:14px">
+<div style="font-size:32px;margin-bottom:8px">✅</div>
+<div style="font-size:16px;font-weight:700;color:#e65100;margin-bottom:4px">Duruş Kaydedildi!</div>
+<div style="font-size:13px;color:#555">Form No: <strong id="durusFormNo">—</strong></div>
+</div>
 
-      <div id="durusBasari" style="display:none;background:#fff3e0;border:2px solid #e65100;border-radius:10px;padding:18px;text-align:center;margin-top:14px">
-        <div style="font-size:32px;margin-bottom:8px">✅</div>
-        <div style="font-size:16px;font-weight:700;color:#e65100;margin-bottom:4px">Duruş Kaydedildi!</div>
-        <div style="font-size:13px;color:#555">Form No: <strong id="durusFormNo">—</strong></div>
       </div>
     </div>
   </div>
-  <!-- AKTİF DEVAM EDEN DURUŞLAR -->
-<div id="aktifDuruslarBandi" style="display:none; background:#ffebee; border:2px solid #d32f2f; border-radius:10px; padding:14px 16px; margin-bottom:20px;">
-  <div style="font-size:15px; font-weight:800; color:#d32f2f; margin-bottom:10px;">
+
+  <div id="aktifDuruslarBandi" style="display:none; background:#ffebee; border:2px solid #d32f2f; border-radius:10px; padding:14px 16px; margin-bottom:20px;">
+<div style="font-size:15px; font-weight:800; color:#d32f2f; margin-bottom:10px;">
     ⏱️ AKTİF DEVAM EDEN DURUŞLAR
   </div>
-  <div id="aktifDurusListesi" style="display:flex; flex-direction:column; gap:10px;"></div>
+<div id="aktifDurusListesi" style="display:flex; flex-direction:column; gap:10px;"></div>
 </div>
-<!-- DURUŞ BİTİR MODAL -->
-<div id="durusBitirModal" class="modal-overlay">
-  <div class="modal-box" style="max-width:480px;">
-    <div class="modal-head">
-      <div class="modal-title">⏱️ Duruşu Bitir</div>
-      <button class="modal-close" onclick="durusBitirModalKapat()">✕</button>
-    </div>
-    
-    <div id="modalDurusBilgi" style="background:#fff3e0; padding:12px; border-radius:8px; margin-bottom:16px; font-size:14px;"></div>
+  <div class="durus-ozet-grid" id="durusOzetKpi" style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px">
+<div class="durus-kart" style="--dk-renk:#e65100;background:#fff;border-radius:10px;padding:16px 14px;text-align:center;border:1px solid #e0ddd5;border-top:4px solid #e65100;box-shadow:0 2px 8px rgba(0,0,0,.06)">
+<div id="dkToplam" style="font-size:28px;font-weight:800;font-family:'IBM Plex Mono',monospace;color:#e65100;line-height:1.1">0</div>
+<div style="font-size:10px;font-weight:700;color:#888;letter-spacing:.8px;text-transform:uppercase;margin-top:5px">Toplam Duruş</div>
+</div>
+<div class="durus-kart" style="background:#fff;border-radius:10px;padding:16px 14px;text-align:center;border:1px solid #e0ddd5;border-top:4px solid #d32f2f;box-shadow:0 2px 8px rgba(0,0,0,.06)">
+<div id="dkBugün" style="font-size:28px;font-weight:800;font-family:'IBM Plex Mono',monospace;color:#d32f2f;line-height:1.1">0</div>
+<div style="font-size:10px;font-weight:700;color:#888;letter-spacing:.8px;text-transform:uppercase;margin-top:5px">Bugünkü Duruş</div>
+</div>
+<div class="durus-kart" style="background:#fff;border-radius:10px;padding:16px 14px;text-align:center;border:1px solid #e0ddd5;border-top:4px solid #6a1b9a;box-shadow:0 2px 8px rgba(0,0,0,.06)">
+<div id="dkToplSure" style="font-size:28px;font-weight:800;font-family:'IBM Plex Mono',monospace;color:#6a1b9a;line-height:1.1">0 dk</div>
+<div style="font-size:10px;font-weight:700;color:#888;letter-spacing:.8px;text-transform:uppercase;margin-top:5px">Toplam Süre</div>
+</div>
+<div class="durus-kart" style="background:#fff;border-radius:10px;padding:16px 14px;text-align:center;border:1px solid #e0ddd5;border-top:4px solid #0277bd;box-shadow:0 2px 8px rgba(0,0,0,.06)">
+<div id="dkOrtSure" style="font-size:28px;font-weight:800;font-family:'IBM Plex Mono',monospace;color:#0277bd;line-height:1.1">0 dk</div>
+<div style="font-size:10px;font-weight:700;color:#888;letter-spacing:.8px;text-transform:uppercase;margin-top:5px">Ort. Süre</div>
+</div>
+<div class="durus-kart" style="background:#fff;border-radius:10px;padding:16px 14px;text-align:center;border:1px solid #e0ddd5;border-top:4px solid #00875a;box-shadow:0 2px 8px rgba(0,0,0,.06)">
+<div id="dkBakimKaynakli" style="font-size:28px;font-weight:800;font-family:'IBM Plex Mono',monospace;color:#00875a;line-height:1.1">0</div>
+<div style="font-size:10px;font-weight:700;color:#888;letter-spacing:.8px;text-transform:uppercase;margin-top:5px">🔗 Bakım Kaynaklı</div>
+</div>
+</div>
+  <div id="bekleyenTalepBandi" style="display:none;background:#fff8e1;border:1.5px solid #f5c400;border-radius:10px;padding:12px 16px;margin-bottom:16px">
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+<div>
+<span style="font-size:13px;font-weight:700;color:#b8860b">⚠️ Kapatılmayı Bekleyen Bakım Talepleri:</span>
+<span id="bekleyenTalepListesi" style="font-size:12px;color:#555;margin-left:8px"></span>
+</div>
+</div>
+</div>
 
-    <div class="field" style="margin-bottom:14px">
-      <label>Gerçek Geçen Süre <span class="req">*</span></label>
-      <input type="text" id="modalGercekSure" readonly style="background:#f0f0ec; font-size:18px; font-weight:700; text-align:center;">
-    </div>
+  <div class="birlesik-kayit-grid">
+    <div class="section">
+<div class="section-head"><div class="dot" style="background:#0277bd"></div>📨 BAKIM EKİBİNE GÖNDERİLENLER</div>
+<div class="section-body"><div id="talepGecmisListe"><div class="empty">Henüz gönderilen talep yok.</div></div></div>
+</div>
+    <div class="section">
+<div class="section-head"><div class="dot" style="background:#e65100"></div>⏱️ ÜRETİM DURUŞ KAYITLARI</div>
+<div class="section-body">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<select id="durusFiltreBolum" onchange="renderDurusGecmis()" style="font-size:13px;padding:7px 10px;min-width:140px">
+<option value="">Tüm Bölümler</option>
+<option>TEST</option><option>KESİM</option>
+<option>TESİS</option>
+<option>ALT MONTAJ</option><option>DEPO &amp; SEVKİYAT</option><option>TAKIM-1</option><option>TAKIM-2</option><option>TAKIM-3</option><option>TAKIM-4</option>
+<option>T.S. PRES</option><option>T.Ö. PRES</option>
+</select>
+<select id="durusFiltreNeden" onchange="renderDurusGecmis()" style="font-size:13px;padding:7px 10px;min-width:160px">
+<option value="">Tüm Nedenler</option>
+<option>MONTAJ HATASI</option><option>TERMİNAL HATASI</option><option>KABLO HATASI</option>
+<option>MALZEME EKSİKLİĞİ</option><option>KALIP DEĞİŞİMİ</option><option>PLANLI BAKIM</option>
+<option>KALİTE SORUNU</option><option>PERSONEL EKSİKLİĞİ</option><option>DİĞER</option>
+</select>
+</div>
+<button class="btn-sm red" onclick="durusTumunuSil()">🗑️ Tümünü Sil</button>
+</div>
+<div id="durusGecmisListe"><div class="empty">Henüz duruş kaydı yok.</div></div>
+</div>
+</div>
+  </div>
 
-    <div class="field" style="margin-bottom:14px">
-      <label>Kök Neden <span class="req">*</span></label>
-      <input type="text" id="modalKokNeden" placeholder="Kök nedeni detaylı yazın..." 
-             oninput="this.value=this.value.toUpperCase()" style="font-weight:600;">
-    </div>
-
-    <div class="field" style="margin-bottom:14px">
-      <label>Yapılan İşlemler / Müdahale</label>
-      <textarea id="modalYapilan" rows="3" placeholder="Bakım ekibi ne yaptı? Değiştirilen parça vs..." 
-                oninput="this.value=this.value.toUpperCase()"></textarea>
-    </div>
-
-    <div class="field">
-      <label>Ek Açıklama</label>
-      <textarea id="modalAciklama" rows="2" placeholder="Varsa ek not..." 
-                oninput="this.value=this.value.toUpperCase()"></textarea>
-    </div>
-
-    <div style="margin-top:20px; display:flex; gap:10px;">
-      <button onclick="durusBitirOnayla()" 
-              style="flex:1; background:#d32f2f; color:white; border:none; padding:14px; border-radius:8px; font-weight:700; font-size:16px;">
+  <div class="modal-overlay" id="durusBitirModal">
+<div class="modal-box" style="max-width:480px;">
+<div class="modal-head">
+<div class="modal-title">⏱️ Duruşu Bitir</div>
+<button class="modal-close" onclick="durusBitirModalKapat()">✕</button>
+</div>
+<div id="modalDurusBilgi" style="background:#fff3e0; padding:12px; border-radius:8px; margin-bottom:16px; font-size:14px;"></div>
+<div class="field" style="margin-bottom:14px">
+<label>Gerçek Geçen Süre <span class="req">*</span></label>
+<input id="modalGercekSure" readonly="" style="background:#f0f0ec; font-size:18px; font-weight:700; text-align:center;" type="text"/>
+</div>
+<div class="field" style="margin-bottom:14px">
+<label>Kök Neden <span class="req">*</span></label>
+<input id="modalKokNeden" oninput="this.value=this.value.toUpperCase()" placeholder="Kök nedeni detaylı yazın..." style="font-weight:600;" type="text"/>
+</div>
+<div class="field" style="margin-bottom:14px">
+<label>Yapılan İşlemler / Müdahale</label>
+<textarea id="modalYapilan" oninput="this.value=this.value.toUpperCase()" placeholder="Bakım ekibi ne yaptı? Değiştirilen parça vs..." rows="3"></textarea>
+</div>
+<div class="field">
+<label>Ek Açıklama</label>
+<textarea id="modalAciklama" oninput="this.value=this.value.toUpperCase()" placeholder="Varsa ek not..." rows="2"></textarea>
+</div>
+<div style="margin-top:20px; display:flex; gap:10px;">
+<button onclick="durusBitirOnayla()" style="flex:1; background:#d32f2f; color:white; border:none; padding:14px; border-radius:8px; font-weight:700; font-size:16px;">
         ✅ DURUŞU BİTİR VE KAYDET
       </button>
-      <button onclick="durusBitirModalKapat()" 
-              style="background:#f0f0ec; color:#444; border:none; padding:14px 20px; border-radius:8px;">
+<button onclick="durusBitirModalKapat()" style="background:#f0f0ec; color:#444; border:none; padding:14px 20px; border-radius:8px;">
         İptal
       </button>
-    </div>
-  </div>
 </div>
-  <div class="section">
-    <div class="section-head"><div class="dot" style="background:#ff7043"></div>📋 DURUŞ KAYITLARI</div>
-    <div class="section-body">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <select id="durusFiltreBolum" onchange="renderDurusGecmis()" style="font-size:13px;padding:7px 10px;min-width:140px">
-            <option value="">Tüm Bölümler</option>
-            <option>TEST</option><option>KESİM</option>
-            <option>TESİS</option>
-            <option>ALT MONTAJ</option><option>DEPO & SEVKİYAT</option><option>TAKIM-1</option><option>TAKIM-2</option><option>TAKIM-3</option><option>TAKIM-4</option>
-            <option>T.S. PRES</option><option>T.Ö. PRES</option>
-         
-          </select>
-          <select id="durusFiltreNeden" onchange="renderDurusGecmis()" style="font-size:13px;padding:7px 10px;min-width:160px">
-            <option value="">Tüm Nedenler</option>
-            <option>MEKANİK ARIZA</option><option>ELEKTRİK ARIZA</option><option>ELEKTRONİK ARIZA</option>
-            <option>MALZEME EKSİKLİĞİ</option><option>KALIP DEĞİŞİMİ</option><option>PLANLI BAKIM</option>
-            <option>KALİTE SORUNU</option><option>PERSONEL EKSİKLİĞİ</option><option>DİĞER</option>
-          </select>
-        </div>
-        <button onclick="durusTumunuSil()" class="btn-sm red">🗑️ Tümünü Sil</button>
-      </div>
-      <div id="durusGecmisListe"><div class="empty">Henüz duruş kaydı yok.</div></div>
-    </div>
-  </div>
+</div>
+</div>
 </div>
 
 <!-- ══════════════ ADMİN PANELİ ══════════════ -->
@@ -1334,9 +1349,6 @@ tr:last-child td{border-bottom:none}
 
 </div><!-- /main -->
 <div class="toast" id="toast"></div>
-<!-- Diğer içerikler -->
-<!-- DURUŞ BİTİR MODALI BURAYA TAŞI -->
-<div id="durusBitirModal" class="modal-overlay"> ... </div>
 
 <script>
 // ══════════════════════════════════════════════
@@ -1444,24 +1456,23 @@ function applyRoleUI(role) {
   const nav = document.getElementById('navTabs');
   if (role === 'yonetici') {
     nav.innerHTML = `
-      <button class="nav-tab active" onclick="('atama',this)">📋 İŞ ATAMA</button>
-      <button class="nav-tab" onclick="('durum',this)">🏭 TAKIM DURUMU</button>
-      <button class="nav-tab" onclick="('rapor',this)">📊 RAPORLAR</button>
-      <button class="nav-tab" onclick="('gecmis',this)">📋 GEÇMİŞ</button>
+      <button class="nav-tab active" onclick="goTab('atama',this)">📋 İŞ ATAMA</button>
+      <button class="nav-tab" onclick="goTab('durum',this)">🏭 TAKIM DURUMU</button>
+      <button class="nav-tab" onclick="goTab('rapor',this)">📊 RAPORLAR</button>
+      <button class="nav-tab" onclick="goTab('gecmis',this)">📋 GEÇMİŞ</button>
       
-      <button class="nav-tab" onclick="('takim',this)">👥 TAKIM YÖNETİMİ</button>
-      <button class="nav-tab" onclick="('durus',this)" style="color:#ff7043;font-weight:700">⏱️ DURUŞLAR</button>`;
+      <button class="nav-tab" onclick="goTab('takim',this)">👥 TAKIM YÖNETİMİ</button>
+      <button class="nav-tab" onclick="goTab('talep',this)" style="color:#f5c400;font-weight:700">🛠️ BAKIM & DURUŞ</button>`;
     document.getElementById('tab-giris').style.display='none';
     document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
     document.getElementById('tab-atama').classList.add('active');
     renderBugunAtamalar();
   } else if (role==='uretim') {
     nav.innerHTML = `
-      <button class="nav-tab active" onclick="('giris',this)">📝 ÜRETİM GİRİŞİ</button>
+      <button class="nav-tab active" onclick="goTab('giris',this)">📝 ÜRETİM GİRİŞİ</button>
       <button class="nav-tab" onclick="goTab('proses',this)">🛠️ PROSES</button>
-      <button class="nav-tab" onclick="('talep',this)" style="color:#f5c400;font-weight:700">🔧 BAKIM TALEBİ</button>
-      <button class="nav-tab" onclick="goTab('rapor',this)">📊 RAPORLAR</button>
-      <button class="nav-tab" onclick="goTab('durus',this)" style="color:#ff7043;font-weight:700">⏱️ DURUŞLAR</button>`;
+      <button class="nav-tab" onclick="goTab('talep',this)" style="color:#f5c400;font-weight:700">🛠️ BAKIM & DURUŞ</button>
+      <button class="nav-tab" onclick="goTab('rapor',this)">📊 RAPORLAR</button>`;
     document.getElementById('tab-atama').style.display='none';
     document.getElementById('tab-takim').style.display='none';
     document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
@@ -1489,7 +1500,38 @@ function cikisYap() {
   if (adminBtn) adminBtn.style.display='none';
 }
 
+
+// ══════════════════════════════════════════════
+// BAKIM & DURUŞ — TEK FORM MOD SEÇİCİ
+// ══════════════════════════════════════════════
+function birlesikFormModuSec(mod) {
+  const durusModu = mod === 'durus';
+  const bakimPanel = document.getElementById('birlesikBakimPanel');
+  const durusPanel = document.getElementById('birlesikDurusPanel');
+  const bakimBtn = document.getElementById('birlesikModBakim');
+  const durusBtn = document.getElementById('birlesikModDurus');
+
+  if (bakimPanel) bakimPanel.classList.toggle('active', !durusModu);
+  if (durusPanel) durusPanel.classList.toggle('active', durusModu);
+  if (bakimBtn) bakimBtn.classList.toggle('active', !durusModu);
+  if (durusBtn) durusBtn.classList.toggle('active', durusModu);
+
+  try { localStorage.setItem('burkab_bildirim_modu', durusModu ? 'durus' : 'bakim'); } catch (e) {}
+
+  if (durusModu) {
+    if (typeof durusSaatGuncelle === 'function') durusSaatGuncelle();
+    if (typeof renderAktifDuruslar === 'function') renderAktifDuruslar();
+  }
+}
+
+function birlesikFormModuBaslat() {
+  let mod = 'bakim';
+  try { mod = localStorage.getItem('burkab_bildirim_modu') || 'bakim'; } catch (e) {}
+  birlesikFormModuSec(mod);
+}
+
 window.addEventListener('DOMContentLoaded', () => {
+  birlesikFormModuBaslat();
   kullanicilariBaslat(); // localStorage yoksa / bozuksa düzelt
   const saved = sessionStorage.getItem('burkab_uretim_user');
   if (saved) {
@@ -1526,6 +1568,8 @@ window.addEventListener('DOMContentLoaded', () => {
 // TAB NAVİGASYON
 // ══════════════════════════════════════════════
 function goTab(id, btn) {
+  const durusKisayolu = id === 'durus';
+  if (durusKisayolu) id = 'talep';
   document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
   const pane = document.getElementById('tab-'+id);
@@ -1547,13 +1591,17 @@ function goTab(id, btn) {
   }
   if (id==='talep')  {
     renderTalepGecmis();
-    if (currentUser) document.getElementById('talepBildiren').value = currentUser.name;
+    renderDurusGecmis();
+    durusKpiGuncelle();
+    renderAktifDuruslar();
+    if (currentUser) {
+      const talepBildiren = document.getElementById('talepBildiren');
+      const durusBildiren = document.getElementById('durusBildiren');
+      if (talepBildiren) talepBildiren.value = currentUser.name;
+      if (durusBildiren) durusBildiren.value = currentUser.name;
+    }
+    if (durusKisayolu) birlesikFormModuSec('durus');
   }
-  if (id==='durus')  { 
-  renderDurusGecmis(); 
-  durusKpiGuncelle(); 
-  renderAktifDuruslar(); 
-}
   if (id==='admin')  { renderAdminPanel(); }
   if (id==='giris')  { vardiyaSonuBannerKontrol(); }
 }
@@ -3517,7 +3565,7 @@ function arizaKapatOnayla(talepId) {
 
   // 4. Eğer checkbox işaretliyse → Duruşlar sekmesine geç + formu doldur
   if (durusOlustur) {
-    goTab('durus', null);
+    goTab('talep', null);
 
     setTimeout(() => {
       talepVerisindenDurusFormuDoldur(talep);
@@ -3718,7 +3766,7 @@ function renderDurusGecmis(){
   if(filtreBolum) kayitlar=kayitlar.filter(k=>k.bolum===filtreBolum);
   if(filtreNeden) kayitlar=kayitlar.filter(k=>k.neden===filtreNeden);
   if(!kayitlar.length){liste.innerHTML='<div class="empty">Kayıt bulunamadı.</div>';return;}
-  const nedenRenk={'MEKANİK ARIZA':'#d32f2f','ELEKTRİK ARIZA':'#e65100','ELEKTRONİK ARIZA':'#6a1b9a','MALZEME EKSİKLİĞİ':'#0277bd','KALIP DEĞİŞİMİ':'#00875a','PLANLI BAKIM':'#558b2f','KALİTE SORUNU':'#f57f17','PERSONEL EKSİKLİĞİ':'#4527a0','DİĞER':'#546e7a'};
+  const nedenRenk={'MONTAJ HATASI':'#d32f2f','TERMİNAL HATASI':'#e65100','KABLO HATASI':'#6a1b9a','MALZEME EKSİKLİĞİ':'#0277bd','KALIP DEĞİŞİMİ':'#00875a','PLANLI BAKIM':'#558b2f','KALİTE SORUNU':'#f57f17','PERSONEL EKSİKLİĞİ':'#4527a0','DİĞER':'#546e7a'};
   const etkiBadge={'TAM DURUŞ':'b-red','KISMİ DURUŞ':'b-orange','PLANLI DURUŞ':'b-blue','DURUŞ YOK':'b-gray'};
   liste.innerHTML=kayitlar.map(k=>{
     const renk=nedenRenk[k.neden]||'#e65100';
@@ -3804,7 +3852,7 @@ function renderDurusRapor(){
     kpiCard('📝',manuelK,'Manuel Girilen','#6a1b9a');
 
   const tb=document.getElementById('raporDurusBody');
-  const nedenBadgeRenk={'MEKANİK ARIZA':'b-red','ELEKTRİK ARIZA':'b-orange','ELEKTRONİK ARIZA':'b-purple','MALZEME EKSİKLİĞİ':'b-blue','KALIP DEĞİŞİMİ':'b-green','PLANLI BAKIM':'b-green','KALİTE SORUNU':'b-orange','DİĞER':'b-gray'};
+  const nedenBadgeRenk={'MONTAJ HATASI':'b-red','TERMİNAL HATASI':'b-orange','KABLO HATASI':'b-purple','MALZEME EKSİKLİĞİ':'b-blue','KALIP DEĞİŞİMİ':'b-green','PLANLI BAKIM':'b-green','KALİTE SORUNU':'b-orange','DİĞER':'b-gray'};
   if(tb) tb.innerHTML=liste.slice(0,50).map(k=>`<tr>
     <td style="font-family:'IBM Plex Mono',monospace;font-size:12px">${k.formNo}</td>
     <td style="font-family:'IBM Plex Mono',monospace;font-size:12px">${k.tarih}</td>
@@ -3957,7 +4005,7 @@ window.testSaveTanim = async function() {
 };
 
 // Periyodik yenileme
-setInterval(()=>{if(document.getElementById('tab-durus')?.classList.contains('active'))durusSaatGuncelle();},60*1000);
+setInterval(()=>{if(document.getElementById('tab-talep')?.classList.contains('active'))durusSaatGuncelle();},60*1000);
 setInterval(()=>{if(document.getElementById('tab-durum')?.classList.contains('active'))renderDurum();},5*60*1000);
 
 // ══════════════════════════════════════════════
