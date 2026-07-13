@@ -3656,7 +3656,7 @@ async function durusKaydet(){
   const formNo = durusFormNoUret();
   const baslangicZamani = simdi.toISOString();
 
-  cconst kayit = {
+  const kayit = {
     id: simdi.getTime(),
     formNo,
     tarih,
@@ -4456,7 +4456,7 @@ function saveDurusKayitGS(kayit) {
       yapilan:        String(kayit.yapilan || ''),
       kaynakFormNo:   String(kayit.kaynakFormNo || ''),
       kayitZamani:    String(kayit.kayitZamani || new Date().toLocaleString('tr-TR')),
-      kayitKaynagi:   'URETIM'   // ★ YENİ: bu kaydın üretim modülünden geldiğini işaretliyor
+      kayitKaynagi:   'URETIM',   // ★ YENİ: bu kaydın üretim modülünden geldiğini işaretliyor
       islemTuru:      String(kayit.islemTuru || ''),      // ★ YENİ
       arizaKodu:      String(kayit.arizaKodu || ''),      // ★ YENİ
       riskSeviye:     String(kayit.riskSeviye || 'ORTA')  // ★ YENİ
