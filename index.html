@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>BURKAB — Takım Kaptanı Proses Merkezi v2.2.1</title>
+<title>BURKAB — Takım Kaptanı Proses Merkezi v2.2.3</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -327,7 +327,7 @@ tr:last-child td{border-bottom:none}
     <div class="brand">
       <div>
         <p class="brand-title">BURKAB A.Ş</p>
-        <p class="brand-slogan">Üretim Yönetim Modülü v2.2.1 · Takım Kaptanı</p>
+        <p class="brand-slogan">Üretim Yönetim Modülü v2.2.3 · Takım Kaptanı</p>
       </div>
     </div>
     <div class="header-team-badge" id="headerTakimKimligi">—<small>TAKIM KAPTANI PANELİ</small></div>
@@ -2539,64 +2539,134 @@ function isEmriNoUret(projeKodu, tarih) {
   return ilk3 + tarihKodu + '-' + yeniSira;
 }
 
-function atamaKaydet() {
+async function atamaKaydet() {
   const takim   = document.getElementById('aTakimNo').value;
   const tarih   = document.getElementById('aTarih').value;
   const vardiya = document.getElementById('aVardiya').value;
   const musteri = document.getElementById('aMusteri').value;
   const proje   = document.getElementById('aProjeKodu').value;
   const tanim   = document.getElementById('aProjeTanim').value;
-  const hedef   = parseInt(document.getElementById('aHedef').value) || 0;
+  const hedef   = parseInt(document.getElementById('aHedef').value, 10) || 0;
   const atayan  = document.getElementById('aAtayan').value.trim();
   const not     = document.getElementById('aNot').value.trim();
 
-  if (!takim)   { showToast('❗ Takım seçiniz!','err'); return; }
-  if (!tarih)   { showToast('❗ Tarih seçiniz!','err'); return; }
-  if (!vardiya) { showToast('❗ Vardiya seçiniz!','err'); return; }
-  if (!musteri) { showToast('❗ Müşteri seçiniz!','err'); return; }
-  if (!proje)   { showToast('❗ Proje kodu seçiniz!','err'); return; }
-  if (!hedef)   { showToast('❗ Hedef adet giriniz!','err'); return; }
-  if (!atayan)  { showToast('❗ Atayan kişi giriniz!','err'); return; }
+  if (!takim)   { showToast('❗ Takım seçiniz!', 'err'); return; }
+  if (!tarih)   { showToast('❗ Tarih seçiniz!', 'err'); return; }
+  if (!vardiya) { showToast('❗ Vardiya seçiniz!', 'err'); return; }
+  if (!musteri) { showToast('❗ Müşteri seçiniz!', 'err'); return; }
+  if (!proje)   { showToast('❗ Proje kodu seçiniz!', 'err'); return; }
+  if (!hedef)   { showToast('❗ Hedef adet giriniz!', 'err'); return; }
+  if (!atayan)  { showToast('❗ Atayan kişi giriniz!', 'err'); return; }
 
-  // YENİ: Proje kodunun ilk 3 karakteri harf olmalı — değilse İş Emri No üretilemez, kayıt durur
   const ilk3Harf = projeKoduIlk3HarfGecerliMi(proje);
   if (!ilk3Harf) {
-    showToast('❗ Proje kodunun ilk 3 karakteri harf olmalı! (örn: BSK, HSR, ATL) — İş Emri No üretilemiyor', 'err');
+    showToast('❗ Proje kodunun ilk 3 karakteri harf olmalı! (örn: BSK, HSR, ATL)', 'err');
     return;
   }
 
   loadAtamalar();
   loadTakimPersoneller();
 
-  const dupIdx = atamalar.findIndex(a => a.takim===takim && a.tarih===tarih && a.projeKodu===proje);
+  const dupIdx = atamalar.findIndex(function(a) {
+    return String(a.takim) === String(takim) &&
+           String(a.tarih) === String(tarih) &&
+           String(a.projeKodu) === String(proje);
+  });
 
-  // YENİ: Güncelleme ise mevcut İş Emri No korunur, yeni kayıtsa üretilir
-  const isEmriNo = (dupIdx>=0 && atamalar[dupIdx].isEmriNo)
-    ? atamalar[dupIdx].isEmriNo
-    : isEmriNoUret(proje, tarih);
+  if (dupIdx >= 0) {
+    const devam = confirm(takim + ' için "' + proje + '" projesi zaten atanmış. Yeni kayıt olarak tekrar gönderilsin mi?');
+    if (!devam) return;
+  }
+
+  const simdi = new Date();
+  const yeniId = Date.now();
+  const isEmriNo = isEmriNoUret(proje, tarih);
+  const saat = simdi.toLocaleTimeString('tr-TR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  });
 
   const yeni = {
-    id: Date.now(), takim, tarih, vardiya, musteri,
-    projeKodu: proje, projeTanim: tanim, hedef, atayan, not,
+    id: yeniId,
+    takim: takim,
+    tarih: tarih,
+    saat: saat,
+    vardiya: vardiya,
+    musteri: musteri,
+    projeKodu: proje,
+    projeTanim: tanim,
+    hedef: hedef,
+    atayan: atayan,
+    not: not,
     durum: 'bekliyor',
     isEmriNo: isEmriNo,
-    zaman: new Date().toLocaleString('tr-TR')
+    zaman: simdi.toLocaleString('tr-TR')
   };
 
-  if (dupIdx>=0) {
-    if (!confirm(`${takim} için "${proje}" projesi zaten atanmış. Güncelle?`)) return;
-    atamalar[dupIdx] = yeni;
-  } else {
+  const gsKayit = {
+    id: String(yeni.id),
+    musteri: yeni.musteri,
+    projeKodu: yeni.projeKodu,
+    projeTanimi: yeni.projeTanim,
+    atananTakim: yeni.takim,
+    vardiya: yeni.vardiya,
+    tarih: yeni.tarih,
+    saat: yeni.saat,
+    hedef: Number(yeni.hedef) || 0,
+    atayanKisi: yeni.atayan,
+    not: yeni.not,
+    kayitZamani: simdi.toISOString()
+  };
+
+  const buton = document.querySelector('#tab-atama .btn-primary');
+  const eskiYazi = buton ? buton.textContent : '';
+
+  try {
+    if (buton) {
+      buton.disabled = true;
+      buton.textContent = '⏳ GOOGLE SHEETS\'E KAYDEDİLİYOR...';
+    }
+
+    const gsYanit = await jsonpGonderGS(GS_URL, {
+      action: 'saveTakimIsAtama',
+      kayit: gsKayit
+    });
+
+    if (!gsYanit || !gsYanit.ok) {
+      throw new Error((gsYanit && gsYanit.error) || 'Google Sheets kaydı reddetti');
+    }
+
+    // Sheets başarılı olduktan sonra cihaz önbelleğini ve ekranı güncelle.
     atamalar.unshift(yeni);
+    saveAtamalar();
+
+    logEkle(
+      'ATAMA',
+      '📋 İş atandı: ' + takim + ' → ' + proje + ' (' + musteri + ') Hedef: ' + hedef,
+      currentUser
+    );
+
+    ['aTakimNo','aTarih','aVardiya','aMusteri','aProjeKodu','aProjeTanim','aHedef','aNot'].forEach(function(id) {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+
+    const personelBlok = document.getElementById('takimPersonelBlok');
+    if (personelBlok) personelBlok.style.display = 'none';
+
+    renderBugunAtamalar();
+    showToast('✅ İş ataması Google Sheets\'e kaydedildi!', 'ok');
+
+  } catch (err) {
+    console.error('saveTakimIsAtama hatası:', err);
+    showToast('❌ İş ataması Sheets\'e kaydedilemedi: ' + err.message, 'err');
+  } finally {
+    if (buton) {
+      buton.disabled = false;
+      buton.textContent = eskiYazi || '💾 İŞ ATAMASINI KAYDET';
+    }
   }
-  saveAtamalar();
-  logEkle('ATAMA', `📋 İş atandı: ${takim} → ${proje} (${musteri}) Hedef: ${hedef}`, currentUser);
-  ['aTakimNo','aTarih','aVardiya','aMusteri','aProjeKodu','aProjeTanim','aHedef','aNot'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.value='';
-  });
-  document.getElementById('takimPersonelBlok').style.display='none';
-  renderBugunAtamalar();
-  showToast('✅ İş ataması kaydedildi!','ok');
 }
 
 function renderBugunAtamalar() {
