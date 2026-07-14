@@ -1506,6 +1506,7 @@ function doLogin() {
   applyRoleUI(found.role);
   initPage();
   takimKilitleriniUygula();
+  takimIsleriGSYukle();
 }
 
 function applyRoleUI(role) {
@@ -1604,6 +1605,7 @@ window.addEventListener('DOMContentLoaded', () => {
       applyRoleUI(currentUser.role);
       initPage();
       takimKilitleriniUygula();
+      takimIsleriGSYukle();
     } catch(e) { sessionStorage.removeItem('burkab_uretim_user'); }
   }
 });
