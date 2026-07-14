@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>BURKAB — Takım Kaptanı Proses Merkezi v2.2</title>
+<title>BURKAB — Takım Kaptanı Proses Merkezi v2.2.1</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -327,7 +327,7 @@ tr:last-child td{border-bottom:none}
     <div class="brand">
       <div>
         <p class="brand-title">BURKAB A.Ş</p>
-        <p class="brand-slogan">Üretim Yönetim Modülü v2.2 · Takım Kaptanı</p>
+        <p class="brand-slogan">Üretim Yönetim Modülü v2.2.1 · Takım Kaptanı</p>
       </div>
     </div>
     <div class="header-team-badge" id="headerTakimKimligi">—<small>TAKIM KAPTANI PANELİ</small></div>
@@ -1419,7 +1419,8 @@ let currentUser = null;
 let kayitlar = [], atamalar = [], tanimlar = [], takimPersoneller = {};
 let seciliAtamaId = null; // Üretim girişi için seçili iş
 let aktifProsesDurusBaglami = null;
-let takimIsleri = [];
+let takimIsleriGS = [];
+let takimIsleriGSHazir = false;
   
 function kullaniciTakimi() {
   return String(currentUser?.takim || '').trim().toUpperCase();
@@ -1683,47 +1684,79 @@ function saveKayitlar() {
   try { localStorage.setItem('burkab_uretim_v1', JSON.stringify(kayitlar)); } catch {}
 }
 function loadAtamalar() {
-  if (currentUser && takimIsleri.length) {
-  atamalar = takimIsleri.slice();
-  return;
+  // Google Sheets cevabı geldiyse, liste boş olsa bile ana kaynak GS'tir.
+  if (currentUser && takimIsleriGSHazir) {
+    atamalar = takimIsleriGS.slice();
+    return;
+  }
+
+  // GS henüz yüklenmediyse yalnızca geçici yerel önbelleği kullan.
+  try {
+    atamalar = JSON.parse(localStorage.getItem(ATAMA_KEY) || '[]');
+  } catch (e) {
+    atamalar = [];
+  }
 }
-  try { atamalar = JSON.parse(localStorage.getItem(ATAMA_KEY)||'[]'); } catch { atamalar=[]; }
-}
+
 function saveAtamalar() {
-   try { localStorage.setItem(ATAMA_KEY, JSON.stringify(atamalar)); } catch {}
+  try {
+    localStorage.setItem(ATAMA_KEY, JSON.stringify(atamalar));
+  } catch (e) {}
 }
-  function takimIsleriGSYukle() {
+
+function takimIsleriGSYukle() {
   const takim = kullaniciTakimi();
-  if (!takim) return Promise.resolve([]);
+
+  if (!takim) {
+    takimIsleriGS = [];
+    takimIsleriGSHazir = true;
+    atamalar = [];
+    return Promise.resolve([]);
+  }
 
   return jsonpGonderGS(GS_URL, {
     action: 'getTakimIsleri',
     takim: takim
   }).then(function(res) {
-    const gelen = res?.ok && Array.isArray(res.data) ? res.data : [];
+    const gelen = res && res.ok && Array.isArray(res.data)
+      ? res.data
+      : [];
 
-    takimIsleri = gelen.map(function(k) {
+    takimIsleriGS = gelen.map(function(k) {
       return {
-        id: k.id,
-        takim: k.atananTakim,
-        musteri: k.musteri,
-        projeKodu: k.projeKodu,
-        projeTanim: k.projeTanimi,
-        vardiya: k.vardiya,
-        tarih: k.tarih,
-        saat: k.saat,
+        id: String(k.id || ''),
+        takim: String(k.atananTakim || '').trim().toUpperCase(),
+        musteri: String(k.musteri || ''),
+        projeKodu: String(k.projeKodu || ''),
+        projeTanim: String(k.projeTanimi || ''),
+        vardiya: String(k.vardiya || ''),
+        tarih: String(k.tarih || ''),
+        saat: String(k.saat || ''),
         hedef: Number(k.hedef) || 0,
-        atayan: k.atayanKisi,
-        not: k.not,
-        zaman: k.kayitZamani,
-        durum: 'bekliyor'
+        atayan: String(k.atayanKisi || ''),
+        not: String(k.not || ''),
+        zaman: String(k.kayitZamani || ''),
+        durum: String(k.durum || 'bekliyor').toLowerCase()
       };
     });
 
-    atamalar = takimIsleri.slice();
-    prAtananIslerYukle();
-    girisAtamaYukle();
-    return takimIsleri;
+    takimIsleriGSHazir = true;
+    atamalar = takimIsleriGS.slice();
+
+    // Yerel depolama yalnızca geçici önbellek olarak güncellenir.
+    saveAtamalar();
+
+    if (typeof prAtananIslerYukle === 'function') prAtananIslerYukle();
+    if (typeof girisAtamaYukle === 'function') girisAtamaYukle();
+    if (typeof renderBugunAtamalar === 'function') renderBugunAtamalar();
+
+    return takimIsleriGS;
+  }).catch(function(err) {
+    takimIsleriGSHazir = false;
+    console.error('Takım işleri GS yükleme hatası:', err);
+    showToast('Takıma atanmış işler alınamadı; geçici yerel kayıtlar gösteriliyor.', 'err');
+    loadAtamalar();
+    return atamalar;
   });
 }
 function loadTakimPersoneller() {
@@ -4908,45 +4941,7 @@ async function durusBitirOnayla() {
 }
 
 
-function takimIsleriGSYukle() {
-  const takim = String(currentUser?.takim || '').trim();
 
-  if (!takim) {
-    takimIsleri = [];
-    renderTakimProjeleri();
-    return;
-  }
-
-  const cb = 'takim_isleri_' + Date.now();
-  const script = document.createElement('script');
-
-  window[cb] = function(res) {
-    try {
-      takimIsleri = res?.ok && Array.isArray(res.data)
-        ? res.data
-        : [];
-
-      renderTakimProjeleri();
-    } finally {
-      delete window[cb];
-      script.remove();
-    }
-  };
-
-  script.src =
-    GS_URL +
-    '?action=getTakimIsleri' +
-    '&takim=' + encodeURIComponent(takim) +
-    '&callback=' + cb;
-
-  script.onerror = function() {
-    delete window[cb];
-    script.remove();
-    showToast('Takıma atanmış işler alınamadı', 'err');
-  };
-
-  document.body.appendChild(script);
-}
 </script>
 </body>
 </html>
