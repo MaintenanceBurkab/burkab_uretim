@@ -4864,6 +4864,48 @@ async function durusBitirOnayla() {
   });
   document.getElementById('durusSorumluKisi').innerHTML = '<option value="">— Önce bölüm seçiniz —</option>';
   document.getElementById('durusMakineWrapper').innerHTML = `<input type="text" id="durusMakine" placeholder="Önce bölüm seçiniz" readonly style="background:#f0f0ec;cursor:not-allowed;color:#aaa">`;
-}</script>
+}
+let takimIsleri = [];
+
+function takimIsleriGSYukle() {
+  const takim = String(currentUser?.takim || '').trim();
+
+  if (!takim) {
+    takimIsleri = [];
+    renderTakimProjeleri();
+    return;
+  }
+
+  const cb = 'takim_isleri_' + Date.now();
+  const script = document.createElement('script');
+
+  window[cb] = function(res) {
+    try {
+      takimIsleri = res?.ok && Array.isArray(res.data)
+        ? res.data
+        : [];
+
+      renderTakimProjeleri();
+    } finally {
+      delete window[cb];
+      script.remove();
+    }
+  };
+
+  script.src =
+    GS_URL +
+    '?action=getTakimIsleri' +
+    '&takim=' + encodeURIComponent(takim) +
+    '&callback=' + cb;
+
+  script.onerror = function() {
+    delete window[cb];
+    script.remove();
+    showToast('Takıma atanmış işler alınamadı', 'err');
+  };
+
+  document.body.appendChild(script);
+}
+</script>
 </body>
 </html>
