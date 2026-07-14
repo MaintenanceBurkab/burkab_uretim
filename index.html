@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>BURKAB — Takım Kaptanı Proses Merkezi v2.2.3</title>
+<title>BURKAB — Takım Kaptanı Proses Merkezi v2.2.4</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -327,7 +327,7 @@ tr:last-child td{border-bottom:none}
     <div class="brand">
       <div>
         <p class="brand-title">BURKAB A.Ş</p>
-        <p class="brand-slogan">Üretim Yönetim Modülü v2.2.3 · Takım Kaptanı</p>
+        <p class="brand-slogan">Üretim Yönetim Modülü v2.2.4 · Takım Kaptanı</p>
       </div>
     </div>
     <div class="header-team-badge" id="headerTakimKimligi">—<small>TAKIM KAPTANI PANELİ</small></div>
@@ -1507,41 +1507,98 @@ function doLogin() {
   applyRoleUI(found.role);
   initPage();
   takimKilitleriniUygula();
-  takimIsleriGSYukle();
+
+  if (kullaniciTakimi()) {
+    takimIsleriGSYukle().then(function() {
+      if (found.role === 'uretim') girisAtamaYukle();
+    });
+  } else {
+    loadAtamalar();
+  }
 }
 
 function applyRoleUI(role) {
   const nav = document.getElementById('navTabs');
+
+  // ÖNEMLİ: Önce önceki kullanıcının bıraktığı gizli sekmeleri sıfırla.
+  // Yönetici oturumunda tab-giris display:none oluyordu; üretim hesabına
+  // geçildiğinde geri açılmadığı için Üretim Girişi sekmesi boş görünüyordu.
+  const tumSekmeler = [
+    'tab-atama', 'tab-giris', 'tab-durum', 'tab-rapor',
+    'tab-gecmis', 'tab-takim', 'tab-proses', 'tab-talep', 'tab-admin'
+  ];
+
+  tumSekmeler.forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.style.display = '';
+      el.classList.remove('active');
+    }
+  });
+
   if (role === 'yonetici') {
     nav.innerHTML = `
       <button class="nav-tab active" onclick="goTab('atama',this)">📋 İŞ ATAMA</button>
       <button class="nav-tab" onclick="goTab('durum',this)">🏭 TAKIM DURUMU</button>
       <button class="nav-tab" onclick="goTab('rapor',this)">📊 RAPORLAR</button>
       <button class="nav-tab" onclick="goTab('gecmis',this)">📋 GEÇMİŞ</button>
-      
       <button class="nav-tab" onclick="goTab('takim',this)">👥 TAKIM YÖNETİMİ</button>
       <button class="nav-tab" onclick="goTab('talep',this)" style="color:#f5c400;font-weight:700">🛠️ BAKIM & DURUŞ</button>`;
-    document.getElementById('tab-giris').style.display='none';
-    document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
-    document.getElementById('tab-atama').classList.add('active');
+
+    const girisTab = document.getElementById('tab-giris');
+    const prosesTab = document.getElementById('tab-proses');
+    if (girisTab) girisTab.style.display = 'none';
+    if (prosesTab) prosesTab.style.display = 'none';
+
+    const atamaTab = document.getElementById('tab-atama');
+    if (atamaTab) atamaTab.classList.add('active');
     renderBugunAtamalar();
-  } else if (role==='uretim') {
+
+  } else if (role === 'uretim') {
     nav.innerHTML = `
       <button class="nav-tab active" onclick="goTab('giris',this)">📝 ÜRETİM GİRİŞİ</button>
       <button class="nav-tab" onclick="goTab('proses',this)">🛠️ PROSES</button>
       <button class="nav-tab" onclick="goTab('talep',this)" style="color:#f5c400;font-weight:700">🛠️ BAKIM & DURUŞ</button>
       <button class="nav-tab" onclick="goTab('rapor',this)">📊 RAPORLAR</button>`;
-    document.getElementById('tab-atama').style.display='none';
-    document.getElementById('tab-takim').style.display='none';
-    document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
-    document.getElementById('tab-giris').classList.add('active');
-    if (currentUser) document.getElementById('giKisi').value = currentUser.name;
+
+    const atamaTab = document.getElementById('tab-atama');
+    const takimTab = document.getElementById('tab-takim');
+    const durumTab = document.getElementById('tab-durum');
+    const gecmisTab = document.getElementById('tab-gecmis');
+    if (atamaTab) atamaTab.style.display = 'none';
+    if (takimTab) takimTab.style.display = 'none';
+    if (durumTab) durumTab.style.display = 'none';
+    if (gecmisTab) gecmisTab.style.display = 'none';
+
+    const girisTab = document.getElementById('tab-giris');
+    if (girisTab) {
+      girisTab.style.display = '';
+      girisTab.classList.add('active');
+    }
+
+    if (currentUser) {
+      const giKisi = document.getElementById('giKisi');
+      if (giKisi) giKisi.value = currentUser.name || '';
+    }
+
     takimKilitleriniUygula();
     vardiyaSonuBannerKontrol();
+
   } else {
-    // admin — tüm sekmeler + admin paneli görünür
-    const adminBtn = document.getElementById('adminNavBtn');
-    if (adminBtn) adminBtn.style.display = '';
+    // Admin — tüm sekmeler görünür.
+    nav.innerHTML = `
+      <button class="nav-tab active" onclick="goTab('atama',this)">📋 İŞ ATAMA</button>
+      <button class="nav-tab" onclick="goTab('giris',this)">📝 ÜRETİM GİRİŞİ</button>
+      <button class="nav-tab" onclick="goTab('durum',this)">🏭 TAKIM DURUMU</button>
+      <button class="nav-tab" onclick="goTab('rapor',this)">📊 RAPORLAR</button>
+      <button class="nav-tab" onclick="goTab('gecmis',this)">📋 GEÇMİŞ</button>
+      <button class="nav-tab" onclick="goTab('takim',this)">👥 TAKIM YÖNETİMİ</button>
+      <button class="nav-tab" onclick="goTab('proses',this)">🛠️ PROSES</button>
+      <button class="nav-tab" onclick="goTab('talep',this)" style="color:#f5c400;font-weight:700">🛠️ BAKIM & DURUŞ</button>
+      <button class="nav-tab" onclick="goTab('admin',this)" style="color:#a78bfa;font-weight:700">🛡️ ADMİN</button>`;
+
+    const atamaTab = document.getElementById('tab-atama');
+    if (atamaTab) atamaTab.classList.add('active');
     renderBugunAtamalar();
   }
 }
@@ -1606,8 +1663,18 @@ window.addEventListener('DOMContentLoaded', () => {
       applyRoleUI(currentUser.role);
       initPage();
       takimKilitleriniUygula();
-      takimIsleriGSYukle();
-    } catch(e) { sessionStorage.removeItem('burkab_uretim_user'); }
+
+      if (kullaniciTakimi()) {
+        takimIsleriGSYukle().then(function() {
+          if (currentUser && currentUser.role === 'uretim') girisAtamaYukle();
+        });
+      } else {
+        loadAtamalar();
+      }
+    } catch(e) {
+      console.error('Otomatik oturum açma hatası:', e);
+      sessionStorage.removeItem('burkab_uretim_user');
+    }
   }
 });
 
@@ -1636,6 +1703,27 @@ function goTab(id, btn) {
   const pane = document.getElementById('tab-'+id);
   if (pane) pane.classList.add('active');
   if (btn) btn.classList.add('active');
+
+  // Üretim Girişi sekmesi her açıldığında tüm alanları ve takım işlerini hazırla.
+  if (id === 'giris') {
+    if (pane) pane.style.display = '';
+    takimKilitleriniUygula();
+
+    const giKisi = document.getElementById('giKisi');
+    if (giKisi && currentUser) giKisi.value = currentUser.name || '';
+
+    const giTarih = document.getElementById('giTarih');
+    if (giTarih && !giTarih.value) {
+      giTarih.value = new Date().toISOString().split('T')[0];
+    }
+
+    if (kullaniciTakimi() && !takimIsleriGSHazir) {
+      takimIsleriGSYukle();
+    } else {
+      girisAtamaYukle();
+    }
+  }
+
   if (id==='atama')  renderBugunAtamalar();
   if (id==='durum')  renderDurum();
   if (id==='rapor')  { ensureChartJs(()=>{ renderRapor(); renderDurusRapor(); renderFireSebebiRapor(); }); }
@@ -1708,10 +1796,12 @@ function takimIsleriGSYukle() {
   const takim = kullaniciTakimi();
 
   if (!takim) {
+    // Yönetici/admin hesabının bağlı takımı olmayabilir.
+    // Bu durumda takım filtresi çalıştırılmaz ve yönetici iş atamaları silinmez.
     takimIsleriGS = [];
-    takimIsleriGSHazir = true;
-    atamalar = [];
-    return Promise.resolve([]);
+    takimIsleriGSHazir = false;
+    loadAtamalar();
+    return Promise.resolve(atamalar);
   }
 
   return jsonpGonderGS(GS_URL, {
