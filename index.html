@@ -1402,10 +1402,10 @@ const BOLUM_MAKINELER = {
   'KALIPLAR': Array.from({length:120}, (_,i) => 'BK-' + String(i+1).padStart(2,'0')),
 };
   const BOLUM_SORUMLULAR = {
-  'BAKIM':    ['MEHMET ERTÜRK','FERHAT OKTAY','SUNAY AVCI','ENES BALKAN'],
-  'ÜRETİM':  ['TUGCE FIRAT','NEZAKET ERDAL','ZEYNEP ACAR','RECEP AKTAŞ'],
+  'BAKIM':    ['MEHMET ERTÜRK','SUNAY AVCI','ENES BALKAN'],
+  'ÜRETİM':  ['TUGCE FIRAT','NEZAKET ERDAL','ZEYNEP ACAR','RECEP AKTAŞ','HANİFE KIRAY','HİLAL KESKİNOĞLU','AYŞEGÜL KILIÇ'],
   'KALİTE':  ['ŞİRİN KUŞKU','NİLAY YILMAZ','AYŞENUR ULUÇAY','YUSUF KAŞ','AYNUR GÜLERDEM','NESLİHAN ŞAHİN'],
-  'PLANLAMA':['PLANLAMA'],
+  'PLANLAMA':['GİZEM ULUSOY'],
   'SATIN ALMA':['SATIN ALMA SORUMLUSU'],
   'LOJİSTİK':['LOJİSTİK SORUMLUSU'],
   'PROJE / MÜHENDİSLİK':['ECE ÇELİKTAŞ','ALPEREN DEMİRBAŞ','AHSEN DURGUT','NADİYE MUTLU','HASAN AYTEKİN','ELA NUR PALA'],
@@ -4033,14 +4033,17 @@ const KULLANICI_KEY = 'burkab_kullanicilar_v1';
 const VARSAYILAN_KULLANICILAR = [
   { username:'admin',    password:'10061980', name:'MEHMET ERTÜRK',    role:'admin', aktif:true },
   { username:'TUGCE',    password:'1616',     name:'TUGCE FIRAT',      role:'yonetici', aktif:true },
-  { username:'NEZAKET',  password:'2222',     name:'NEZAKET ERDAL',    role:'uretim', takim:'TAKIM-3', aktif:true },
-  { username:'ZEYNEP',   password:'8888',     name:'ZEYNEP ACAR',     role:'uretim',  aktif:true },
-  { username:'RECEP',    password:'3333',     name:'RECEP AKTAŞ',      role:'uretim', aktif:true },
+  { username:'NEZAKET',  password:'3333',     name:'NEZAKET ERDAL',    role:'uretim', takim:'TAKIM-3', aktif:true },
+  { username:'AYSEGÜL',  password:'4444',     name:'AYŞEGÜL KILIÇ',    role:'uretim', takim:'TAKIM-4', aktif:true },
+  { username:'HİLAL',    password:'2222',     name:'HİLAL KESKİNOĞLU',    role:'uretim', takim:'TAKIM-2', aktif:true },
+  { username:'HANİFE',   password:'1111',     name:'HANİFE KIRAY',    role:'uretim', takim:'TAKIM-1', aktif:true },
+  { username:'ZEYNEP',   password:'5555',     name:'ZEYNEP ACAR',     role:'uretim', takim:'TESİSAT ÖNCESİ', aktif:true },
+  { username:'RECEP',    password:'6666',     name:'RECEP AKTAŞ',      role:'uretim', takim:'KESİM',aktif:true },
   { username:'PLANLAMA', password:'9999',     name:'PLANLAMA',         role:'yonetici', aktif:true },
-  { username:'CEMAL',    password:'4444',     name:'CEMAL ÖZMISIR',    role:'yonetici', aktif:true },
-  { username:'AHMET',    password:'5555',     name:'AHMET ALTIPARMAK', role:'yonetici', aktif:true },
-  { username:'VOLKAN',   password:'6666',     name:'VOLKAN AKAR',      role:'yonetici', aktif:true },
-  { username:'YUNUS',    password:'7777',     name:'YUNUS DİKGÖZ',     role:'yonetici', aktif:true },
+  { username:'CEMAL',    password:'9833',     name:'CEMAL ÖZMISIR',    role:'yonetici', aktif:true },
+  { username:'AHMET',    password:'4854',     name:'AHMET ALTIPARMAK', role:'yonetici', aktif:true },
+  { username:'VOLKAN',   password:'3174',     name:'VOLKAN AKAR',      role:'yonetici', aktif:true },
+  { username:'YUNUS',    password:'6850',     name:'YUNUS DİKGÖZ',     role:'yonetici', aktif:true },
 ];
 
 function kullanicilariBaslat() {
