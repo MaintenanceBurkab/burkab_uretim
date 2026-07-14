@@ -1419,7 +1419,8 @@ let currentUser = null;
 let kayitlar = [], atamalar = [], tanimlar = [], takimPersoneller = {};
 let seciliAtamaId = null; // Üretim girişi için seçili iş
 let aktifProsesDurusBaglami = null;
-
+let takimIsleri = [];
+  
 function kullaniciTakimi() {
   return String(currentUser?.takim || '').trim().toUpperCase();
 }
@@ -1683,7 +1684,41 @@ function loadAtamalar() {
   try { atamalar = JSON.parse(localStorage.getItem(ATAMA_KEY)||'[]'); } catch { atamalar=[]; }
 }
 function saveAtamalar() {
-  try { localStorage.setItem(ATAMA_KEY, JSON.stringify(atamalar)); } catch {}
+   try { localStorage.setItem(ATAMA_KEY, JSON.stringify(atamalar)); } catch {}
+}
+  function takimIsleriGSYukle() {
+  const takim = kullaniciTakimi();
+  if (!takim) return Promise.resolve([]);
+
+  return jsonpGonderGS(GS_URL, {
+    action: 'getTakimIsleri',
+    takim: takim
+  }).then(function(res) {
+    const gelen = res?.ok && Array.isArray(res.data) ? res.data : [];
+
+    takimIsleri = gelen.map(function(k) {
+      return {
+        id: k.id,
+        takim: k.atananTakim,
+        musteri: k.musteri,
+        projeKodu: k.projeKodu,
+        projeTanim: k.projeTanimi,
+        vardiya: k.vardiya,
+        tarih: k.tarih,
+        saat: k.saat,
+        hedef: Number(k.hedef) || 0,
+        atayan: k.atayanKisi,
+        not: k.not,
+        zaman: k.kayitZamani,
+        durum: 'bekliyor'
+      };
+    });
+
+    atamalar = takimIsleri.slice();
+    prAtananIslerYukle();
+    girisAtamaYukle();
+    return takimIsleri;
+  });
 }
 function loadTakimPersoneller() {
   try { takimPersoneller = JSON.parse(localStorage.getItem(TAKIM_PERSONEL_KEY)||'{}'); } catch { takimPersoneller={}; }
