@@ -1681,6 +1681,10 @@ function saveKayitlar() {
   try { localStorage.setItem('burkab_uretim_v1', JSON.stringify(kayitlar)); } catch {}
 }
 function loadAtamalar() {
+  if (currentUser && takimIsleri.length) {
+  atamalar = takimIsleri.slice();
+  return;
+}
   try { atamalar = JSON.parse(localStorage.getItem(ATAMA_KEY)||'[]'); } catch { atamalar=[]; }
 }
 function saveAtamalar() {
