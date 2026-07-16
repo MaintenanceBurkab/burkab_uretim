@@ -2933,8 +2933,19 @@ function prosesBakimBildir(grupId){
 }
 setInterval(function(){
   document.querySelectorAll('[data-pr-grup-timer]').forEach(el=>{
-    const g=prGruplariOlustur().find(x=>String(x.id)===String(el.getAttribute('data-pr-grup-timer'))); if(!g)return;
-    const ilk=g.kayitlar[0]; if(String(ilk.durum).toUpperCase()!=='TAMAMLANDI')el.textContent=prGecenSureHesapla(ilk.baslamaTarihi,ilk.baslamaSaati);
+    const g=prGruplariOlustur().find(x=>String(x.id)===String(el.getAttribute('data-pr-grup-timer')));
+    if(!g)return;
+    const ilk=g.kayitlar[0];
+    if(String(ilk.durum).toUpperCase()==='TAMAMLANDI') return;
+
+    const durus = prAktifDurusBul(g.id);
+    if (durus) {
+      el.textContent = '⏸ ' + prGecenSureHesapla(durus.tarih, durus.saat);
+      el.style.color = '#d32f2f';
+    } else {
+      el.textContent = prGecenSureHesapla(ilk.baslamaTarihi, ilk.baslamaSaati);
+      el.style.color = '#b8900a';
+    }
   });
 },1000);
 // İŞ ATAMA
