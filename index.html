@@ -370,10 +370,10 @@ tr:last-child td{border-bottom:none}
           <label>Takım No <span class="req">*</span></label>
           <select id="aTakimNo" onchange="takimSecildi()">
             <option value="">— Seçiniz —</option>
-            <option>KESİM</option><option>ALT MONTAJ</option><option>AKÜ KESİM</option>
-            <option>TEST</option><option>TAKIM-1</option><option>TAKIM-2</option>
-            <option>TAKIM-3</option><option>TAKIM-4</option>
-            <option>TESİSAT ÖNCESİ</option><option>TESİSAT SONRASI</option>
+            <option>TAKIM-1</option><option>TAKIM-2</option>
+            <option>TAKIM-3</option><option>TAKIM-4</option><option>TAKIM-5</option>
+            <option>TAKIM-6</option><option>TAKIM-7</option>
+            <option>TAKIM-8</option>
           </select>
         </div>
         <div class="field">
@@ -635,9 +635,8 @@ tr:last-child td{border-bottom:none}
     </select>
     <select id="raporTakim" onchange="renderRapor()" style="flex:1;min-width:140px;font-size:14px;padding:9px 12px">
       <option value="">Tüm Takımlar</option>
-      <option>KESİM</option><option>ALT MONTAJ</option><option>AKÜ KESİM</option>
-      <option>TEST</option><option>TAKIM-1</option><option>TAKIM-2</option>
-      <option>TAKIM-3</option><option>TAKIM-4</option><option>TESİSAT ÖNCESİ</option><option>TESİSAT SONRASI</option>
+      <option>TAKIM-1</option><option>TAKIM-2</option><option>TAKIM-3</option><option>TAKIM-4</option>
+      <option>TAKIM-5</option><option>TAKIM-6</option><option>TAKIM-7</option><option>TAKIM-8</option>
     </select>
     <select id="raporMusteri" onchange="raporMusteriFiltre()" style="flex:1;min-width:140px;font-size:14px;padding:9px 12px">
       <option value="">Tüm Müşteriler</option>
@@ -966,8 +965,8 @@ tr:last-child td{border-bottom:none}
 <label>Bölüm / Hat <span class="req">*</span></label>
 <select id="talepBolum" onchange="bolumDegisti()">
 <option value="">— Seçiniz —</option>
-<option>TEST</option><option>KESİM</option><option>ÜRETİM HATLARI</option>
-<option>TESİS</option><option>ALT MONTAJ</option><option>KALIPLAR</option>
+<option>TAKIM-6</option><option>TAKIM-7</option><option>ÜRETİM HATLARI</option>
+<option>TESİS</option><option>KALIPLAR</option>
 <option>T.S. PRES</option><option>T.Ö. PRES</option><option>DEPO &amp; SEVKİYAT</option><option>ÜRETİM BORDLARI</option>
 </select>
 </div>
@@ -1067,11 +1066,11 @@ tr:last-child td{border-bottom:none}
 <label>Bölüm / Hat <span class="req">*</span></label>
 <select id="durusBolum" onchange="durusBolumDegisti()">
 <option value="">— Seçiniz —</option>
-<option>TEST</option><option>KESİM</option><option>ÜRETİM HATLARI</option>
-<option>TESİS</option><option>TESİSAT SONRASI</option><option>KALIPLAR</option>
-<option>TESİSAT ÖNCESİ</option><option>DEPO &amp; SEVKİYAT</option>
-<option>ÜRETİM BORDLARI</option><option>TAKIM-1</option><option>TAKIM-2</option><option>TAKIM-3</option><option>TAKIM-4</option>
-<option>AKÜ KESİM</option>
+<option>TAKIM-1</option><option>TAKIM-2</option><option>TAKIM-3</option>
+<option>TAKIM-4</option><option>TAKIM-5</option>
+<option>TAKIM-6</option><option>TAKIM-7</option>
+<option>TAKIM-8</option><option>ÜRETİM BORDLARI</option><option>ÜRETİM HATLARI</option><option>DEPO &amp; SEVKİYAT</option>
+<option>TESİS</option>
 </select>
 </div>
 <div class="field">
@@ -1222,9 +1221,9 @@ tr:last-child td{border-bottom:none}
 <div style="display:flex;gap:8px;flex-wrap:wrap">
 <select id="durusFiltreBolum" onchange="renderDurusGecmis()" style="font-size:13px;padding:7px 10px;min-width:140px">
 <option value="">Tüm Bölümler</option>
-<option>TEST</option><option>KESİM</option>
+<option>TAKIM-6</option><option>TAKIM-7</option>
 <option>TESİS</option>
-<option>ALT MONTAJ</option><option>DEPO &amp; SEVKİYAT</option><option>TAKIM-1</option><option>TAKIM-2</option><option>TAKIM-3</option><option>TAKIM-4</option>
+<option>DEPO &amp; SEVKİYAT</option><option>TAKIM-1</option><option>TAKIM-2</option><option>TAKIM-3</option><option>TAKIM-4</option>
 <option>T.S. PRES</option><option>T.Ö. PRES</option>
 </select>
 <select id="durusFiltreNeden" onchange="renderDurusGecmis()" style="font-size:13px;padding:7px 10px;min-width:160px">
@@ -1393,8 +1392,8 @@ const FIRE_SEBEP_VARSAYILAN = [
 ];
 
 const BOLUM_MAKINELER = {
-  'TEST': ['TP-01','TP-02','TP-03','TP-04','TP-05','TP-06','TP-07','TP-08','TP-09','TP-10','TP-11','TP-12','TP-13'],
-  'KESİM': ['OKM-01','OKM-02','OKM-03','OKM-04','OKM-05','YA-01','YA-02','YA-03','YA-04','YA-05','YA-06','YA-07','HM-1','HM-2','KM-01','KM-02','CT-01','MP-13','HP-01','PKM-01','MKM-01'],
+  'TAKIM-6': ['TP-01','TP-02','TP-03','TP-04','TP-05','TP-06','TP-07','TP-08','TP-09','TP-10','TP-11','TP-12','TP-13'],
+  'TAKIM-7': ['OKM-01','OKM-02','OKM-03','OKM-04','OKM-05','YA-01','YA-02','YA-03','YA-04','YA-05','YA-06','YA-07','HM-1','HM-2','KM-01','KM-02','CT-01','MP-13','HP-01','PKM-01','MKM-01'],
   'ÜRETİM HATLARI': ['HAT 1/A','HAT 1/B','HAT 2/A','HAT 2/B','HAT 3/A','HAT 3/B','HAT 4/A','HAT 4/B','HAT 5/A','HAT 5/B','HAT 6/A','HAT 6/B','HAT 7/A','HAT 7/B','HAT 8/A','HAT 8/B','HAT 9/A','HAT 9/B','HAT 10/A','HAT 10/B','HAT 11/A','HAT 11/B','HAT 12/A','HAT 12/B','HAT 13/A','HAT 13/B','HAT 14/A','HAT 14/B','HAT 15/A','HAT 15/B'],
   'TESİS': ['JEN-01','UPS-01','UPS-02','KOM-01','AKM-01','FOLKLİFT','YÜK ASANSÖRÜ','PER.ASANSÖRÜ','ISITICILAR','KLİMALAR','AYDINLATMA','YEMEKHANE'],
   'T.Ö. PRES': ['MP-01','MP-02','MP-03','MP-04','MP-05','MP-06','MP-07','MP-08','MP-09','MP-10','MP-11','MP-12','MP-14','MP-15','MP-16','CT-02','HP-02','US-01','US-02','US-03','KS-01','TWS-01','PV-01'],
@@ -4271,8 +4270,8 @@ const VARSAYILAN_KULLANICILAR = [
   { username:'AYSEGÜL',  password:'4444',     name:'AYŞEGÜL KILIÇ',    role:'uretim', takim:'TAKIM-4', aktif:true },
   { username:'HİLAL',    password:'2222',     name:'HİLAL KESKİNOĞLU',    role:'uretim', takim:'TAKIM-2', aktif:true },
   { username:'HANİFE',   password:'1111',     name:'HANİFE KIRAY',    role:'uretim', takim:'TAKIM-1', aktif:true },
-  { username:'ZEYNEP',   password:'5555',     name:'ZEYNEP ACAR',     role:'uretim', takim:'TESİSAT ÖNCESİ', aktif:true },
-  { username:'RECEP',    password:'6666',     name:'RECEP AKTAŞ',      role:'uretim', takim:'KESİM',aktif:true },
+  { username:'ZEYNEP',   password:'5555',     name:'ZEYNEP ACAR',     role:'uretim', takim:'TAKIM-8', aktif:true },
+  { username:'RECEP',    password:'6666',     name:'RECEP AKTAŞ',      role:'uretim', takim:'TAKIM-7',aktif:true },
   { username:'PLANLAMA', password:'9999',     name:'PLANLAMA',         role:'yonetici', aktif:true },
   { username:'CEMAL',    password:'9833',     name:'CEMAL ÖZMISIR',    role:'yonetici', aktif:true },
   { username:'AHMET',    password:'4854',     name:'AHMET ALTIPARMAK', role:'yonetici', aktif:true },
@@ -4818,7 +4817,7 @@ window.gsUretimTest = function() {
   var testKayit = {
     id: 'TEST-' + Date.now(),
     tarih: new Date().toISOString().split('T')[0],
-    takim: 'TEST-TAKIM',
+    takim: 'TAKIM-6-TAKIM',
     vardiya: 'NORMAL',
     musteri: 'TEST MÜŞTERİ',
     projeKodu: 'TEST-001',
