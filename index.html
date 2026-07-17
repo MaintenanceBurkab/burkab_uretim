@@ -6124,27 +6124,6 @@ setInterval(function() {
 
 </script>
 
-<!-- MALZEME EKSİKLİĞİ MODALI -->
-<div id="malzemeEksikModal" class="modal-overlay" style="display:none;z-index:10050">
-  <div class="modal" style="max-width:720px">
-    <div class="modal-head"><b>🚨 Malzeme Eksikliği Bildir</b><button onclick="malzemeEksikModalKapat()">✕</button></div>
-    <div class="modal-body">
-      <input type="hidden" id="meAkisId"><input type="hidden" id="meAtamaId">
-      <div class="fg">
-        <div class="field"><label>Proje</label><input id="meProje" readonly></div>
-        <div class="field"><label>İş Emri</label><input id="meIsEmri" readonly></div>
-        <div class="field"><label>Stok Kodu *</label><input id="meStokKodu" oninput="this.value=this.value.toUpperCase()"></div>
-        <div class="field"><label>Malzeme Adı</label><input id="meMalzemeAdi"></div>
-        <div class="field"><label>Eksik Miktar *</label><input id="meMiktar" type="number" min="0.001" step="0.001"></div>
-        <div class="field"><label>Birim</label><select id="meBirim"><option>ADET</option><option>METRE</option><option>KG</option><option>PAKET</option><option>RULO</option></select></div>
-        <div class="field"><label>İstenen Tarih</label><input id="meIstenenTarih" type="date"></div>
-        <div class="field"><label>Aciliyet</label><select id="meAciliyet"><option>NORMAL</option><option>ACİL</option><option>KRİTİK</option></select></div>
-      </div>
-      <div class="field" style="margin-top:10px"><label>Açıklama</label><textarea id="meAciklama" rows="3"></textarea></div>
-    </div>
-    <div class="modal-foot"><button class="btn-sm" onclick="malzemeEksikModalKapat()">İptal</button><button class="btn-sm red" onclick="malzemeEksikGonder()">🚨 Bildirim Gönder</button></div>
-  </div>
-</div>
 <script>
 let malzemeEksiklikleri=[];
 let sonMalzemeAlarmAdedi=0;
@@ -6193,6 +6172,172 @@ async function malzemeDurumKaydet(id){
 const _opYukle=operasyonGorevleriYukle; operasyonGorevleriYukle=async function(){await _opYukle();await malzemeEksiklikleriYukle();};
 const _akisYukle=akisEkraniYukle; akisEkraniYukle=async function(){await _akisYukle();await malzemeEksiklikleriYukle();};
 setInterval(()=>{if(currentUser)malzemeEksiklikleriYukle()},60000);
+  /* =========================================================
+   MALZEME EKSİKLİĞİ MODALİ — OPak ve PROFESYONEL GÖRÜNÜM
+   ========================================================= */
+
+/* Ekranın arkasını karartır */
+#malzemeEksikligiModal,
+.malzeme-eksikligi-modal {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+
+  display: none;
+  align-items: center !important;
+  justify-content: center !important;
+
+  padding: 24px !important;
+  background: rgba(0, 0, 0, 0.65) !important;
+  backdrop-filter: blur(3px) !important;
+  -webkit-backdrop-filter: blur(3px) !important;
+
+  opacity: 1 !important;
+  z-index: 99999 !important;
+}
+
+/* Modal açıldığında */
+#malzemeEksikligiModal.active,
+#malzemeEksikligiModal.show,
+.malzeme-eksikligi-modal.active,
+.malzeme-eksikligi-modal.show {
+  display: flex !important;
+}
+
+/* Beyaz modal kutusu */
+#malzemeEksikligiModal .modal-content,
+#malzemeEksikligiModal .modal-box,
+#malzemeEksikligiModal .malzeme-modal-content,
+.malzeme-eksikligi-modal .modal-content {
+  position: relative !important;
+
+  width: min(720px, 96vw) !important;
+  max-height: 92vh !important;
+  overflow-y: auto !important;
+
+  padding: 0 !important;
+  margin: auto !important;
+
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  opacity: 1 !important;
+
+  border: 1px solid #d9dde3 !important;
+  border-radius: 14px !important;
+
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.35),
+    0 4px 15px rgba(0, 0, 0, 0.18) !important;
+
+  color: #1a1a1a !important;
+  transform: none !important;
+}
+
+/* Modalın içindeki tüm bölümler opak olsun */
+#malzemeEksikligiModal .modal-header,
+#malzemeEksikligiModal .modal-body,
+#malzemeEksikligiModal .modal-footer {
+  background: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* Başlık */
+#malzemeEksikligiModal .modal-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+
+  padding: 20px 24px !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  border-radius: 14px 14px 0 0 !important;
+}
+
+#malzemeEksikligiModal .modal-header h2,
+#malzemeEksikligiModal .modal-header h3 {
+  margin: 0 !important;
+  color: #171717 !important;
+  font-size: 21px !important;
+  font-weight: 800 !important;
+}
+
+/* Form alanı */
+#malzemeEksikligiModal .modal-body {
+  padding: 22px 24px !important;
+}
+
+/* Input, select ve textarea */
+#malzemeEksikligiModal input,
+#malzemeEksikligiModal select,
+#malzemeEksikligiModal textarea {
+  width: 100% !important;
+  min-height: 46px !important;
+
+  padding: 11px 13px !important;
+
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #202124 !important;
+  opacity: 1 !important;
+
+  border: 1px solid #cfd4dc !important;
+  border-radius: 8px !important;
+  outline: none !important;
+
+  box-shadow: none !important;
+}
+
+#malzemeEksikligiModal textarea {
+  min-height: 100px !important;
+  resize: vertical !important;
+}
+
+#malzemeEksikligiModal input:focus,
+#malzemeEksikligiModal select:focus,
+#malzemeEksikligiModal textarea:focus {
+  border-color: #f5c400 !important;
+  box-shadow: 0 0 0 3px rgba(245, 196, 0, 0.18) !important;
+}
+
+/* Etiketler */
+#malzemeEksikligiModal label {
+  display: block !important;
+  margin-bottom: 6px !important;
+  color: #4b5563 !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px !important;
+  text-transform: uppercase !important;
+}
+
+/* Alt buton bölümü */
+#malzemeEksikligiModal .modal-footer {
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+
+  padding: 17px 24px !important;
+  border-top: 1px solid #e5e7eb !important;
+  border-radius: 0 0 14px 14px !important;
+}
+
+/* Mobil görünüm */
+@media (max-width: 650px) {
+  #malzemeEksikligiModal {
+    padding: 10px !important;
+  }
+
+  #malzemeEksikligiModal .modal-content,
+  #malzemeEksikligiModal .modal-box,
+  #malzemeEksikligiModal .malzeme-modal-content {
+    width: 100% !important;
+    max-height: 96vh !important;
+  }
+
+  #malzemeEksikligiModal .form-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
 </script>
 
 </body>
