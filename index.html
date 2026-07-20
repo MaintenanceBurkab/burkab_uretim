@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>BURKAB — Takım Kaptanı Proses Merkezi v2.2.5 — Kalite Entegre</title>
+<title>BURKAB — Takım Kaptanı Proses Merkezi v2.2.6 — Kalite Çağrı + Yeni İş Emri</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -563,7 +563,7 @@ tr:last-child td{border-bottom:none}
     <div class="brand">
       <div>
         <p class="brand-title">BURKAB A.Ş</p>
-        <p class="brand-slogan">Üretim Yönetim Modülü v2.2.5 · Kalite Entegre</p>
+        <p class="brand-slogan">Üretim Yönetim Modülü v2.2.6 · Kalite Çağrı + YY-MMSSS</p>
       </div>
     </div>
     <div class="header-team-badge" id="headerTakimKimligi">—<small>TAKIM KAPTANI PANELİ</small></div>
@@ -3185,7 +3185,7 @@ function prListeGoster() {
       <div class="proses-card-actions">
         ${!tamamlandi && !durus ? `<button class="proses-action-btn proses-action-stop" onclick='prosesDurusBaslat(${JSON.stringify(g.id)})'>⏱️ Duruş Başlat</button>` : ''}
         ${!tamamlandi && durus ? `<button class="proses-action-btn proses-action-resume" onclick='durusBitir(${JSON.stringify(String(durus.id))})'>▶️ Duruşu Bitir / İşe Devam</button>` : ''}
-        ${!tamamlandi ? `<button class="proses-action-btn proses-action-maint" onclick='prosesBakimBildir(${JSON.stringify(g.id)})'>🛠️ Bakım Bildir</button><button class="proses-action-btn proses-action-finish" onclick='prBitir(${JSON.stringify(g.id)})'>✅ Prosesi Bitir</button>` : ''}
+        ${!tamamlandi ? `<button class="proses-action-btn proses-action-maint" onclick='prosesBakimBildir(${JSON.stringify(g.id)})'>🛠️ Bakım Bildir</button><button class="proses-action-btn kalite-cagri-btn" onclick='kaliteCagriModalAcProses(${JSON.stringify(g.id)})'>🔔 Kaliteyi Çağır</button><button class="proses-action-btn proses-action-finish" onclick='prBitir(${JSON.stringify(g.id)})'>✅ Prosesi Bitir</button>` : ''}
         <button class="proses-action-btn proses-action-delete" onclick='prGrupSil(${JSON.stringify(g.id)})'>🗑️</button>
       </div>
     </div>`;
@@ -3379,7 +3379,8 @@ async function atamaKaydet() {
 
   const simdi = new Date();
   const yeniId = Date.now();
-  const isEmriNo = isEmriNoUret(proje, tarih);
+  // İş emri numarası istemcide üretilmez. Aynı anda yapılan atamalarda
+  // çakışmayı önlemek için Apps Script sunucusu kilit altında üretir.
   const saat = simdi.toLocaleTimeString('tr-TR', {
     hour: '2-digit',
     minute: '2-digit',
@@ -3399,7 +3400,7 @@ async function atamaKaydet() {
     atayan: atayan,
     not: not,
     durum: 'bekliyor',
-    isEmriNo: isEmriNo,
+    isEmriNo: '',
     zaman: simdi.toLocaleString('tr-TR')
   };
 
@@ -3434,6 +3435,12 @@ async function atamaKaydet() {
 
     if (!gsYanit || !gsYanit.ok) {
       throw new Error((gsYanit && gsYanit.error) || 'Google Sheets kaydı reddetti');
+    }
+
+    // Sunucunun oluşturduğu YY-MMSSS formatındaki numara tek doğru kaynaktır.
+    yeni.isEmriNo = String(gsYanit.isEmriNo || '').trim();
+    if (!yeni.isEmriNo) {
+      throw new Error('Sunucu iş emri numarası üretmedi. Apps Script sürümünü kontrol edin.');
     }
 
     const akisYanit = await jsonpGonderGS(GS_URL, {
@@ -3471,7 +3478,7 @@ async function atamaKaydet() {
     if (personelBlok) personelBlok.style.display = 'none';
 
     renderBugunAtamalar();
-    showToast('✅ İş ataması Google Sheets\'e kaydedildi!', 'ok');
+    showToast('✅ İş ataması kaydedildi · İş Emri: ' + yeni.isEmriNo, 'ok');
 
   } catch (err) {
     console.error('saveTakimIsAtama hatası:', err);
@@ -6868,6 +6875,35 @@ function kaliteCagriModalAc(kayit){
   const tur=document.getElementById('kltKontrolTuru'); if(tur)tur.value=String(k.gorevKodu||'')==='A6-ANA-FINAL'?'FİNAL KONTROL':'PROSES KONTROLÜ';
   const onc=document.getElementById('kltOncelik'); if(onc)onc.value=String(k.gorevKodu||'')==='A6-ANA-FINAL'?'YÜKSEK':'NORMAL';
   if(modal){modal.classList.add('open');modal.setAttribute('aria-hidden','false');}
+}
+
+function kaliteCagriModalAcProses(grupId){
+  const kayitlar = prGrupKayitlari(grupId);
+  if (!kayitlar.length) {
+    showToast('❌ Proses kaydı bulunamadı', 'err');
+    return;
+  }
+
+  const ilk = kayitlar[0] || {};
+  const akisId = String(ilk.akisId || ilk.AkisId || '').trim();
+  if (!akisId) {
+    showToast('❌ Bu proses eski atama kaydıdır; proje akış kimliği bulunamadı', 'err');
+    return;
+  }
+
+  kaliteCagriModalAc({
+    akisId: akisId,
+    atamaId: ilk.atamaId || ilk.AtamaId || '',
+    isEmriNo: ilk.isEmriNo || ilk.IsEmriNo || '',
+    musteri: ilk.musteri || ilk.Musteri || '',
+    projeKodu: ilk.projeKodu || ilk.ProjeKodu || '',
+    projeTanimi: ilk.projeTanim || ilk.projeTanimi || ilk.ProjeTanim || '',
+    takim: ilk.takim || ilk.Takım || kullaniciTakimi(),
+    gorevKodu: ilk.gorevKodu || ilk.GorevKodu || '',
+    gorevAdi: ilk.gorevAdi || ilk.GorevAdi || ilk.proses || ilk.Proses || '',
+    proses: ilk.proses || ilk.Proses || '',
+    makine: ilk.makine || ilk.Makine || ''
+  });
 }
 
 function kaliteCagriModalKapat(){
