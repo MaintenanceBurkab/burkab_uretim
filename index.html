@@ -92,6 +92,14 @@ tr:last-child td{border-bottom:none}
 .b-teal{background:#e0f2f1;color:#00695c}
 .b-pink{background:#fce4ec;color:#c2185b}
 
+
+/* ── ÜRETİM ZEKÂSI v1 ── */
+.uz-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.uz-kpi{background:#fff;border:1px solid #ddd8cc;border-top:4px solid #f5c400;border-radius:9px;padding:13px;text-align:center}
+.uz-kpi b{display:block;font:800 22px 'IBM Plex Mono',monospace}.uz-kpi span{font-size:10px;color:#777;font-weight:700;letter-spacing:.5px}
+.uz-table td,.uz-table th{font-size:11px}.uz-risk{font-weight:800}.uz-risk.KRİTİK{color:#b71c1c}.uz-risk.YÜKSEK{color:#e65100}.uz-risk.ORTA{color:#9b7200}.uz-risk.NORMAL{color:#00875a}
+@media(max-width:760px){.uz-grid{grid-template-columns:repeat(2,1fr)}}
+
 /* ── ADMİN PANELİ ── */
 .admin-kart{background:#fff;border:1px solid #e0ddd5;border-radius:10px;padding:0;margin-bottom:12px;border-left:5px solid var(--ak-renk,#f5c400);overflow:hidden}
 .admin-user-row{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid #f5f5f0;flex-wrap:wrap;transition:background .12s}
@@ -981,6 +989,20 @@ tr:last-child td{border-bottom:none}
       </div>
     </div>
   </div>
+
+  <div class="section">
+    <div class="section-head" style="background:linear-gradient(90deg,#1a1a1a,#4a3a00)"><div class="dot"></div>🧠 ÜRETİM ZEKÂSI — POLİVALANS & DARBOĞAZ
+      <button class="btn-sm" style="margin-left:auto" onclick="uretimZekasiYukle(true)">↻ ANALİZİ YENİLE</button>
+    </div>
+    <div class="section-body">
+      <div id="uzKpi" class="uz-grid"><div class="empty">Analiz henüz yüklenmedi.</div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div><div style="font-size:11px;font-weight:800;margin-bottom:7px">OPERATÖR × PROSES YETKİNLİĞİ</div><div class="tbl-wrap"><table class="uz-table"><thead><tr><th>OPERATÖR</th><th>PROSES</th><th>SEVİYE</th><th>VERİM</th><th>KALİTE</th><th>KAYIT</th></tr></thead><tbody id="uzOperatorBody"></tbody></table></div></div>
+        <div><div style="font-size:11px;font-weight:800;margin-bottom:7px">PROSES DARBOĞAZLARI</div><div class="tbl-wrap"><table class="uz-table"><thead><tr><th>PROSES</th><th>DURUM</th><th>PUAN</th><th>NET SAAT</th><th>ÇEVRİM</th></tr></thead><tbody id="uzProsesBody"></tbody></table></div></div>
+      </div>
+      <div style="margin-top:14px"><div style="font-size:11px;font-weight:800;margin-bottom:7px">MAKİNE İŞ YÜKÜ</div><div class="tbl-wrap"><table class="uz-table"><thead><tr><th>MAKİNE</th><th>İŞ YÜKÜ PUANI</th><th>NET SAAT</th><th>ÇEVRİM</th><th>VERİM</th></tr></thead><tbody id="uzMakineBody"></tbody></table></div></div>
+    </div>
+  </div>
 </div>
 <!-- ══════════════ GEÇMİŞ ══════════════ -->
 <div class="tab-pane" id="tab-gecmis">
@@ -1147,11 +1169,18 @@ tr:last-child td{border-bottom:none}
   </div>
 
   <div id="prBitirModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center">
-    <div style="background:#fff;border-radius:12px;padding:24px;width:90%;max-width:400px;box-shadow:0 10px 40px rgba(0,0,0,.2)">
+    <div style="background:#fff;border-radius:12px;padding:24px;width:90%;max-width:560px;box-shadow:0 10px 40px rgba(0,0,0,.2)">
       <div style="font-size:15px;font-weight:800;margin-bottom:4px">✅ Proses Grubunu Bitir</div>
       <div id="prBitirPersonelMetin" style="font-size:12px;color:var(--muted);margin-bottom:16px"></div>
-      <label style="font-size:11px;font-weight:700;letter-spacing:.8px;color:#888;text-transform:uppercase;margin-bottom:6px;display:block">Toplam Gerçekleşen Adet</label>
-      <input type="number" id="prBitirAdet" min="1" onkeydown="if(event.key==='Enter'){event.preventDefault();prBitirOnayla();}" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:16px;font-weight:700;text-align:center;margin-bottom:18px">
+      <div class="fg">
+        <div class="field"><label>Toplam Üretilen</label><input type="number" id="prBitirAdet" min="1"></div>
+        <div class="field"><label>Fire Adedi</label><input type="number" id="prBitirFire" min="0" value="0"></div>
+        <div class="field"><label>Ayar Süresi (dk)</label><input type="number" id="prBitirAyar" min="0" value="0"></div>
+        <div class="field"><label>Malzeme Bekleme (dk)</label><input type="number" id="prBitirMalzeme" min="0" value="0"></div>
+        <div class="field"><label>Kalite Bekleme (dk)</label><input type="number" id="prBitirKalite" min="0" value="0"></div>
+        <div class="field"><label>Diğer Bekleme (dk)</label><input type="number" id="prBitirDiger" min="0" value="0"></div>
+      </div>
+      <div class="field" style="margin:10px 0 16px"><label>Tamamlama Notu</label><textarea id="prBitirNot" rows="2" placeholder="Özel durum, öğrenme eğrisi, ekip değişimi..."></textarea></div>
       <div style="display:flex;gap:10px">
         <button class="btn-sm" onclick="prBitirIptal()" style="flex:1;padding:10px">İptal</button>
         <button class="btn-sm" onclick="prBitirOnayla()" style="flex:1;padding:10px;background:#f5c400;font-weight:700">Onayla</button>
@@ -2067,6 +2096,7 @@ function goTab(id, btn) {
   if (btn) btn.classList.add('active');
 
   // Üretim Girişi sekmesi her açıldığında tüm alanları ve takım işlerini hazırla.
+  if (id === 'rapor') { try{uretimZekasiYukle(false);}catch(e){} }
   if (id === 'giris') {
     if (pane) pane.style.display = '';
     takimKilitleriniUygula();
@@ -3198,6 +3228,8 @@ function prBitir(grupId) {
   prBitirGrupId = grupId;
   document.getElementById('prBitirPersonelMetin').textContent = kayitlar.map(k=>k.personel).join(', ') + ' — ' + kayitlar[0].proses;
   document.getElementById('prBitirAdet').value = kayitlar.reduce((s,k)=>s+(Number(k.adet)||0),0);
+  ['prBitirFire','prBitirAyar','prBitirMalzeme','prBitirKalite','prBitirDiger'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0;});
+  const nt=document.getElementById('prBitirNot'); if(nt) nt.value='';
   document.getElementById('prBitirModal').style.display='flex';
 }
 function prBitirIptal(){prBitirGrupId=null;document.getElementById('prBitirModal').style.display='none';}
@@ -3220,7 +3252,15 @@ async function prBitirOnayla(){
     return;
   }
 
+  const fireToplam=Math.max(0,Number(document.getElementById('prBitirFire')?.value)||0);
+  if(fireToplam>toplam){showToast('❌ Fire adedi toplam adetten büyük olamaz','err');return;}
   const paylar = prAdetPaylastir(toplam, kayitlar.length);
+  const firePaylar = prAdetPaylastir(fireToplam, kayitlar.length);
+  const ayarToplam=Math.max(0,Number(document.getElementById('prBitirAyar')?.value)||0);
+  const malzemeToplam=Math.max(0,Number(document.getElementById('prBitirMalzeme')?.value)||0);
+  const kaliteToplam=Math.max(0,Number(document.getElementById('prBitirKalite')?.value)||0);
+  const digerToplam=Math.max(0,Number(document.getElementById('prBitirDiger')?.value)||0);
+  const tamamNot=String(document.getElementById('prBitirNot')?.value||'').trim();
   const n = new Date();
   const tarih = n.toISOString().split('T')[0];
   const saat =
@@ -3231,6 +3271,13 @@ async function prBitirOnayla(){
   for (let i = 0; i < kayitlar.length; i++) {
     const k = Object.assign({}, kayitlar[i], {
       adet: paylar[i],
+      saglamAdet: Math.max(0,paylar[i]-firePaylar[i]),
+      fireAdet: firePaylar[i],
+      ayarDk: ayarToplam/kayitlar.length,
+      malzemeBeklemeDk: malzemeToplam/kayitlar.length,
+      kaliteBeklemeDk: kaliteToplam/kayitlar.length,
+      digerBeklemeDk: digerToplam/kayitlar.length,
+      tamamlamaNotu: tamamNot,
       durum: 'TAMAMLANDI',
       bitisTarihi: tarih,
       bitisSaati: saat
@@ -6941,6 +6988,21 @@ async function kaliteCagriGonder(){
     try{await akisEkraniYukle();}catch(ignore){}
   }catch(e){showToast('❌ '+e.message,'err');}
   finally{if(btn){btn.disabled=false;btn.textContent='🔔 KALİTEYİ ÇAĞIR';}}
+}
+
+
+let uretimZekasiSon=null;
+async function uretimZekasiYukle(yenile){
+  try{
+    const action=yenile?'uretimZekasiYenile':'getUretimZekasiOzet';
+    const s=await jsonpGonderGS(GS_URL,{action}); if(!s?.ok)throw new Error(s?.error||'Analiz alınamadı');
+    const d=s.ozet||s; uretimZekasiSon=d;
+    const k=document.getElementById('uzKpi'); if(k)k.innerHTML=`<div class="uz-kpi"><b>${d.kayitSayisi||0}</b><span>TAMAMLANMIŞ ÖLÇÜM</span></div><div class="uz-kpi"><b>${d.operatorProses?.length||0}</b><span>OPERATÖR-PROSES</span></div><div class="uz-kpi"><b>${d.prosesler?.filter(x=>['KRİTİK','YÜKSEK'].includes(x.Durum)).length||0}</b><span>DARBOĞAZ ADAYI</span></div><div class="uz-kpi"><b>${d.veriDurumu||'BAŞLANGIÇ'}</b><span>MODEL DURUMU</span></div>`;
+    const ob=document.getElementById('uzOperatorBody'); if(ob)ob.innerHTML=(d.operatorProses||[]).slice(0,20).map(x=>`<tr><td>${x.Operator}</td><td>${x.Proses}</td><td><b>${x.Seviye}</b></td><td>${x.OrtalamaVerimPct}%</td><td>${x.KalitePuani}%</td><td>${x.KayitSayisi}</td></tr>`).join('')||'<tr><td colspan="6">Henüz veri yok</td></tr>';
+    const pb=document.getElementById('uzProsesBody'); if(pb)pb.innerHTML=(d.prosesler||[]).slice(0,15).map(x=>`<tr><td>${x.Proses}</td><td class="uz-risk ${x.Durum}">${x.Durum}</td><td>${x.DarbogazPuani}</td><td>${x.ToplamNetSaat}</td><td>${x.OrtalamaCevrimSn} sn</td></tr>`).join('')||'<tr><td colspan="5">Henüz veri yok</td></tr>';
+    const mb=document.getElementById('uzMakineBody'); if(mb)mb.innerHTML=(d.makineler||[]).slice(0,15).map(x=>`<tr><td>${x.Makine}</td><td>${x.IsYukuPuani}</td><td>${x.ToplamNetSaat}</td><td>${x.OrtalamaCevrimSn} sn</td><td>${x.OrtalamaVerimPct}%</td></tr>`).join('')||'<tr><td colspan="5">Henüz veri yok</td></tr>';
+    if(yenile)showToast('✅ Üretim zekâsı tabloları yenilendi','ok');
+  }catch(e){showToast('❌ '+e.message,'err');}
 }
 
 document.addEventListener('keydown',function(e){if(e.key==='Escape')kaliteCagriModalKapat();});
