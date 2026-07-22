@@ -611,6 +611,24 @@ tr:last-child td{border-bottom:none}
     <div class="section-head"><div class="dot"></div>📋 YENİ İŞ ATAMA</div>
     <div class="section-body">
 
+      <div class="fg" style="margin-bottom:14px">
+        <div class="field">
+          <label>Atama Türü <span class="req">*</span></label>
+          <select id="aAtamaTuru" onchange="atamaTuruDegisti()">
+            <option value="STANDART_AKIS">🔗 Standart Proje Akışı</option>
+            <option value="DOGRUDAN_IS">🎯 Doğrudan / Ek İş</option>
+          </select>
+        </div>
+        <div class="field" id="aIsTuruBlok" style="display:none">
+          <label>Doğrudan İş Türü <span class="req">*</span></label>
+          <input type="text" id="aIsTuru" placeholder="Örn: REVİZYON, EK MONTAJ, TAMİR" oninput="this.value=this.value.toUpperCase()">
+        </div>
+      </div>
+
+      <div id="atamaTuruBilgi" class="birlesik-aciklama" style="margin-bottom:14px">
+        Standart akış seçildi: proje, tanımlı üretim rotasına göre tüm ilgili takımlara ilerler.
+      </div>
+
       <div class="fg g3" style="margin-bottom:14px">
         <div class="field">
           <label>Takım No <span class="req">*</span></label>
@@ -3440,7 +3458,20 @@ function isEmriNoUret(projeKodu, tarih) {
   return ilk3 + tarihKodu + '-' + yeniSira;
 }
 
+
+function atamaTuruDegisti() {
+  const tur = document.getElementById('aAtamaTuru')?.value || 'STANDART_AKIS';
+  const blok = document.getElementById('aIsTuruBlok');
+  const bilgi = document.getElementById('atamaTuruBilgi');
+  if (blok) blok.style.display = tur === 'DOGRUDAN_IS' ? 'flex' : 'none';
+  if (bilgi) bilgi.textContent = tur === 'DOGRUDAN_IS'
+    ? 'Doğrudan iş seçildi: görev yalnızca seçilen takıma düşer; standart proje rotası başlatılmaz. Kayıt kapasite ve performans analizlerine dahil edilir.'
+    : 'Standart akış seçildi: proje, tanımlı üretim rotasına göre tüm ilgili takımlara ilerler.';
+}
+
 async function atamaKaydet() {
+  const atamaTuru = document.getElementById('aAtamaTuru')?.value || 'STANDART_AKIS';
+  const isTuru = document.getElementById('aIsTuru')?.value.trim() || '';
   const takim   = document.getElementById('aTakimNo').value;
   const tarih   = document.getElementById('aTarih').value;
   const vardiya = document.getElementById('aVardiya').value;
@@ -3451,6 +3482,7 @@ async function atamaKaydet() {
   const atayan  = document.getElementById('aAtayan').value.trim();
   const not     = document.getElementById('aNot').value.trim();
 
+  if (atamaTuru === 'DOGRUDAN_IS' && !isTuru) { showToast('❗ Doğrudan iş türünü yazınız!', 'err'); return; }
   if (!takim)   { showToast('❗ Takım seçiniz!', 'err'); return; }
   if (!tarih)   { showToast('❗ Tarih seçiniz!', 'err'); return; }
   if (!vardiya) { showToast('❗ Vardiya seçiniz!', 'err'); return; }
@@ -3475,8 +3507,8 @@ async function atamaKaydet() {
   });
 
   if (dupIdx >= 0) {
-    const devam = confirm(takim + ' için "' + proje + '" projesi zaten atanmış. Yeni kayıt olarak tekrar gönderilsin mi?');
-    if (!devam) return;
+    showToast('❌ Aynı takım, tarih ve proje için kayıt zaten var. Mükerrer atama engellendi.', 'err');
+    return;
   }
 
   const simdi = new Date();
@@ -3503,6 +3535,8 @@ async function atamaKaydet() {
     not: not,
     durum: 'bekliyor',
     isEmriNo: '',
+    atamaTuru: atamaTuru,
+    isTuru: isTuru,
     zaman: simdi.toLocaleString('tr-TR')
   };
 
@@ -3518,7 +3552,9 @@ async function atamaKaydet() {
     hedef: Number(yeni.hedef) || 0,
     atayanKisi: yeni.atayan,
     not: yeni.not,
-    kayitZamani: simdi.toISOString()
+    kayitZamani: simdi.toISOString(),
+    atamaTuru: atamaTuru,
+    isTuru: isTuru
   };
 
   const buton = document.querySelector('#tab-atama .btn-primary');
@@ -3554,7 +3590,10 @@ async function atamaKaydet() {
         projeKodu: yeni.projeKodu,
         projeTanimi: yeni.projeTanim,
         hedef: yeni.hedef,
-        not: yeni.not
+        not: yeni.not,
+        atamaTuru: yeni.atamaTuru,
+        isTuru: yeni.isTuru,
+        atananTakim: yeni.takim
       }
     });
     if (!akisYanit || !akisYanit.ok) {
@@ -3571,7 +3610,7 @@ async function atamaKaydet() {
       currentUser
     );
 
-    ['aTakimNo','aTarih','aVardiya','aMusteri','aProjeKodu','aProjeTanim','aHedef','aNot'].forEach(function(id) {
+    ['aTakimNo','aTarih','aVardiya','aMusteri','aProjeKodu','aProjeTanim','aHedef','aNot','aIsTuru'].forEach(function(id) {
       const el = document.getElementById(id);
       if (el) el.value = '';
     });
@@ -3580,7 +3619,7 @@ async function atamaKaydet() {
     if (personelBlok) personelBlok.style.display = 'none';
 
     renderBugunAtamalar();
-    showToast('✅ İş ataması kaydedildi · İş Emri: ' + yeni.isEmriNo, 'ok');
+    showToast('✅ ' + (atamaTuru === 'DOGRUDAN_IS' ? 'Doğrudan iş' : 'Standart akış') + ' kaydedildi · İş Emri: ' + yeni.isEmriNo, 'ok');
 
   } catch (err) {
     console.error('saveTakimIsAtama hatası:', err);
